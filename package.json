@@ -1,0 +1,14 @@
+{
+  "name": "naseej",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "node scripts/serve.cjs",
+    "build": "node scripts/build.cjs",
+    "preview": "node scripts/serve.cjs",
+    "format": "oxfmt"
+  },
+  "devDependencies": {
+    "oxfmt": "^0.2.0"
+  }
+}

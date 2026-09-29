@@ -1,0 +1,938 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=Noto+Color+Emoji&family=Outfit:wght@300;400;500;600;700&display=swap');
+
+/* ── Tailwind v4 preflight (ported by hand) ── */
+*,::after,::before,::backdrop{box-sizing:border-box;margin:0;padding:0;border:0 solid}
+html{line-height:1.5;-webkit-text-size-adjust:100%;tab-size:4;font-family:ui-sans-serif,system-ui,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";-webkit-tap-highlight-color:transparent}
+hr{height:0;color:inherit;border-top-width:1px}
+h1,h2,h3,h4,h5,h6{font-size:inherit;font-weight:inherit}
+a{color:inherit;-webkit-text-decoration:inherit;text-decoration:inherit}
+b,strong{font-weight:bolder}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+img,svg,video,canvas,audio,iframe,embed,object{display:block;vertical-align:middle}
+img,video{max-width:100%;height:auto}
+button,input,select,optgroup,textarea{font:inherit;font-feature-settings:inherit;font-variation-settings:inherit;letter-spacing:inherit;color:inherit;border-radius:0;background-color:transparent;opacity:1}
+button,input:where([type=button],[type=reset],[type=submit]){-webkit-appearance:button;appearance:button}
+::placeholder{opacity:1;color:color-mix(in oklab,currentcolor 50%,transparent)}
+ol,ul,menu{list-style:none}
+[hidden]:where(:not([hidden=until-found])){display:none!important}
+
+/* ── Theme tokens (from @theme in index.css) ── */
+:root{
+
+  --color-background: #F9F7F3;
+  --color-foreground: #2C2417;
+  --color-petra: #D98A6C;
+  --color-petra-light: #EDB99E;
+  --color-petra-dark: #B8633E;
+  --color-olive: #6B8E23;
+  --color-olive-light: #8CB02E;
+  --color-olive-dark: #4A6318;
+  --color-sand: #E8E0D0;
+  --color-sand-dark: #C9BDA8;
+  --color-muted: #8A7B6B;
+  --color-card: #FDFCFA;
+
+  /* ── Registry for the colours the renderers use ──
+     The JSX reference set these inline, so the vanilla port does the same and
+     the markup carries the hex rather than a var() reference. Keeping that
+     choice (a var() typo silently falls back to an inherited colour, and
+     nothing can diff it) means this block is the registry the build checks
+     every hard-coded hex against — see scripts/build.cjs. Names describe the
+     role in the UI, not a ramp. */
+  --color-map-surface: #F4EFE6;      /* discover: map panel + selected card */
+  --color-map-border: #D8CDB8;       /* discover: map frame, floating chips */
+  --color-map-node: #CCC0A8;         /* discover: unselected city node stroke */
+  --color-map-label: #3A2810;        /* discover: unselected city label */
+  --color-compass: #B0A090;          /* discover: north compass */
+  --color-card-border: #E0D5C2;      /* discover: selected thread card */
+  --color-muted-strong: #6B5E50;     /* discover: thread hook text */
+  --color-olive-strong: #5A7A1A;     /* thread: challenge text */
+  --color-foreground-deep: #3D3020;  /* thread: challenge/footer gradient end */
+  --color-difficulty-easy: #C5A028;      /* data.difficultyColor */
+  --color-difficulty-moderate: #B05A2A;
+  --color-difficulty-strenuous: #8B2A2A;
+  --color-ink-muted: #8A7B6B;     /* --color-muted */
+  --color-ink-muted-strong: #6F6153; /* 5.8:1 on --color-card; the muted tone
+                                       stepped down just far enough for 12-14px
+                                       body copy to clear WCAG AA 4.5:1.
+                                       --color-muted is 4.0:1 and is kept for
+                                       large text and the pre-existing pages. */
+  --color-white: #FFFFFF;                /* auth: Google button, on-accent text */
+
+  /* Google's own brand mark, inlined in js/auth.js so the sign-in button
+     renders identically offline. These four are Google's mandated palette, not
+     a Naseej design decision — they must stay exactly these values, which is
+     why they are named for their source rather than for a role. */
+  --color-google-blue: #4285F4;
+  --color-google-green: #34A853;
+  --color-google-yellow: #FBBC05;
+  --color-google-red: #EA4335;
+
+  /* ── Type stacks ──────────────────────────────────────────────────────────
+     Fraunces and Outfit carry no Arabic and no emoji glyphs, so anything
+     outside Latin silently fell through to whatever the operating system
+     happened to ship — which is why the same page rendered the Arabic brand
+     mark and the 🔒/🧵 icons differently on Windows, macOS, iOS and Android.
+
+     The fallbacks below give those two script classes a fixed face, so they
+     are identical everywhere. Latin is untouched: Outfit still wins every
+     Latin glyph because it is listed first. Google Fonts serves all three
+     under unicode-range, so a page with no Arabic and no emoji downloads no
+     extra font bytes at all — only these @font-face rules (~2 KB of CSS). */
+  --font-display: 'Fraunces', 'Noto Naskh Arabic', Georgia, 'Times New Roman', serif;
+  --font-body: 'Outfit', 'Noto Sans Arabic', 'Noto Color Emoji', system-ui, -apple-system,
+    'Segoe UI', Roboto, sans-serif;
+}
+
+/* ── Global styles (from index.css) ── */
+
+/* App shell (was <div className="min-h-screen" style={{backgroundColor:'#F9F7F3'}}>) */
+#app {
+  min-height: 100vh;
+  background-color: #F9F7F3;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: #F9F7F3;
+  color: #2C2417;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #C9BDA8;
+  border-radius: 3px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+:hover::-webkit-scrollbar-thumb {
+  opacity: 1;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #6B8E23, #8CB02E);
+}
+
+/* Reserved component classes. These ported from components/ThreadMap.tsx and
+   components/Node.tsx but the current renderers express those states with
+   inline SVG attributes instead, so nothing selects them yet. They are kept
+   because they are the styling for real states of the story-path map (an
+   animated connector, a glowing selected node) rather than dead experiments;
+   deleting them would remove the only reference for the design. Wire them up
+   or drop them together if the map is redesigned. */
+.thread-path {
+  stroke-dasharray: 8 4;
+  animation: dash 20s linear infinite;
+}
+
+@keyframes dash {
+  to { stroke-dashoffset: -100; }
+}
+
+.node-glow {
+  box-shadow: 0 0 0 4px #F9F7F3, 0 0 0 7px #D98A6C, 0 0 20px rgba(217, 138, 108, 0.5);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 4px #F9F7F3, 0 0 0 7px #D98A6C, 0 0 20px rgba(217, 138, 108, 0.5); }
+  50% { box-shadow: 0 0 0 4px #F9F7F3, 0 0 0 9px #D98A6C, 0 0 30px rgba(217, 138, 108, 0.7); }
+}
+
+.badge-glow {
+  box-shadow: 0 0 12px rgba(107, 142, 35, 0.4);
+}
+
+@keyframes pulse{50%{opacity:.5}}
+
+/* ── Utilities (hand-written equivalents of the Tailwind classes used) ── */
+.text-2xl{font-size:1.5rem;line-height:var(--tw-leading,1.33333)}
+.text-3xl{font-size:1.875rem;line-height:var(--tw-leading,1.2)}
+.text-4xl{font-size:2.25rem;line-height:var(--tw-leading,1.11111)}
+.text-5xl{font-size:3rem;line-height:var(--tw-leading,1)}
+.text-6xl{font-size:3.75rem;line-height:var(--tw-leading,1)}
+.text-base{font-size:1rem;line-height:var(--tw-leading,1.5)}
+.text-lg{font-size:1.125rem;line-height:var(--tw-leading,1.55556)}
+.text-sm{font-size:0.875rem;line-height:var(--tw-leading,1.42857)}
+.text-xl{font-size:1.25rem;line-height:var(--tw-leading,1.4)}
+.text-xs{font-size:0.75rem;line-height:var(--tw-leading,1.33333)}
+.leading-relaxed{--tw-leading:1.625;line-height:1.625}
+.leading-snug{--tw-leading:1.375;line-height:1.375}
+.leading-tight{--tw-leading:1.25;line-height:1.25}
+.-bottom-1{bottom:-0.25rem}
+.-right-1{right:-0.25rem}
+.-translate-x-1\/2{translate:-50% 0}
+.-translate-y-1\/2{translate:0 -50%}
+.absolute{position:absolute}
+.animate-pulse{animation:pulse 2s cubic-bezier(.4,0,.6,1) infinite}
+.bottom-0{bottom:0}
+.bottom-3{bottom:0.75rem}
+.bottom-4{bottom:1rem}
+.bottom-8{bottom:2rem}
+.capitalize{text-transform:capitalize}
+.col-span-3{grid-column:span 3 / span 3}
+.col-span-4{grid-column:span 4 / span 4}
+.col-span-5{grid-column:span 5 / span 5}
+.col-span-6{grid-column:span 6 / span 6}
+.col-span-7{grid-column:span 7 / span 7}
+.col-span-8{grid-column:span 8 / span 8}
+.col-span-9{grid-column:span 9 / span 9}
+.cursor-pointer{cursor:pointer}
+.fixed{position:fixed}
+.flex{display:flex}
+.flex-1{flex:1 1 0%}
+.flex-col{flex-direction:column}
+.flex-shrink-0{flex-shrink:0}
+.flex-wrap{flex-wrap:wrap}
+.font-body{font-family:var(--font-body)}
+.font-bold{font-weight:700}
+.font-light{font-weight:300}
+.font-medium{font-weight:500}
+.font-semibold{font-weight:600}
+.gap-0{gap:0}
+.gap-1{gap:0.25rem}
+.gap-1\.5{gap:0.375rem}
+.gap-10{gap:2.5rem}
+.gap-2{gap:0.5rem}
+.gap-3{gap:0.75rem}
+.gap-4{gap:1rem}
+.gap-5{gap:1.25rem}
+.gap-6{gap:1.5rem}
+.gap-8{gap:2rem}
+.grid{display:grid}
+.grid-cols-12{grid-template-columns:repeat(12,minmax(0,1fr))}
+.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.h-0\.5{height:0.125rem}
+.h-1{height:0.25rem}
+.h-1\.5{height:0.375rem}
+.h-10{height:2.5rem}
+.h-12{height:3rem}
+.h-14{height:3.5rem}
+.h-16{height:4rem}
+.h-2{height:0.5rem}
+.h-20{height:5rem}
+.h-3{height:0.75rem}
+.h-36{height:9rem}
+.h-4{height:1rem}
+.h-44{height:11rem}
+.h-48{height:12rem}
+.h-6{height:1.5rem}
+.h-72{height:18rem}
+.h-8{height:2rem}
+.h-full{height:100%}
+.h-px{height:1px}
+.h-screen{height:100vh}
+.inline-block{display:inline-block}
+.inline-flex{display:inline-flex}
+.inset-0{inset:0}
+.italic{font-style:italic}
+.items-center{align-items:center}
+.items-end{align-items:flex-end}
+.items-start{align-items:flex-start}
+.justify-between{justify-content:space-between}
+.justify-center{justify-content:center}
+.justify-end{justify-content:flex-end}
+.left-0{left:0}
+.left-1\/2{left:50%}
+.left-2{left:0.5rem}
+.left-3{left:0.75rem}
+.left-4{left:1rem}
+.max-w-7xl{max-width:80rem}
+.max-w-lg{max-width:32rem}
+.min-h-\[400px\]{min-height:400px}
+.min-h-\[700px\]{min-height:700px}
+.min-h-\[calc\(100vh-140px\)\]{min-height:calc(100vh - 140px)}
+/* Utility layer. Alphabetical, one rule per class, reproducing the Tailwind
+   names the markup uses. The current pages reach for min-height through
+   `h-screen` plus an inline `min-height`, so `.min-h-screen` is kept as part
+   of the utility surface rather than left as an unexplained orphan. */
+.min-h-screen{min-height:100vh}
+.min-w-0{min-width:0}
+.ml-auto{margin-left:auto}
+.mx-auto{margin-left:auto;margin-right:auto}
+.not-italic{font-style:normal}
+.object-cover{object-fit:cover}
+.opacity-60{opacity:.6}
+.outline-none{outline-style:none}
+.overflow-hidden{overflow:hidden}
+.overflow-y-auto{overflow-y:auto}
+.relative{position:relative}
+.right-0{right:0}
+.right-2{right:0.5rem}
+.right-3{right:0.75rem}
+.right-4{right:1rem}
+.rounded-2xl{border-radius:1rem}
+.rounded-3xl{border-radius:1.5rem}
+.rounded-full{border-radius:9999px}
+.rounded-lg{border-radius:.5rem}
+.rounded-xl{border-radius:.75rem}
+.sticky{position:sticky}
+.text-center{text-align:center}
+.text-left{text-align:left}
+.text-right{text-align:right}
+.top-0{top:0}
+.top-1\/2{top:50%}
+.top-2{top:0.5rem}
+.top-3{top:0.75rem}
+.top-4{top:1rem}
+.tracking-wide{letter-spacing:.025em}
+.tracking-widest{letter-spacing:.1em}
+.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.underline{text-decoration-line:underline}
+.underline-offset-2{text-underline-offset:2px}
+.underline-offset-4{text-underline-offset:4px}
+.uppercase{text-transform:uppercase}
+.w-10{width:2.5rem}
+.w-12{width:3rem}
+.w-14{width:3.5rem}
+.w-16{width:4rem}
+.w-2{width:0.5rem}
+.w-20{width:5rem}
+.w-3{width:0.75rem}
+.w-4{width:1rem}
+.w-5{width:1.25rem}
+.w-6{width:1.5rem}
+.w-72{width:18rem}
+.w-8{width:2rem}
+.w-full{width:100%}
+.w-px{width:1px}
+.whitespace-nowrap{white-space:nowrap}
+.z-50{z-index:50}
+.p-3{padding:0.75rem}
+.p-4{padding:1rem}
+.p-5{padding:1.25rem}
+.p-6{padding:1.5rem}
+.p-8{padding:2rem}
+.px-1{padding-left:0.25rem;padding-right:0.25rem}
+.px-1\.5{padding-left:0.375rem;padding-right:0.375rem}
+.px-10{padding-left:2.5rem;padding-right:2.5rem}
+.px-2{padding-left:0.5rem;padding-right:0.5rem}
+.px-2\.5{padding-left:0.625rem;padding-right:0.625rem}
+.px-3{padding-left:0.75rem;padding-right:0.75rem}
+.px-4{padding-left:1rem;padding-right:1rem}
+.px-5{padding-left:1.25rem;padding-right:1.25rem}
+.px-6{padding-left:1.5rem;padding-right:1.5rem}
+.px-8{padding-left:2rem;padding-right:2rem}
+.py-0\.5{padding-top:0.125rem;padding-bottom:0.125rem}
+.py-1{padding-top:0.25rem;padding-bottom:0.25rem}
+.py-1\.5{padding-top:0.375rem;padding-bottom:0.375rem}
+.py-10{padding-top:2.5rem;padding-bottom:2.5rem}
+.py-12{padding-top:3rem;padding-bottom:3rem}
+.py-2{padding-top:0.5rem;padding-bottom:0.5rem}
+.py-2\.5{padding-top:0.625rem;padding-bottom:0.625rem}
+.py-20{padding-top:5rem;padding-bottom:5rem}
+.py-24{padding-top:6rem;padding-bottom:6rem}
+.py-3{padding-top:0.75rem;padding-bottom:0.75rem}
+.py-4{padding-top:1rem;padding-bottom:1rem}
+.py-6{padding-top:1.5rem;padding-bottom:1.5rem}
+.pt-20{padding-top:5rem}
+.pt-24{padding-top:6rem}
+.pt-4{padding-top:1rem}
+.pt-8{padding-top:2rem}
+.pr-4{padding-right:1rem}
+.pb-20{padding-bottom:5rem}
+.pb-4{padding-bottom:1rem}
+.pb-6{padding-bottom:1.5rem}
+.pb-8{padding-bottom:2rem}
+.pl-10{padding-left:2.5rem}
+.mt-0{margin-top:0}
+.mt-1{margin-top:0.25rem}
+.mt-16{margin-top:4rem}
+.mt-2{margin-top:0.5rem}
+.mt-3{margin-top:0.75rem}
+.mt-4{margin-top:1rem}
+.mt-8{margin-top:2rem}
+.mb-1{margin-bottom:0.25rem}
+.mb-10{margin-bottom:2.5rem}
+.mb-14{margin-bottom:3.5rem}
+.mb-16{margin-bottom:4rem}
+.mb-2{margin-bottom:0.5rem}
+.mb-3{margin-bottom:0.75rem}
+.mb-4{margin-bottom:1rem}
+.mb-5{margin-bottom:1.25rem}
+.mb-6{margin-bottom:1.5rem}
+.mb-8{margin-bottom:2rem}
+.transition-all{transition-property:all;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}
+.transition-colors{transition-property:color,background-color,border-color,text-decoration-color,fill,stroke;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}
+.transition-transform{transition-property:transform,translate,scale,rotate;transition-timing-function:cubic-bezier(.4,0,.2,1);transition-duration:.15s}
+.duration-500{transition-duration:.5s}
+.active\:scale-\[0\.99\]:active{scale:.99}
+@media (hover:hover){.group:hover .group-hover\:scale-105{scale:1.05}}
+@media (hover:hover){.hover\:-translate-y-0\.5:hover{translate:0 -.125rem}}
+@media (hover:hover){.hover\:-translate-y-1:hover{translate:0 -.25rem}}
+@media (hover:hover){.hover\:scale-105:hover{scale:1.05}}
+@media (hover:hover){.hover\:scale-\[1\.02\]:hover{scale:1.02}}
+@media (hover:hover){.hover\:underline:hover{text-decoration-line:underline}}
+@media (min-width:80rem){.xl\:text-7xl{font-size:4.5rem;line-height:var(--tw-leading,1)}}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Landing hero stat band (js/pages.js)
+
+   The four counters under the hero buttons. These were a flex row of
+   content-sized boxes: it packed all four against the left edge and left the
+   last fifth of the column empty, gave every counter a different width, and
+   set the number flush against its label with nothing between them.
+
+   Only the arrangement changed — the four values, the petra-light accent, the
+   Fraunces/Outfit pairing and the rule above the band are all as they were.
+   A grid gives the four columns one width and evenly spaced centres; a
+   stretched cell with a centred stack puts every number on the same baseline
+   however many lines its label wraps to.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.hero-stats {
+  align-items: stretch;
+  padding-top: 1.75rem;
+  /* The hero's "Scroll" cue is pinned to the bottom centre of the section and
+     this band is now as wide as the hero column, so the fourth counter sits
+     directly above it. A reserved strip under the band is what keeps the two
+     apart; it is a reserve, not a fix for one screen, and the gap only grows
+     as the viewport gets taller. The hero is a fixed viewport height with
+     `overflow: hidden`, so the strip is kept to the height the cue's own text
+     and rule need — any more and the column would push into them instead. */
+  padding-bottom: 3rem;
+  border-top: 1px solid rgba(249, 247, 243, 0.18);
+}
+
+/* The hero photo runs from near-black on the left to bright sandstone on the
+   right, so a short shadow holds both the numbers and the labels off it
+   without a second scrim over the image. */
+.hero-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* Top, not centre: the cells are stretched to a common height, so a label
+     that wraps to two lines grows downwards and every number keeps one shared
+     top edge. Centring the stack instead lifted that one counter out of line
+     with the other three, which is the misalignment this row is meant to lose. */
+  justify-content: flex-start;
+  gap: 0.625rem;
+  padding: 0 0.5rem;
+  text-align: center;
+  text-shadow: 0 1px 14px rgba(44, 36, 23, 0.55);
+}
+.hero-stat + .hero-stat {
+  border-left: 1px solid rgba(249, 247, 243, 0.14);
+}
+
+.hero-stat-value {
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+/* Smaller than the body size it replaces and set in the uppercase, widely
+   tracked idiom the eyebrows and section labels already use, so the number
+   reads first and the label reads as a caption. `balance` keeps a label that
+   wraps two lines from filling the first and orphaning the second. */
+.hero-stat-label {
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Authentication UI (js/auth.js)
+
+   Everything here is drawn from the existing palette and type scale: the
+   rounded-full buttons, the Fraunces heading over Outfit body copy, the
+   petra/olive accents and the same 1px sand borders the rest of the site uses.
+   No new colour, radius or spacing scale is introduced.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Scroll lock while the dialog is open. `overflow:hidden` on <html> (not
+   <body>) so it does not create a new scroll container and break the
+   position:sticky map on the discover page. */
+html.auth-locked,
+html.auth-locked body {
+  overflow: hidden;
+}
+
+.auth-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background-color: rgba(44, 36, 23, 0.55);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  animation: auth-fade 0.18s ease-out;
+}
+
+.auth-panel {
+  position: fixed;
+  z-index: 61;
+  top: 50%;
+  left: 50%;
+  translate: -50% -50%;
+  width: min(26rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 2rem;
+  border-radius: 1.5rem; /* matches .rounded-3xl, the site's largest radius */
+  background-color: #FDFCFA;
+  border: 1px solid #E8E0D0;
+  box-shadow: 0 24px 60px rgba(44, 36, 23, 0.28);
+  font-family: var(--font-body);
+  color: #2C2417;
+  animation: auth-rise 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes auth-fade {
+  from { opacity: 0; }
+}
+
+@keyframes auth-rise {
+  from { opacity: 0; translate: -50% calc(-50% + 12px); }
+}
+
+.auth-close {
+  position: absolute;
+  top: 0.875rem;
+  right: 0.875rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 9999px;
+  color: #8A7B6B;
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+.auth-close:hover { background-color: #E8E0D0; color: #2C2417; }
+
+.auth-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+.auth-rule { display: block; width: 1.5rem; height: 1px; }
+.auth-eyebrow-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  /* --color-muted at 12px is 4.0:1, under the 4.5:1 AA threshold; the label
+     uses --color-ink-muted-strong. The petra rule above keeps the accent. */
+}
+
+.auth-title {
+  margin: 0 0 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.33333;
+  padding-right: 2rem;
+}
+
+.auth-sub {
+  font-size: 0.875rem;
+  line-height: 1.625;
+  color: #6F6153; /* 5.8:1 — see .auth-eyebrow-text */
+  margin-bottom: 1.25rem;
+}
+
+.auth-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.875rem 1.25rem;
+  border-radius: 9999px; /* the site's pill button */
+  font-family: var(--font-body);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  line-height: 1.25;
+  text-align: center;
+  cursor: pointer;
+  transition: filter 0.15s, opacity 0.15s, transform 0.15s;
+}
+.auth-btn + .auth-btn { margin-top: 0.625rem; }
+.auth-btn:not(:disabled):hover { filter: brightness(0.96); }
+.auth-btn:not(:disabled):active { transform: scale(0.99); }
+.auth-btn:disabled { cursor: default; }
+.auth-btn-ghost { background-color: transparent; }
+
+.auth-mark { width: 1.125rem; height: 1.125rem; flex: none; }
+
+.auth-spinner {
+  width: 1rem;
+  height: 1rem;
+  flex: none;
+  border-radius: 9999px;
+  border: 2px solid #C9BDA8;
+  border-top-color: #8A7B6B;
+  animation: auth-spin 0.7s linear infinite;
+}
+@keyframes auth-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Reserved height so the dialog never jumps when a message appears or
+   disappears between states. */
+.auth-msg {
+  min-height: 1.25rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.auth-msg-error { color: #8B2A2A; }   /* --color-difficulty-strenuous */
+.auth-msg-ok { color: #4A6318; }      /* --color-olive-dark */
+
+.auth-foot {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: #6F6153; /* 5.8:1 */
+}
+
+.auth-user {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 1rem;
+  background-color: #F9F7F3;
+  border: 1px solid #E8E0D0;
+}
+.auth-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  flex: none;
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: #D98A6C;
+  color: #FFFFFF;
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+.auth-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.auth-user-meta { min-width: 0; }
+.auth-user-name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 600;
+  color: #2C2417;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.auth-user-email {
+  font-size: 0.8125rem;
+  color: #6F6153; /* 5.8:1 */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Signed-in account chip in the nav (replaces the Sign In button) ───────── */
+
+/* Layout hooks added by js/navigation.js alongside nav-links/nav-cta so the
+   responsive layer can target each region of the bar. They carry no
+   appearance of their own — the brand lockup and the action cluster keep the
+   inline Tailwind utilities they already had. */
+.nav-logo { flex: none; }
+.nav-actions { flex: none; }
+
+.nav-signin {
+  font-size: 0.875rem;
+  font-weight: 500;
+  padding: 0.5rem 1.25rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+  color: #2C2417;
+  border: 1px solid #C9BDA8;
+  transition: filter 0.15s;
+}
+.nav-signin:hover { filter: brightness(0.97); }
+
+.nav-account {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  max-width: 12rem;
+  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  border-radius: 9999px;
+  border: 1px solid #C9BDA8;
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+.nav-account:hover { filter: brightness(0.97); }
+.nav-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: none;
+  border-radius: 9999px;
+  overflow: hidden;
+  background-color: #D98A6C;
+  color: #FFFFFF;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.nav-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.nav-account-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2C2417;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Focus ────────────────────────────────────────────────────────────────
+   Buttons are reset to outline:none by the preflight, which leaves keyboard
+   users with no focus indicator at all. Restore one, but only for keyboard
+   focus (:focus-visible) so it does not appear on mouse clicks. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid #6B8E23;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Responsive layer
+
+   The utility classes above are single-class rules with no breakpoints, so
+   every layout below 1280px was getting the desktop arrangement — `grid-cols-12`
+   squeezed into 320px, `px-10` eating 80px of it, a 60px hero headline and a
+   nav bar roughly 500px wide inside a 375px screen.
+
+   This layer re-points those same utility names at each breakpoint rather than
+   editing the renderers, so the markup stays exactly as it was and the
+   desktop rendering is byte-for-byte unchanged (nothing above this line is
+   touched). Breakpoints: 64rem (1024) tablet, 48rem (768) large phone /
+   small tablet, 30rem (480) small phone.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Horizontal scroll is never part of the design. `clip` avoids turning the
+   body into a scroll container the way `hidden` would; the `hidden` line is
+   the fallback for browsers without it. */
+html, body {
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+/* Anchor targets clear the fixed nav. */
+html { scroll-padding-top: 6rem; }
+
+/* ── Tablet and below ─────────────────────────────────────────────────────── */
+@media (max-width: 64rem) {
+  .nav-root { padding-left: 1.5rem; padding-right: 1.5rem; }
+  .nav-links { gap: 1.5rem; }
+
+  /* Three-up card rows become two-up before they become one-up. */
+  .grid-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* The hero stat band stays four-up this far down, but the column is narrow
+     enough that the labels begin to wrap, so it tightens instead of growing. */
+  .hero-stats { gap: 1.25rem; }
+  .hero-stat { padding: 0 0.25rem; }
+  .hero-stat-label { letter-spacing: 0.06em; }
+}
+
+/* ── Large phone / small tablet ───────────────────────────────────────────── */
+@media (max-width: 48rem) {
+  /* Side padding: 2.5rem each side leaves only 240px at 320px wide. */
+  .px-10 { padding-left: 1.25rem; padding-right: 1.25rem; }
+  .px-8 { padding-left: 1.25rem; padding-right: 1.25rem; }
+
+  /* The nav wraps to two rows: brand + actions, then the link row. Every
+     existing control is kept — nothing is hidden behind a new hamburger, so
+     no navigation is lost and no new UI is introduced. */
+  .nav-root {
+    flex-wrap: wrap;
+    row-gap: 0.125rem;
+    padding-top: 0.625rem;
+    padding-bottom: 0.5rem;
+  }
+  .nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 1.25rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-links::-webkit-scrollbar { display: none; }
+  .nav-links button { white-space: nowrap; }
+
+  /* The nav is taller now, so the fixed offset pages use has to grow. */
+  .pt-20 { padding-top: 7rem; }
+  .pt-24 { padding-top: 7rem; }
+
+  /* Every 12-column row stacks; the col-span-* children go full width with it. */
+  .grid-cols-12 { grid-template-columns: minmax(0, 1fr); }
+  .col-span-3, .col-span-4, .col-span-5, .col-span-6,
+  .col-span-7, .col-span-8, .col-span-9 { grid-column: span 1 / span 1; }
+
+  .grid-cols-3, .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* 60px hero headline does not fit a 360px screen next to its own padding. */
+  .text-6xl { font-size: 2.5rem; line-height: 1.2; }
+  .text-5xl { font-size: 2rem; line-height: 1.2; }
+  .text-4xl { font-size: 1.75rem; line-height: 1.2; }
+
+  /* Vertical rhythm: 6rem (96px) between sections is excessive on a phone. */
+  .py-24 { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+  .py-20 { padding-top: 3rem; padding-bottom: 3rem; }
+  .mt-16 { margin-top: 2.5rem; }
+  .mb-14 { margin-bottom: 2rem; }
+  .mb-16 { margin-bottom: 2rem; }
+
+  /* The hero art is a fixed 18rem square; cap it so it cannot force overflow. */
+  .w-72 { width: min(18rem, 70vw); }
+
+  /* Touch targets. 44px is the minimum comfortable tap size; the pill buttons
+     on the site are already 36-40px tall, which is too small for a thumb. */
+  .nav-links button,
+  .nav-signin,
+  .nav-account,
+  .nav-cta,
+  .auth-btn,
+  .auth-close { min-height: 2.75rem; }
+
+  /* Rows of profile stats, and the name/level row, wrap instead of forcing
+     the card wider than the screen. The 1px dividers between stats are dropped
+     at this width — a wrapped row leaves them straddling the break. */
+  .row-wrap { flex-wrap: wrap; row-gap: 1rem; }
+  .row-wrap > .w-px { display: none; }
+
+  /* ── Hero stat band ──
+     `.grid-cols-4` is two-up from here down, which is what the labels want:
+     one line each instead of three. The vertical rules move to the second row
+     so the 2x2 reads as a grid rather than two pairs. The hero is a fixed
+     viewport height, so the band's top margin and padding come in as the
+     second row is added — the column below it must not start to clip. */
+  .hero-stats {
+    row-gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    /* Single column here, so the band ends well above the cue and needs no
+     reserved strip — spending it would only make the hero clip sooner. */
+    padding-bottom: 0;
+  }
+  .hero-stat:nth-child(odd) { border-left: 0; }
+  .hero-stat:nth-child(n + 3) {
+    border-top: 1px solid rgba(249, 247, 243, 0.14);
+    padding-top: 0.75rem;
+  }
+}
+
+/* The profile tab strip is three labels at px-6 (1.5rem) each, which is wider
+   than a 320px screen. Scroll the strip instead of wrapping it, so the active
+   tab's underline stays attached and the tab order stays visual. */
+.tab-row {
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.tab-row::-webkit-scrollbar { display: none; }
+.tab-row-item { flex: none; white-space: nowrap; }
+
+/* ── Small phone (320 / 360) ──────────────────────────────────────────────── */
+@media (max-width: 30rem) {
+  .px-10 { padding-left: 1rem; padding-right: 1rem; }
+  .px-8 { padding-left: 1rem; padding-right: 1rem; }
+  .py-12 { padding-top: 2rem; padding-bottom: 2rem; }
+
+  .text-6xl { font-size: 2.125rem; }
+  .text-4xl { font-size: 1.5rem; }
+  .text-3xl { font-size: 1.375rem; }
+  .text-2xl { font-size: 1.25rem; }
+
+  /* Four badge tiles across 288px of content is ~60px each: too small to tap
+     and the descriptions clip. Two-up, then the descriptions fit. */
+  .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-cols-2 { grid-template-columns: minmax(0, 1fr); }
+  .grid-cols-3 { grid-template-columns: minmax(0, 1fr); }
+  .gap-5 { gap: 0.75rem; }
+
+  /* 288px of content split two ways is ~135px a cell, which the labels fit
+     comfortably once the tracking stops competing with them. */
+  .hero-stats { gap: 0.75rem; row-gap: 0.75rem; }
+  .hero-stat-label { letter-spacing: 0.04em; }
+
+  /* The account name is the first thing to go when space runs out; the avatar
+     and the button affordance stay. */
+  .nav-account-name { display: none; }
+  .nav-account { max-width: none; padding-right: 0.25rem; }
+  .nav-cta { padding-left: 0.875rem; padding-right: 0.875rem; }
+
+  /* ── Sign In dialog on a phone ──
+     Becomes a bottom sheet rather than a centred card: full width, anchored to
+     the bottom edge, with the safe-area inset so it clears the home indicator
+     and does not sit under the on-screen keyboard. */
+  .auth-panel {
+    top: auto;
+    bottom: 0;
+    left: 0;
+    translate: 0 0;
+    width: 100%;
+    max-width: 100%;
+    max-height: 92vh;
+    max-height: 92dvh;
+    padding: 1.5rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+    border-radius: 1.5rem 1.5rem 0 0;
+    border-bottom: 0;
+    animation: auth-sheet 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes auth-sheet {
+    from { transform: translateY(100%); }
+  }
+  .auth-title { font-size: 1.25rem; }
+  .auth-btn { min-height: 3rem; font-size: 1rem; }
+}
+
+/* Coarse pointers get the larger tap targets at every width, including
+   tablets, where the ≥44px rules above do not apply. */
+@media (pointer: coarse) {
+  .nav-links button,
+  .nav-signin,
+  .nav-account,
+  .nav-cta,
+  .auth-btn,
+  .auth-close { min-height: 2.75rem; }
+}
+
+/* ── Motion ─────────────────────────────────────────────────────────────────
+   Respect the OS "reduce motion" setting: the dialog fade/rise, the loading
+   spinner and the two button transitions all become instant. */
+@media (prefers-reduced-motion: reduce) {
+  .auth-backdrop,
+  .auth-panel,
+  .auth-btn,
+  .auth-close { animation: none; transition: none; }
+  .auth-spinner { animation-duration: 1.6s; }
+  html { scroll-behavior: auto; }
+}

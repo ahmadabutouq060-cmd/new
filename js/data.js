@@ -3022,11 +3022,6 @@
       if (!thread) return null;
       const fromThread = localPhoto(thread.image, thread.title, 'thread');
       if (fromThread) return fromThread;
-      const lib = thread.id != null ? libraryThreadById(thread.id) : null;
-      if (lib) {
-        const fromLib = localPhoto(lib.image, lib.title || thread.title, 'thread');
-        if (fromLib) return fromLib;
-      }
       const city = findCity(thread.city);
       if (city) {
         const fromCity = localPhoto(city.image, city.name || city.label || thread.city, 'city');

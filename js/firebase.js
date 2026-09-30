@@ -8,9 +8,9 @@
  * import(), which *is* allowed here, and only when a service is first
  * requested — a visitor who never touches Sign In never downloads it.
  *
- * Auth loads firebase-app.js and firebase-auth.js. Firestore and Firebase AI
- * Logic are pulled in later, through firestore() / ai(), still using the same
- * app instance. Analytics is not loaded.
+ * Auth loads firebase-app.js and firebase-auth.js. Optional firestore() and
+ * ai() loaders remain on this module for a later layer. KHAYT does not call
+ * them: it is the local scripted companion in data.js. Analytics is not loaded.
  *
  * There is exactly ONE Firebase app initialisation, here. No other file calls
  * initializeApp(); js/auth.js drives this module through NASEEJ.services.
@@ -419,7 +419,7 @@
             return bundle;
           })
           .catch(function (err) {
-            console.warn('Naseej: Firebase AI SDK failed to load (' + (err && err.message) + '). KHAYT will use the mock adapter.');
+            console.warn('Naseej: Firebase AI SDK failed to load (' + (err && err.message) + ').');
             return fail('Firebase AI Logic is not configured: ' + (err && err.message));
           });
       });

@@ -266,7 +266,7 @@
       '<span class="text-xl flex-shrink-0">🧵</span>' +
       '<div><div class="text-xs font-body uppercase tracking-widest mb-1" style="color:#EDB99E">KHAYT</div>' +
       '<p class="text-sm font-body leading-relaxed" style="color:#F9F7F3">' + E(message) + '</p></div></div></div>' +
-      '<div class="grid grid-cols-4 gap-3">' + ledger + '</div>' + choice + '</div>';
+      '<div class="grid grid-cols-4 gap-3">' + ledger + '</div>' + choice + heroSecretPanel(t) + '</div>';
   }
 
   /* ── Final reveal ───────────────────────────────────────────────────────────
@@ -382,6 +382,70 @@
       (result && result.correct ? heroNextChapter(t, wp) : '');
   }
 
+  /* Secret challenge: data.js owns unlock, answer, ATHAR and the badge.
+     Locked = visible but sealed, without the question. Unlocked = the quiz.
+     Solved = the reward, paid once. */
+  function heroSecretPanel(t) {
+    if (!isHero(t)) return '';
+    const state = data.secretState(data.heroThreadId);
+    const secret = state.secret;
+    if (!secret) return '';
+
+    if (state.locked) {
+      return '<div class="mt-6 p-4 rounded-xl" style="background-color:#F9F7F3;border:1px dashed #C9BDA8">' +
+        '<div class="text-xs font-body font-semibold uppercase tracking-widest mb-1" style="color:#55635E">Hidden observation</div>' +
+        '<p class="text-xs font-body leading-relaxed" style="color:#55635E">Most visitors walk past this. It stays sealed until you earn the first clue, choose a path, and complete the second waypoint.</p></div>';
+    }
+
+    const result = NASEEJ.ui.secretResult;
+    const feedback = result
+      ? '<div class="mt-4 p-4 rounded-xl" style="background-color:' +
+        (result.correct ? 'rgba(1,62,55,0.1)' : 'rgba(139,42,42,0.08)') +
+        ';border:1px solid ' + (result.correct ? '#013E37' : '#8B2A2A') + '">' +
+        '<div class="text-sm font-body font-semibold mb-1" style="color:' + (result.correct ? '#02302B' : '#8B2A2A') + '">' +
+        (result.correct || result.status === 'duplicate' ? '✓ Hidden thread found' : '✕ Not quite') + '</div>' +
+        '<p class="text-xs font-body leading-relaxed" style="color:' +
+        (result.correct || result.status === 'duplicate' ? '#046852' : '#8B2A2A') + '">' +
+        E(result.message) + '</p>' +
+        (atharChips(result.chips) ? '<div class="flex flex-wrap gap-2 mt-3">' + atharChips(result.chips) + '</div>' : '') +
+        '</div>'
+      : '';
+
+    if (state.solved) {
+      const badgeName = secret.secretReward && secret.secretReward.badgeName
+        ? secret.secretReward.badgeName
+        : 'Hidden Thread';
+      return '<div class="mt-6 p-4 rounded-xl" style="background-color:rgba(1,62,55,0.08);border:1px solid rgba(1,62,55,0.3)">' +
+        '<div class="text-xs font-body font-semibold uppercase tracking-widest mb-1" style="color:#013E37">Secret challenge</div>' +
+        '<p class="text-sm font-body font-semibold mb-1" style="color:#02302B">✓ ' + E(badgeName) + ' earned</p>' +
+        '<p class="text-xs font-body leading-relaxed" style="color:#046852">The secret ATHAR were paid once. This observation stays found.</p>' +
+        (secret.fieldNote ? '<p class="text-xs font-body mt-2" style="color:#4A5C58">' + E(secret.fieldNote) + '</p>' : '') +
+        feedback + '</div>';
+    }
+
+    const picked = NASEEJ.ui.secretPick;
+    const options = (secret.quiz && secret.quiz.options ? secret.quiz.options : []).map(function (o) {
+      const on = picked === o.id;
+      return '<button data-act="secretPick" data-v="' + E(o.id) + '" aria-pressed="' + (on ? 'true' : 'false') +
+        '" class="w-full text-left px-4 py-3 rounded-xl text-sm font-body transition-all" style="border:2px solid ' +
+        (on ? '#D6672B' : '#E8E0D0') + ';background-color:' + (on ? 'rgba(214,103,43,0.08)' : '#FDFCFA') +
+        ';color:' + (on ? '#A23B17' : '#12211E') + '">' + E(o.text) + '</button>';
+    }).join('');
+
+    return '<div class="mt-6 p-5 rounded-xl" style="background-color:#FDFCFA;border:1px solid #D6672B">' +
+      '<div class="flex items-center justify-between mb-2">' +
+      '<div class="text-xs font-body font-semibold uppercase tracking-widest" style="color:#8C3211">Secret challenge</div>' +
+      '<span class="text-xs font-body" style="color:#55635E">+' + data.atharRewards.secret + ' ATHAR</span></div>' +
+      '<p class="text-sm font-body font-semibold mb-2 leading-relaxed" style="color:#12211E">' +
+      E(secret.quiz ? secret.quiz.prompt : secret.prompt) + '</p>' +
+      (secret.fieldNote ? '<p class="text-xs font-body mb-3" style="color:#4A5C58">' + E(secret.fieldNote) + '</p>' : '') +
+      '<div class="flex flex-col gap-2">' + options + '</div>' +
+      '<button data-act="secretValidate" class="w-full py-3 rounded-full font-body font-semibold text-sm transition-all mt-4" style="background-color:' +
+      (picked ? '#013E37;color:white' : '#E8E0D0;color:#55635E') + '">' +
+      (picked ? 'Validate secret' : 'Select an answer to validate') + '</button>' +
+      feedback + '</div>';
+  }
+
   /* "Next chapter" only appears once the interaction is actually solved. */
   function heroNextChapter(t, wp) {
     const wps = threadWaypoints(t);
@@ -473,7 +537,9 @@
       '<div class="flex items-center gap-10 mt-16 pt-8" style="border-top:1px solid rgba(249,247,243,0.15)">' + data.landingStats.map(function (s) {
         return '<div><div class="font-display text-2xl font-semibold" style="color:#EDB99E">' + s.value + '</div>' +
           '<div class="text-xs font-body" style="color:rgba(249,247,243,0.8)">' + s.label + '</div></div>';
-      }).join('') + '</div></div>' +
+      }).join('') + '</div>' +
+      '<p class="text-xs font-body mt-4 max-w-lg leading-relaxed" style="color:rgba(249,247,243,0.8)">' +
+      E(data.landingStatsNote) + '</p></div>' +
       '<div class="col-span-5 flex items-center justify-end pt-20"><div class="relative w-72 h-72 opacity-60">' +
       '<svg viewBox="0 0 280 280" class="w-full h-full">' +
       '<path d="M40 240 Q80 180 140 140 Q200 100 240 40" stroke="#EDB99E" stroke-width="1.5" fill="none" stroke-dasharray="6 3" opacity="0.6"/>' +
@@ -749,7 +815,15 @@
       '<div class="absolute bottom-3 left-3"><span class="text-xs font-body px-2 py-0.5 rounded-full font-medium" style="background-color:rgba(249,247,243,0.9);color:#8C3211">' + E(sel.type) + '</span></div>' +
       (sel.status === 'active'
         ? '<div class="absolute top-3 right-3"><span class="text-xs font-body px-2 py-0.5 rounded-full font-semibold animate-pulse" style="background-color:#A23B17;color:white">● Active</span></div>'
-        : '') + '</div>' +
+        : '') +
+      (!data.waypointPhoto(sel)
+        ? '<div class="absolute top-3 left-3 right-16"><span class="text-xs font-body px-2 py-0.5 rounded-full" style="background-color:rgba(18,33,30,0.82);color:#EDB99E">' +
+          (data.photoFor(t)
+            ? 'Photograph of ' + E(data.photoFor(t).subject) + ' — not this stop'
+            : 'No verified photograph of this stop yet') +
+          '</span></div>'
+        : '') +
+      '</div>' +
 
       '<div class="p-5" style="background-color:#FDFCFA">' +
       '<h3 class="font-display text-base font-semibold mb-1" style="color:#12211E">' + E(sel.name) + '</h3>' +
@@ -868,7 +942,7 @@
         (kHint ? '<span class="text-xs font-body" style="color:rgba(249,247,243,0.85)">' + E(kHint) + '</span>' : '') +
         '<span class="text-xs font-body ml-auto" style="color:rgba(249,247,243,0.55)">' +
         (data.khaytAI.isLive ? 'KHAYT · ' + E(data.khaytAI.provider) : 'KHAYT · scripted companion') + '</span>' +
-        '</div></div></div></div>' + heroChallengePanel(t, wp);
+        '</div></div></div></div>' + heroChallengePanel(t, wp) + heroSecretPanel(t);
     } else if (NASEEJ.ui.challengeOpen) {
       let cells = '';
       const matrix = NASEEJ.ui.qr || [];
@@ -968,7 +1042,10 @@
       (hero ? data.atharRewards.challenge + ' ATHAR' : wp.points + ' pts') + '</span></div>' +
       '<p class="text-sm font-body leading-relaxed" style="color:#12211E">' + E(wp.challenge) + '</p>' +
       '<div class="mt-3 flex gap-4 text-xs font-body" style="color:#55635E">' +
-      '<span>🗺 Evidence required: Photo + Description</span><span>⏱ Estimated: 45 min</span></div></div>' +
+      '<span>' + (hero
+        ? 'Evidence: a validated observation at this stop — not a photo upload'
+        : 'Prototype challenge opened in the app — no camera or location check') +
+      '</span></div></div>' +
 
       '<div class="rounded-xl p-4 mb-6" style="background-color:rgba(214,103,43,0.06);border:1px solid rgba(214,103,43,0.15)">' +
       '<p class="text-xs font-body leading-relaxed" style="color:#A23B17"><strong>Local Tip:</strong> ' + E(t.tip) + '</p></div>' +
@@ -1176,8 +1253,86 @@
   }
 
   /* ═════════════════════ USER PROFILE ═════════════════════ */
+  function passportPanel() {
+    const pass = data.passportSummary();
+    const dna = data.jordanDna();
+    const dnaLine = data.khaytAI.ask({ kind: 'dna', line: dna.khaytLine });
+    const demoBadges = session.badges.filter(function (b) { return b.earned && b.demoSeed; });
+    const demoActive = session.activeThreads.filter(function (t) { return t.demoSeed; });
+    const hasDemo = pass.completedDemo.length > 0 || demoBadges.length > 0 || demoActive.length > 0;
+
+    const stamps = [
+      ['ATHAR', String(pass.athar)],
+      ['Regions', String(pass.regions.length)],
+      ['Waypoints', String(pass.waypoints)],
+      ['Clues', String(pass.clues)],
+      ['Mysteries', String(pass.mysteryFound)],
+      ['Secrets', String(pass.secrets)],
+      ['Badges', String(pass.badges.length)],
+    ].map(function (row) {
+      return '<div class="p-4 rounded-xl text-center" style="background-color:#FDFCFA;border:1px solid #E8E0D0">' +
+        '<div class="font-display text-xl font-semibold" style="color:#013E37">' + E(row[1]) + '</div>' +
+        '<div class="text-xs font-body mt-1" style="color:#55635E">' + E(row[0]) + '</div></div>';
+    }).join('');
+
+    const regions = pass.regions.length
+      ? pass.regions.map(function (r) {
+          return '<span class="text-xs font-body px-2.5 py-1 rounded-full" style="background-color:rgba(1,62,55,0.08);color:#013E37">' +
+            E(r) + '</span>';
+        }).join('')
+      : '<span class="text-xs font-body" style="color:#55635E">No regions recorded yet</span>';
+
+    const listThreads = function (list, empty) {
+      if (!list.length) {
+        return '<p class="text-xs font-body" style="color:#55635E">' + E(empty) + '</p>';
+      }
+      return '<div class="flex flex-col gap-2">' + list.map(function (t) {
+        return '<div class="flex items-center justify-between gap-3 p-3 rounded-xl" style="background-color:#FDFCFA;border:1px solid #E8E0D0">' +
+          '<div><div class="text-sm font-body font-semibold" style="color:#12211E">' + E(t.title) + '</div>' +
+          '<div class="text-xs font-body" style="color:#55635E">' + E(t.city || t.region || '') + '</div></div>' +
+          '<button ' + N('thread', t.id) + ' class="text-xs font-body font-semibold px-3 py-1.5 rounded-full" style="background-color:#013E37;color:white">Open</button></div>';
+      }).join('') + '</div>';
+    };
+
+    const dnaBars = dna.bars.map(function (bar) {
+      return '<div class="mb-3"><div class="flex justify-between text-xs font-body mb-1" style="color:#55635E">' +
+        '<span>' + E(bar.name) + '</span><span>' + bar.percent + '%</span></div>' +
+        '<div class="h-2 rounded-full" style="background-color:#E8E0D0" role="progressbar" aria-valuenow="' +
+        bar.percent + '" aria-valuemin="0" aria-valuemax="100" aria-label="' + E(bar.name) + '">' +
+        '<div class="h-full rounded-full" style="width:' + bar.percent + '%;background-color:#013E37"></div></div></div>';
+    }).join('');
+
+    return '<div class="py-10">' +
+      '<h2 class="font-display text-2xl font-semibold" style="color:#12211E">My Passport</h2>' +
+      '<p class="text-sm font-body mt-1 mb-6" style="color:#55635E">A record of this device\'s journey — progress, threads, regions, badges, mysteries and ATHAR.</p>' +
+      (hasDemo
+        ? '<div class="flex items-start gap-2 mb-6 px-4 py-3 rounded-xl" style="background-color:rgba(164,59,23,0.06);border:1px solid rgba(164,59,23,0.2)">' +
+          '<span aria-hidden="true">⚠️</span><p class="text-xs font-body leading-relaxed" style="color:#8C3211">' +
+          '<strong>Demo history included.</strong> Seeded threads, badges and progress below are sample data for this prototype. They are not a real visit history or partner activity.' +
+          '</p></div>'
+        : '') +
+      '<div class="grid grid-cols-4 gap-3 mb-8">' + stamps + '</div>' +
+      '<h3 class="font-display text-lg font-semibold mb-3" style="color:#12211E">Regions</h3>' +
+      '<div class="flex flex-wrap gap-2 mb-8">' + regions + '</div>' +
+      '<div class="grid grid-cols-12 gap-6 mb-10">' +
+      '<div class="col-span-7 p-6 rounded-2xl" style="background-color:#FDFCFA;border:1px solid #E8E0D0">' +
+      '<div class="text-xs font-body uppercase tracking-widest mb-2" style="color:#8C3211">Jordan DNA</div>' +
+      '<h3 class="font-display text-xl font-semibold mb-2" style="color:#12211E">' + E(dna.title) + '</h3>' +
+      '<p class="text-xs font-body mb-4" style="color:#55635E">Read from this device\'s threads, choices, clues and discoveries — not a personality quiz.</p>' +
+      dnaBars +
+      '<div class="mt-4 p-4 rounded-xl" style="background-color:#12211E">' +
+      '<div class="text-xs font-body uppercase tracking-widest mb-1" style="color:#EDB99E">KHAYT · scripted companion</div>' +
+      '<p class="text-sm font-body leading-relaxed" style="color:#F9F7F3">' + E(dnaLine) + '</p></div></div>' +
+      '<div class="col-span-5">' +
+      '<h3 class="font-display text-lg font-semibold mb-3" style="color:#12211E">Walked on this device</h3>' +
+      listThreads(pass.completedLive, 'No live completions on this device yet.') +
+      '<h3 class="font-display text-lg font-semibold mt-6 mb-3" style="color:#12211E">Demo sample threads</h3>' +
+      listThreads(pass.completedDemo, 'No demo sample threads.') +
+      '</div></div></div>';
+  }
+
   function profile() {
-    const tab = NASEEJ.ui.tab || 'loom';
+    const tab = NASEEJ.ui.tab || 'passport';
     const TP = session.points;
     const me = session.profile;
     const earned = session.badgesEarned;
@@ -1186,13 +1341,16 @@
        here, so they cannot disagree with each other or with the balance. */
     const level = data.levelForWeaver();
     const tabs = [
+      ['passport', 'My Passport'],
       ['loom', 'The Loom (Badges)'],
       ['threads', 'My Threads'],
       ['rewards', 'Rewards & Discounts'],
     ];
 
     let body;
-    if (tab === 'loom') {
+    if (tab === 'passport') {
+      body = passportPanel();
+    } else if (tab === 'loom') {
       body = '<div class="py-10"><div class="flex items-center justify-between mb-6"><div>' +
         '<h2 class="font-display text-2xl font-semibold" style="color:#12211E">The Loom</h2>' +
         '<p class="text-sm font-body mt-1" style="color:#55635E">' + earned + ' of ' + session.badges.length +
@@ -1219,6 +1377,7 @@
             '<h3 class="font-display text-sm font-semibold mb-1" style="color:' + (b.earned ? '#12211E' : '#4A5C58') + '">' + E(b.name) + '</h3>' +
             '<p class="text-xs font-body leading-snug" style="color:#55635E">' + E(b.desc) + '</p>' +
             (b.earned && b.date ? '<div class="mt-3 text-xs font-body" style="color:#013E37">Earned ' + E(b.date) + '</div>' : '') +
+            (b.earned && b.demoSeed ? '<div class="mt-3 text-xs font-body font-semibold" style="color:#8C3211">Demo seed</div>' : '') +
             (!b.earned ? '<div class="mt-3 text-xs font-body" style="color:#4A5C58">Not yet earned</div>' : '') +
             '</div>';
         }).join('') + '</div></div>';
@@ -1230,7 +1389,9 @@
       '<div class="relative h-36 overflow-hidden">' + media(data.photoFor(t), t.title) +
             '<div class="absolute bottom-0 left-0 right-0 h-1" style="background-color:rgba(249,247,243,0.3)">' +
             '<div class="h-full progress-bar" style="width:' + t.progress + '%"></div></div>' +
-            '<span class="absolute top-2 left-2 text-xs font-body px-2 py-0.5 rounded-full font-semibold animate-pulse" style="background-color:#A23B17;color:white">● Active</span></div>' +
+            '<span class="absolute top-2 left-2 text-xs font-body px-2 py-0.5 rounded-full font-semibold animate-pulse" style="background-color:#A23B17;color:white">● Active</span>' +
+            (t.demoSeed ? '<span class="absolute top-2 right-2 text-xs font-body px-2 py-0.5 rounded-full font-semibold" style="background-color:rgba(18,33,30,0.82);color:#EDB99E">Demo sample</span>' : '') +
+            '</div>' +
             '<div class="p-4"><h3 class="font-display text-sm font-semibold mb-1" style="color:#12211E">' + E(t.title) + '</h3>' +
             '<p class="text-xs font-body mb-3" style="color:#55635E">Next: ' + E(t.nextWaypoint) + '</p>' +
             (t.branch
@@ -1266,7 +1427,9 @@
             '<span>⊕ ' + t.waypoints + ' waypoints</span>' +
             '<span class="font-semibold" style="color:#013E37">' +
             (t.branch ? '+' + t.pointsEarned + ' ATHAR' : '+' + t.pointsEarned + ' pts') + '</span></div>' +
-            '<div class="text-xs font-body mt-2" style="color:#C9BDA8">Completed ' + t.completedDate + '</div>' +
+            '<div class="text-xs font-body mt-2" style="color:#8C3211">' +
+            (t.demoSeed ? 'Demo sample — not a recorded visit' : (t.completedDate ? 'Completed ' + E(t.completedDate) : 'Completed on this device')) +
+            '</div>' +
             '<button ' + N('thread', t.id) + ' class="card-link w-full mt-3 py-2 rounded-full text-xs font-body font-semibold" style="background-color:#F9F7F3;color:#12211E;border:1px solid #E8E0D0">View Thread →</button></div></div>';
         }).join('') + '</div></div>';
     } else {
@@ -1281,7 +1444,7 @@
       body = '<div class="py-10">' +
         '<div class="flex items-center justify-between mb-2 flex-wrap gap-4"><div>' +
         '<h2 class="font-display text-2xl font-semibold" style="color:#12211E">Demo Rewards Catalogue</h2>' +
-        '<p class="text-sm font-body mt-1" style="color:#4A5C58">Spend your ' + TP + ' ATHAR with local Jordan partners</p></div>' +
+        '<p class="text-sm font-body mt-1" style="color:#4A5C58">Prototype catalogue — spending ATHAR here is local to this device</p></div>' +
         '<div class="flex items-center gap-2 px-4 py-2 rounded-full" style="background-color:rgba(1,62,55,0.08);border:1px solid rgba(1,62,55,0.2)">' +
         '<span class="font-display text-lg font-semibold" style="color:#013E37">' + TP + '</span>' +
         '<span class="text-sm font-body" style="color:#046852">ATHAR available</span></div></div>' +
@@ -1544,6 +1707,20 @@
         NASEEJ.ui.heroResult = result;
         NASEEJ.ui.activeNode = null;
       }
+      NASEEJ.paint();
+    },
+
+    secretPick: function (value) {
+      NASEEJ.ui.secretPick = value;
+      NASEEJ.ui.secretResult = null;
+      NASEEJ.paint();
+    },
+
+    secretValidate: function () {
+      if (NASEEJ.ui.secretPick == null) return;
+      const result = data.answerSecretChallenge(data.heroThreadId, NASEEJ.ui.secretPick);
+      NASEEJ.ui.secretResult = result;
+      if (result.correct) NASEEJ.ui.secretPick = null;
       NASEEJ.paint();
     },
   };

@@ -59,34 +59,87 @@
     },
 
     10: {
+      id: 10,
+      livingMystery: true,
       title: 'Yarmouk Nature Walk',
-      subtitle: 'Yarmouk River Gorge · 2 days · Easy–Moderate · 200 points',
+      subtitle: 'Yarmouk River Gorge · Living Mystery · 4 clues',
       city: 'Irbid',
       progress: 0,
-      tip: 'The gorge is most dramatic in early morning light. Bring binoculars — the Yarmouk corridor is one of the top birdwatching spots in the Middle East during migration season (March–May and Sept–Nov).',
+      tip: 'The gorge is most dramatic in early morning light. Bring binoculars — the Yarmouk corridor is one of the top birdwatching spots in the Middle East during migration season (March–May and Sept–Nov). KHAYT\'s advice: don\'t only read the board. Look around you.',
       stats: [
-        { label: 'Points Earned', value: '0', icon: '⭐' },
-        { label: 'Waypoints Done', value: '0 / 4', icon: '⊕' },
-        { label: 'Thread Progress', value: '0%', icon: '🧵' },
-        { label: 'Est. Remaining', value: '8 hrs', icon: '⏱' },
+        { label: 'ATHAR Earned', value: '0', icon: '✦' },
+        { label: 'Clues', value: '0 / 4', icon: '◇' },
+        { label: 'Chapter', value: 'The Entrance', icon: '📖' },
+        { label: 'Waypoints', value: '0 / 4', icon: '⊕' },
+      ],
+      clues: [
+        { id: 1, text: 'Someone passed through this place before you.' },
+        { id: 2, text: 'What they carried changed the story.' },
+        { id: 3, text: 'The answer is closer than you think.' },
+        { id: 4, text: 'Now you can see the connection.' },
+      ],
+      chapters: {
+        start: 'The Entrance',
+        person: 'Follow the Person',
+        object: 'Follow the Object',
+        connection: 'The Connection',
+        reveal: 'The Thread',
+      },
+      branchOptions: [
+        { id: 'person', label: 'Follow the Person', prompt: 'A figure is still moving along the gorge rim.' },
+        { id: 'object', label: 'Follow the Object', prompt: 'Something they carried was left at the basalt wall.' },
       ],
       waypoints: [
         { id: 1, name: 'Yarmouk Trail Head', type: 'Nature Reserve', status: 'active', points: 50, icon: '🌿', location: 'Yarmouk River, Northern Jordan · 32.68° N, 35.75° E',
           desc: 'The Yarmouk River is the largest tributary of the Jordan River, fed by springs from southern Syria and the Hauran plateau. At the trail head, the basalt-walled gorge drops steeply, and the sound of rushing water replaces the noise of the modern road. The trail follows the ancient path used by seasonal herders for millennia.',
           challenge: 'Record the air temperature at the trail head and again at the river level. Calculate the difference and explain what causes the temperature gradient in a river canyon.',
-          image: unsplashImage('photo-1759556969418-47a8172a7b6a') },
+          image: unsplashImage('photo-1759556969418-47a8172a7b6a'),
+          unlocksClue: 1,
+          chapterKey: 'entrance',
+          quiz: {
+            prompt: 'What symbol can you find near the entrance?',
+            correct: 'ibex',
+            options: [
+              { id: 'crown', text: 'A golden crown carved into the gate' },
+              { id: 'ibex', text: 'A small ibex mark on the trail stone' },
+              { id: 'anchor', text: 'A ship\'s anchor hanging from a tree' },
+              { id: 'sun', text: 'A painted sun on a metal road sign' },
+            ],
+          } },
         { id: 2, name: 'Basalt Canyon Viewpoint', type: 'Geological Site', status: 'locked', points: 45, icon: '🪨', location: 'Yarmouk Gorge, Northern Jordan',
           desc: 'The Yarmouk gorge is carved through layers of ancient basalt lava flows originating from volcanic activity in the Hauran region of Syria. The exposed cliff faces reveal distinct lava episodes stacked over hundreds of thousands of years. Columnar jointing — the geometric cracking of cooling basalt — creates striking natural columns in the canyon walls.',
           challenge: 'Photograph examples of columnar basalt jointing in the canyon walls and sketch the layers visible in cross-section. Estimate the thickness of at least three separate lava flows.',
-          image: unsplashImage('photo-1670788050263-4c193ee10715') },
+          image: unsplashImage('photo-1670788050263-4c193ee10715'),
+          unlocksClue: 2,
+          chapterKey: 'branch',
+          lookPrompt: 'Look around this stretch of the gorge. The next clue is not on the information board.',
+          branches: {
+            person: {
+              name: 'The Traveler\'s Trace',
+              type: 'Person',
+              icon: '👣',
+              desc: 'You follow the person. Boot prints cut through basalt dust along the rim, then drop toward a ledge where someone paused long enough to watch the river. The gorge still holds the heat of their passing.',
+            },
+            object: {
+              name: 'The Carried Token',
+              type: 'Object',
+              icon: '🧳',
+              desc: 'You follow the object. A cloth wrap is caught in a crack of columnar basalt — travel-stained, tied with a red thread. Whatever they carried from the trail head changed weight here.',
+            },
+          } },
         { id: 3, name: 'Migratory Bird Watch Station', type: 'Wildlife', status: 'locked', points: 55, icon: '🦅', location: 'Yarmouk Valley Bird Observatory, Northern Jordan',
           desc: 'The Yarmouk valley acts as a natural funnel for migratory birds travelling between their European breeding grounds and their African wintering grounds. Over 300 bird species have been recorded along this corridor, including raptors such as short-toed snake eagles, steppe eagles, and lesser spotted eagles.',
           challenge: 'Using the identification chart at the watch station, record 5 distinct bird species observed during a 30-minute timed count. Note their behaviour and flight direction.',
-          image: unsplashImage('photo-1501854140801-50d01698950b') },
+          image: unsplashImage('photo-1501854140801-50d01698950b'),
+          unlocksClue: 3,
+          lookPrompt: 'The birds are a distraction. The clue is closer than the sky.' },
         { id: 4, name: 'Riverside Picnic Meadow', type: 'Local Culture', status: 'locked', points: 50, icon: '🧺', location: 'Yarmouk Riverside, Irbid Governorate',
           desc: 'At the confluence of a seasonal tributary with the Yarmouk, a flat riverside meadow has been used as a picnic and gathering spot by local Irbid families for generations. Wild herbs including za\'atar, marjoram, and mint grow along the bank. Local families traditionally prepare musakhan for outdoor meals here.',
           challenge: 'Collect three wild herb samples from the riverbank, identify each using the field guide, and prepare a simple dish with local ingredients under the guidance of a community guide.',
-          image: unsplashImage('photo-1501854140801-50d01698950b') },
+          image: unsplashImage('photo-1501854140801-50d01698950b'),
+          unlocksClue: 4,
+          chapterKey: 'connection',
+          lookPrompt: 'Stand where the tributary meets the river. This is where the thread knits together.' },
       ],
     },
 
@@ -947,10 +1000,10 @@
       start: 'Umm Qais (Gadara)', end: 'Abila (Quwayliba)' },
 
     { id: 10, title: 'Yarmouk Nature Walk',
-      hook: 'Follow the canyon carved by the Jordan River\'s greatest tributary — a highway for 300 bird species.',
+      hook: 'A living mystery along the Yarmouk: four hidden clues, a KHAYT companion, and a thread that branches.',
       city: 'Irbid', region: 'Yarmouk River Gorge', image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&h=300&fit=crop',
       waypoints: 4, duration: '2 days', difficulty: 'Easy–Moderate', points: 200, travelers: 310, progress: 0,
-      category: 'Nature', mood: 'Peaceful', tags: ['Gorge', 'Birds'],
+      category: 'Nature', mood: 'Curious', tags: ['Gorge', 'Mystery'],
       start: 'Yarmouk Trail Head', end: 'Riverside Picnic Meadow' },
 
     { id: 11, title: 'City of Scholars & Souk',
@@ -1229,6 +1282,7 @@
     { id: 6, name: 'Dead Sea Drifter', icon: '🌊', desc: 'Float the lowest point on earth', earned: false, date: null, rarity: 'Common' },
     { id: 7, name: 'Castle Keeper', icon: '🏰', desc: 'Completed all castle waypoints', earned: false, date: null, rarity: 'Epic' },
     { id: 8, name: 'Grand Loom', icon: '🎖', desc: 'Complete 10 full threads', earned: false, date: null, rarity: 'Legendary' },
+    { id: 9, name: 'Thread Seer', icon: '🧵', desc: 'Found the living mystery thread at Yarmouk', earned: false, date: null, rarity: 'Epic' },
   ]
 
   const completedThreads = [
@@ -1255,6 +1309,16 @@
      the fallback in App.tsx / ActiveThread.tsx. */
   const DEFAULT_THREAD_ID = 7;
 
+  /* Proof-of-concept living-mystery thread. Other threads keep the original
+     completion model (bare waypoint ids). This one namespaces completion as
+     `${threadId}:${waypointId}` so it cannot collide with other catalogs. */
+  const HERO_THREAD_ID = 10;
+  const HERO_BADGE_ID = 9;
+  const MYSTERY_STORAGE_KEY = 'naseej.mystery.v1';
+  const ATHAR_CHALLENGE = 150;
+  const ATHAR_CLUE = 100;
+  const ATHAR_CHAPTER = 200;
+
   function findWaypoint(waypoints, waypointId) {
     for (let i = 0; i < waypoints.length; i++) {
       if (waypoints[i].id === waypointId) return waypoints[i];
@@ -1262,20 +1326,279 @@
     return null;
   }
 
-  /* Completion is unioned, never overridden: a waypoint the static data marks
-     done stays done, and Firestore can only add to the set. Completion is
-     monotonic, so there is no un-complete path to get wrong. */
-  function isCompleted(waypoint) {
-    if (waypoint.status === 'completed') return true;
-    return NASEEJ.session.completedWaypointIds.indexOf(waypoint.id) >= 0;
+  function threadIdOf(thread) {
+    if (!thread) return null;
+    if (thread.id != null) return thread.id;
+    if (thread.livingMystery) return HERO_THREAD_ID;
+    return null;
   }
 
-  function findActiveWaypoint(waypoints) {
+  function isHeroThread(thread) {
+    if (!thread) return false;
+    if (thread.livingMystery) return true;
+    return thread.id === HERO_THREAD_ID;
+  }
+
+  function heroWaypointKey(thread, waypoint) {
+    return threadIdOf(thread) + ':' + waypoint.id;
+  }
+
+  /* Completion is unioned, never overridden: a waypoint the static data marks
+     done stays done, and Firestore can only add to the set. Completion is
+     monotonic, so there is no un-complete path to get wrong. The hero thread
+     is the exception that uses prefixed keys; other threads still match on
+     the bare waypoint id. */
+  function isCompleted(waypoint, thread) {
+    if (!waypoint) return false;
+    const ids = NASEEJ.session.completedWaypointIds;
+    if (isHeroThread(thread)) {
+      return ids.indexOf(heroWaypointKey(thread, waypoint)) >= 0;
+    }
+    if (waypoint.status === 'completed') return true;
+    return ids.indexOf(waypoint.id) >= 0;
+  }
+
+  function mysteryRecord(threadId) {
+    const bag = NASEEJ.session.mystery;
+    if (!bag[threadId]) {
+      bag[threadId] = {
+        athar: 0,
+        clues: [],
+        branch: null,
+        answers: {},
+        awarded: {},
+        completed: [],
+        reveal: false,
+        toast: null,
+      };
+    }
+    return bag[threadId];
+  }
+
+  function persistMystery() {
+    /* Swap point for Firestore: write weavers/{uid}/threads/{threadId}. */
+    try {
+      sessionStorage.setItem(MYSTERY_STORAGE_KEY, JSON.stringify(NASEEJ.session.mystery));
+    } catch (err) { /* private mode / quota: progress still lives in-memory */ }
+  }
+
+  function getClueProgress(threadId) {
+    const tid = threadId == null ? HERO_THREAD_ID : threadId;
+    const thread = threadsById[tid] || threadsById[HERO_THREAD_ID];
+    const total = ((thread && thread.clues) || []).length;
+    const m = mysteryRecord(tid);
+    return { unlocked: m.clues.length, total: total || 4, ids: m.clues.slice() };
+  }
+
+  function isClueUnlocked(threadId, clueId) {
+    const m = mysteryRecord(threadId == null ? HERO_THREAD_ID : threadId);
+    return m.clues.indexOf(clueId) >= 0;
+  }
+
+  function awardAthar(threadId, key, amount) {
+    const m = mysteryRecord(threadId);
+    if (m.awarded[key]) return 0;
+    m.awarded[key] = true;
+    m.athar += amount;
+    return amount;
+  }
+
+  function unlockClue(threadId, clueId) {
+    const m = mysteryRecord(threadId);
+    if (m.clues.indexOf(clueId) >= 0) return false;
+    m.clues.push(clueId);
+    awardAthar(threadId, 'clue:' + clueId, ATHAR_CLUE);
+    return true;
+  }
+
+  function syncHeroProgress(threadId) {
+    const thread = threadsById[threadId];
+    if (!thread) return;
+    const n = (thread.waypoints || []).length || 1;
+    const done = (thread.waypoints || []).filter(function (wp) {
+      return isCompleted(wp, thread);
+    }).length;
+    const pct = Math.round((done / n) * 100);
+    NASEEJ.session.threadProgress[threadId] = pct;
+    mysteryRecord(threadId).progress = pct;
+  }
+
+  function completeHeroWaypoint(threadId, waypointId) {
+    const thread = threadsById[threadId];
+    const m = mysteryRecord(threadId);
+    if (m.completed.indexOf(waypointId) < 0) m.completed.push(waypointId);
+    const key = threadId + ':' + waypointId;
+    const ids = NASEEJ.session.completedWaypointIds;
+    if (ids.indexOf(key) < 0) ids.push(key);
+    const wp = thread ? findWaypoint(thread.waypoints || [], waypointId) : null;
+    if (wp && wp.chapterKey) {
+      awardAthar(threadId, 'chapter:' + wp.chapterKey, ATHAR_CHAPTER);
+    }
+    syncHeroProgress(threadId);
+    maybeReveal(threadId);
+  }
+
+  function earnHeroBadge() {
+    for (let i = 0; i < profileBadges.length; i++) {
+      if (profileBadges[i].id === HERO_BADGE_ID) {
+        profileBadges[i].earned = true;
+        profileBadges[i].date = profileBadges[i].date || 'Sep 2026';
+      }
+    }
+  }
+
+  function maybeReveal(threadId) {
+    const thread = threadsById[threadId];
+    const m = mysteryRecord(threadId);
+    if (!thread || m.reveal) return;
+    const clues = getClueProgress(threadId);
+    const wps = thread.waypoints || [];
+    let allDone = wps.length > 0;
+    for (let i = 0; i < wps.length; i++) {
+      if (!isCompleted(wps[i], thread)) allDone = false;
+    }
+    if (clues.unlocked >= clues.total && allDone && m.branch) {
+      m.reveal = true;
+      earnHeroBadge();
+    }
+  }
+
+  function waypointLiveStatus(thread, waypoint) {
+    if (!isHeroThread(thread)) return waypoint.status;
+    if (isCompleted(waypoint, thread)) return 'completed';
+    const wps = thread.waypoints || [];
+    let idx = -1;
+    for (let i = 0; i < wps.length; i++) {
+      if (wps[i].id === waypoint.id) { idx = i; break; }
+    }
+    if (idx < 0) return 'locked';
+    if (idx === 0) return 'active';
+    if (!isCompleted(wps[idx - 1], thread)) return 'locked';
+    const m = mysteryRecord(threadIdOf(thread));
+    if (idx >= 1 && !m.branch) return 'locked';
+    return 'active';
+  }
+
+  function findActiveWaypoint(thread) {
+    const waypoints = (thread && thread.waypoints) || [];
     for (let i = 0; i < waypoints.length; i++) {
-      if (isCompleted(waypoints[i])) continue;
+      if (isHeroThread(thread)) {
+        if (waypointLiveStatus(thread, waypoints[i]) === 'active') return waypoints[i];
+        continue;
+      }
+      if (isCompleted(waypoints[i], thread)) continue;
       if (waypoints[i].status === 'active') return waypoints[i];
     }
     return waypoints[0] || null;
+  }
+
+  function resolveHeroWaypoint(thread, waypoint) {
+    if (!waypoint || !isHeroThread(thread)) return waypoint;
+    const m = mysteryRecord(threadIdOf(thread));
+    const overlay = waypoint.branches && m.branch ? waypoint.branches[m.branch] : null;
+    if (!overlay) {
+      return Object.assign({}, waypoint, { status: waypointLiveStatus(thread, waypoint) });
+    }
+    return Object.assign({}, waypoint, overlay, { status: waypointLiveStatus(thread, waypoint) });
+  }
+
+  function currentChapter(thread) {
+    if (!isHeroThread(thread)) return '';
+    const m = mysteryRecord(threadIdOf(thread));
+    const ch = thread.chapters || {};
+    if (m.reveal) return ch.reveal || 'The Thread';
+    const clues = getClueProgress(threadIdOf(thread));
+    if (clues.unlocked >= 3) return ch.connection || 'The Connection';
+    if (m.branch === 'person') return ch.person || 'Follow the Person';
+    if (m.branch === 'object') return ch.object || 'Follow the Object';
+    return ch.start || 'The Entrance';
+  }
+
+  function khaytMessage(thread, waypoint) {
+    if (!isHeroThread(thread)) return '';
+    const m = mysteryRecord(threadIdOf(thread));
+    if (m.reveal) return 'Now you see why every place was connected.';
+    if (waypoint) {
+      const status = waypointLiveStatus(thread, waypoint);
+      const answered = m.answers[waypoint.id];
+      if (answered && answered.correct) return 'You\'re getting closer.';
+      if (answered && !answered.correct) return 'Don\'t read. Look around you.';
+      if (status === 'completed') return 'You\'re getting closer.';
+      if (status === 'active' && waypoint.quiz && !answered) return 'Don\'t read. Look around you.';
+      if (status === 'active' && waypoint.lookPrompt) {
+        if (!isClueUnlocked(threadIdOf(thread), waypoint.unlocksClue)) {
+          return 'You found the place. But you\'re missing the clue.';
+        }
+      }
+      if (status === 'locked') return 'Every story starts with a thread.';
+      return 'You found the place.';
+    }
+    if (!m.branch && isClueUnlocked(threadIdOf(thread), 1)) {
+      return 'You\'re getting closer.';
+    }
+    if (getClueProgress(threadIdOf(thread)).unlocked === 0) {
+      return 'You don\'t know where this one ends.';
+    }
+    return 'You\'re getting closer.';
+  }
+
+  function answerHeroChallenge(threadId, waypointId, optionId) {
+    const thread = threadsById[threadId];
+    if (!thread) return { status: 'invalid' };
+    const wp = findWaypoint(thread.waypoints || [], waypointId);
+    if (!wp || !wp.quiz) return { status: 'invalid' };
+    if (waypointLiveStatus(thread, wp) === 'locked') return { status: 'locked' };
+    const m = mysteryRecord(threadId);
+    if (m.answers[waypointId] && m.answers[waypointId].correct) {
+      return { status: 'duplicate', correct: true };
+    }
+    const correct = optionId === wp.quiz.correct;
+    m.answers[waypointId] = { optionId: optionId, correct: correct };
+    const toast = [];
+    if (correct) {
+      const gained = awardAthar(threadId, 'challenge:' + waypointId, ATHAR_CHALLENGE);
+      if (gained) toast.push('+' + ATHAR_CHALLENGE + ' ATHAR');
+      if (wp.unlocksClue && unlockClue(threadId, wp.unlocksClue)) toast.push('Clue Unlocked');
+      completeHeroWaypoint(threadId, waypointId);
+      m.toast = toast;
+    } else {
+      m.toast = ['Not that mark. Look around you.'];
+    }
+    persistMystery();
+    return { status: correct ? 'correct' : 'incorrect', correct: correct };
+  }
+
+  function lookAroundHero(threadId, waypointId) {
+    const thread = threadsById[threadId];
+    if (!thread) return { status: 'invalid' };
+    const wp = findWaypoint(thread.waypoints || [], waypointId);
+    if (!wp) return { status: 'invalid' };
+    if (waypointLiveStatus(thread, wp) === 'locked') return { status: 'locked' };
+    if (isCompleted(wp, thread)) return { status: 'duplicate' };
+    const toast = [];
+    if (wp.unlocksClue && unlockClue(threadId, wp.unlocksClue)) toast.push('Clue Unlocked');
+    completeHeroWaypoint(threadId, waypointId);
+    const m = mysteryRecord(threadId);
+    if (m.reveal) toast.push('YOU FOUND THE THREAD');
+    m.toast = toast.length ? toast : null;
+    persistMystery();
+    return { status: 'ok', reveal: m.reveal };
+  }
+
+  function setHeroBranch(threadId, branchId) {
+    const thread = threadsById[threadId];
+    const m = mysteryRecord(threadId);
+    if (!thread || m.branch) return m.branch;
+    if (!isClueUnlocked(threadId, 1)) return null;
+    let allowed = false;
+    const opts = thread.branchOptions || [];
+    for (let i = 0; i < opts.length; i++) {
+      if (opts[i].id === branchId) allowed = true;
+    }
+    if (!allowed) return null;
+    m.branch = branchId;
+    persistMystery();
+    return m.branch;
   }
 
   function findCity(cityId) {
@@ -1304,30 +1627,51 @@
       return found || threadsById[DEFAULT_THREAD_ID] || null;
     },
 
+    heroThreadId: HERO_THREAD_ID,
+    isHeroThread: isHeroThread,
+    decorateWaypoint: resolveHeroWaypoint,
+    waypointStatus: waypointLiveStatus,
+    currentChapter: currentChapter,
+    khaytMessage: khaytMessage,
+    getClueProgress: getClueProgress,
+    unlockClue: unlockClue,
+    isClueUnlocked: isClueUnlocked,
+    answerHeroChallenge: answerHeroChallenge,
+    lookAroundHero: lookAroundHero,
+    setHeroBranch: setHeroBranch,
+    mysteryRecord: mysteryRecord,
+    persistMystery: persistMystery,
+
     /* The waypoint a waypoint route should show: the requested one, else the
        thread's active waypoint, else its first. */
     getWaypoint: function (thread, waypointId) {
       const waypoints = (thread && thread.waypoints) || [];
+      let wp = null;
       if (waypointId != null) {
-        return findWaypoint(waypoints, waypointId) || findActiveWaypoint(waypoints);
+        wp = findWaypoint(waypoints, waypointId) || findActiveWaypoint(thread);
+      } else {
+        wp = findActiveWaypoint(thread);
       }
-      return findActiveWaypoint(waypoints);
+      return resolveHeroWaypoint(thread, wp || waypoints[0] || null);
     },
 
     getActiveWaypoint: function (thread) {
-      return findActiveWaypoint(((thread && thread.waypoints) || []));
+      return resolveHeroWaypoint(thread, findActiveWaypoint(thread));
     },
 
     getCompletedCount: function (thread) {
       const waypoints = (thread && thread.waypoints) || [];
-      return waypoints.filter(isCompleted).length;
+      return waypoints.filter(function (wp) {
+        return isCompleted(wp, thread);
+      }).length;
     },
 
     /* How far through a thread the weaver is, as a percentage. Firestore's
        figure wins once it exists; the static one is the fallback. */
     getThreadProgress: function (thread) {
       if (!thread) return 0;
-      const stored = NASEEJ.session.threadProgress[thread.id];
+      const id = thread.id != null ? thread.id : threadIdOf(thread);
+      const stored = id != null ? NASEEJ.session.threadProgress[id] : undefined;
       return typeof stored === 'number' ? stored : thread.progress || 0;
     },
 
@@ -1414,6 +1758,7 @@
        read live Firestore progress. */
     completedWaypointIds: [],
     threadProgress: {},
+    mystery: {},
 
     get badgesEarned() {
       return profileBadges.filter(function (badge) {

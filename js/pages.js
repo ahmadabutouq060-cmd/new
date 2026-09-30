@@ -887,8 +887,15 @@
         '<rect x="70" y="8" width="42" height="42" fill="none" stroke="#12211E" stroke-width="3"/>' +
         '<rect x="8" y="70" width="42" height="42" fill="none" stroke="#12211E" stroke-width="3"/>' +
         '</svg></div>' +
-        '<p class="text-sm font-body font-semibold mb-1" style="color:#12211E">Scan at ' + E(wp.name) + '</p>' +
-        '<p class="text-xs font-body mb-3" style="color:#55635E">Point your camera at the physical QR marker at this location</p>' +
+        /* Truthful labelling. This SVG is buildChallengeMatrix() — a random
+           stand-in drawn by the page, not a code for anything. The old copy
+           told the visitor to point a camera at a physical marker, which does
+           not exist and never was going to: nothing here scans, decodes, or
+           verifies a position. A badge-shaped graphic is decoration, so it is
+           named as decoration and the real action is stated instead. */
+        '<p class="text-sm font-body font-semibold mb-1" style="color:#12211E">Challenge at ' + E(wp.name) + '</p>' +
+        '<p class="text-xs font-body mb-1" style="color:#55635E">Prototype QR — a visual placeholder, not a scannable code.</p>' +
+        '<p class="text-xs font-body mb-3" style="color:#55635E">Open the challenge here in Naseej. This demo does not scan codes or verify your location.</p>' +
         /* This used to read "Mark as completed manually" and navigate to the
            profile, which neither scanned anything nor marked anything — the
            visitor pressed it and landed on a stats page. The only honest
@@ -896,7 +903,9 @@
         '<button ' + N('profile') + ' class="text-xs font-body font-medium underline underline-offset-2" style="color:#013E37">View your progress →</button>' +
         '</div>';
     } else {
-      qrCta = '<button data-act="qr" class="w-full py-4 rounded-full font-body font-bold text-base transition-all hover:scale-[1.02] active:scale-[0.99]" style="background-color:#013E37;color:white;box-shadow:0 8px 24px rgba(1,62,55,0.35)">📷 Scan QR to Complete Challenge</button>';
+      /* The button opens the panel above and nothing else — no camera, no
+         decode. So it says what it does. */
+      qrCta = '<button data-act="qr" class="w-full py-4 rounded-full font-body font-bold text-base transition-all hover:scale-[1.02] active:scale-[0.99]" style="background-color:#013E37;color:white;box-shadow:0 8px 24px rgba(1,62,55,0.35)">Open Challenge</button>';
     }
 
     const circleBtn = 'w-8 h-8 rounded-full flex items-center justify-center" style="background-color:rgba(249,247,243,0.9);color:#12211E';

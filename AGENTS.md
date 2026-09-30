@@ -147,12 +147,21 @@ deliberately instead of leaving them unexplained.
 Keep the design tokens in `:root` and reuse them rather than hardcoding new colors.
 Keep CSS `@import` statements (the Google Fonts import) first in the file.
 
-**Type.** `--font-body` and `--font-display` carry an Arabic face and an emoji face
-after Outfit/Fraunces, because neither of those covers those scripts and the fallback was
-whatever the OS shipped — the same page rendered differently on Windows, macOS and iOS.
-Latin is unaffected (Outfit still wins every Latin glyph, being listed first), and Google
-Fonts serves all three under `unicode-range`, so a page with no Arabic and no emoji
-downloads no extra font bytes. Keep the fallbacks when editing the stacks.
+**Type.** One family for the whole product: **Tajawal**, in `--font-display` and
+`--font-body`, from a single `@import` at the top of the file. It replaced an
+Outfit/Fraunces pairing, which is worth knowing because the pairing came back
+once already: a Fraunces display serif over Outfit body copy cannot cover
+Arabic or emoji, so the fallback was whatever the OS shipped and the same page
+rendered differently on Windows, macOS and iOS. Tajawal is a humanist sans with
+a full Arabic companion, and it carries its personality in its weight range
+(200–900) rather than in its letterforms — so `.font-display` and `.font-body`
+differ by weight, not by family. Keep `'Noto Color Emoji'` in both stacks: Tajawal
+has no emoji glyphs, and dropping it makes the 🧦📷◈ glyphs in the data render
+as boxes. Google Fonts serves the subsets under `unicode-range`, so a page with no
+Arabic and no emoji downloads no extra font bytes.
+
+Do not restore Outfit or Fraunces. If a comment elsewhere in `css/styles.css`
+names them, it is describing the *old* stack as history, not the current one.
 
 **Responsive.** The utility layer is deliberately breakpoint-free, so below 1280px every
 page used to get the desktop arrangement. A single `@media` block at the end of

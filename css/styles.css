@@ -733,11 +733,22 @@ html.auth-locked body {
 /* ── Signed-in account chip in the nav (replaces the Sign In button) ───────── */
 
 /* Layout hooks added by js/navigation.js alongside nav-links/nav-cta so the
-   responsive layer can target each region of the bar. They carry no
-   appearance of their own — the brand lockup and the action cluster keep the
-   inline Tailwind utilities they already had. */
-.nav-logo { flex: none; }
+   responsive layer can target each region of the bar. Desktop lockup and
+   link type live here; narrower breakpoints override them below rather than
+   inheriting one set of pixel sizes. */
+.nav-logo { flex: none; gap: 0.625rem; }
+.nav-logo-mark,
+.nav-logo-word {
+  display: block;
+  object-fit: contain;
+}
+.nav-logo-mark { width: 36px; height: 31px; }
+.nav-logo-word { width: 68px; height: 31px; }
 .nav-actions { flex: none; }
+.nav-links button {
+  font-size: 1rem;
+  line-height: 1.375;
+}
 
 .nav-signin {
   font-size: 0.875rem;
@@ -900,6 +911,9 @@ html { scroll-padding-top: 6rem; }
 @media (max-width: 64rem) {
   .nav-root { padding-left: 1.5rem; padding-right: 1.5rem; }
   .nav-links { gap: 1.5rem; }
+  /* Still a single row here; 15px keeps the links readable without crowding
+     the lockup and the two pills. */
+  .nav-links button { font-size: 0.9375rem; }
 
   /* Three-up card rows become two-up before they become one-up. */
   .grid-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -937,7 +951,17 @@ html { scroll-padding-top: 6rem; }
     -webkit-overflow-scrolling: touch;
   }
   .nav-links::-webkit-scrollbar { display: none; }
-  .nav-links button { white-space: nowrap; }
+  .nav-links button {
+    white-space: nowrap;
+    font-size: 0.9375rem;
+  }
+  /* First-row lockup must leave room for Sign In + Start Naseej. Desktop
+     36×31 / 68×31 would leave only ~20px between them at 360px. */
+  .nav-logo { gap: 0.375rem; }
+  .nav-logo-mark { width: 32px; height: 28px; }
+  .nav-logo-word { width: 60px; height: 28px; }
+  .nav-actions { gap: 0.5rem; }
+  .nav-account { max-width: 8.5rem; }
 
   /* The nav is taller now, so the fixed offset pages use has to grow. */
   .pt-20 { padding-top: 7rem; }
@@ -993,7 +1017,7 @@ html { scroll-padding-top: 6rem; }
      on the site are already 36-40px tall, which is too small for a thumb.
 
      Measured in a real browser at 390px, the controls that were still under it
-     were: the nav logo (34px), the library category filters (36px), the card
+     were: the nav logo (28px on the wrap row), the library category filters (36px), the card
      CTA pills (39.6px, just short), and the underlined text buttons (20px —
      under the 24px floor WCAG 2.5.8 sets for *any* pointer, so that one was a
      genuine failure rather than a matter of comfort). Each selector below is
@@ -1078,6 +1102,11 @@ html { scroll-padding-top: 6rem; }
   .nav-account-name { display: none; }
   .nav-account { max-width: none; padding-right: 0.25rem; }
   .nav-cta { padding-left: 0.875rem; padding-right: 0.875rem; }
+  .nav-signin { padding-left: 0.875rem; padding-right: 0.875rem; }
+  .nav-logo-mark { width: 28px; height: 24px; }
+  .nav-logo-word { width: 53px; height: 24px; }
+  .nav-links { gap: 1rem; }
+  .nav-links button { font-size: 0.875rem; }
 
   /* ── Sign In dialog on a phone ──
      Becomes a bottom sheet rather than a centred card: full width, anchored to

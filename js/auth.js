@@ -53,21 +53,21 @@
        olive-dark on white     6.8:1  primary action label, AA
        ink-soft on card        4.0:1  control borders, > the 3:1 AA floor
        white on sand           2.0:1  decorative only (disabled label)
-     The site's --color-muted (#8A7B6B) is 4.0:1 and is fine for the 15px+ copy
+     The site's --color-muted (#55635E) is 4.0:1 and is fine for the 15px+ copy
      it is already used for, but it is under AA for the 12-14px text in this
      dialog, so the small type here uses ink-muted-strong instead. */
   const C = {
-    ink: '#2C2417',              // --color-foreground
-    inkSoft: '#8A7B6B',          // --color-muted
-    inkMutedStrong: '#6F6153',   // --color-ink-muted-strong
+    ink: '#12211E',              // --color-foreground
+    inkSoft: '#55635E',          // --color-muted
+    inkMutedStrong: '#4A5C58',   // --color-ink-muted-strong
     card: '#FDFCFA',             // --color-card
     sand: '#E8E0D0',             // --color-sand
     sandDark: '#C9BDA8',         // --color-sand-dark
     page: '#F9F7F3',             // --color-background
-    petra: '#D98A6C',            // --color-petra
+    petra: '#D6672B',            // --color-petra
     petraLight: '#EDB99E',       // --color-petra-light
-    olive: '#6B8E23',            // --color-olive
-    oliveDark: '#4A6318',        // --color-olive-dark
+    olive: '#013E37',            // --color-olive
+    oliveDark: '#02302B',        // --color-olive-dark
   };
 
   /* ── Modal ──────────────────────────────────────────────────────────────────
@@ -189,13 +189,20 @@
           '<div class="auth-user-name">' + E(auth.user.displayName || 'Google account') + '</div>' +
           (auth.user.email ? '<div class="auth-user-email">' + E(auth.user.email) + '</div>' : '') +
           '</div></div>' +
-          '<p class="auth-sub">You are signed in. Your threads and badges are saved to this account.</p>' +
+          /* The truth about what signing in does. It attaches a Google identity
+             to this browser's progress. It does not sync anything: progress
+             lives in local storage, so the previous copy — "your threads and
+             badges are saved to this account" — described a cloud save that has
+             never existed, and a visitor who cleared their browser would have
+             lost work while believing it was safe. */
+          '<p class="auth-sub">Signed in as ' + E(auth.user.displayName || 'this Google account') +
+          '. Your progress is stored in this browser. Account sync is not connected yet, so clearing site data will clear your progress.</p>' +
           statusRegion() +
           '<button type="button" class="auth-btn auth-btn-ghost" data-auth="signout"' +
           ' style="color:' + C.ink + ';border:1px solid ' + C.inkSoft + ';background-color:' + C.page + '">Sign out</button>' +
           '<button type="button" class="auth-btn" data-auth="close"' +
           ' style="background-color:' + C.oliveDark + ';color:' + C.white + '">Continue exploring</button>'
-        : '<p class="auth-sub">Sign in to save your story threads, earn points and collect badges as you weave your way across Jordan.</p>' +
+        : '<p class="auth-sub">Sign in to identify yourself. You can weave, earn ATHAR and collect badges without an account — progress is kept in this browser.</p>' +
           statusRegion() +
           googleButton() +
           '<p class="auth-foot">Naseej uses your Google profile only to identify you. Nothing is posted without your action.</p>');

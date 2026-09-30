@@ -20,6 +20,12 @@
       if (NASEEJ.data && typeof NASEEJ.data.hydrateProgress === 'function') {
         NASEEJ.data.hydrateProgress();
       }
+      /* Wishlist and demo redemption claims live in their own local documents,
+         restored alongside progress but validated separately, so a corrupt
+         one cannot cost a weaver their mystery progress. */
+      if (NASEEJ.data && typeof NASEEJ.data.hydrateFeatures === 'function') {
+        NASEEJ.data.hydrateFeatures();
+      }
       NASEEJ.route();
     } catch (err) {
       console.error('Naseej: failed to render ' + (NASEEJ.state && NASEEJ.state.page) + ' (' + err.message + ').');

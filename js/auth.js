@@ -201,7 +201,7 @@
           '<button type="button" class="auth-btn auth-btn-ghost" data-auth="signout"' +
           ' style="color:' + C.ink + ';border:1px solid ' + C.inkSoft + ';background-color:' + C.page + '">Sign out</button>' +
           '<button type="button" class="auth-btn" data-auth="close"' +
-          ' style="background-color:' + C.oliveDark + ';color:' + C.white + '">Continue exploring</button>'
+          ' style="background-color:' + C.oliveDark + ';color:#FFFFFF">Continue exploring</button>'
         : '<p class="auth-sub">Sign in to identify yourself. You can weave, earn ATHAR and collect badges without an account — progress is kept in this browser.</p>' +
           statusRegion() +
           googleButton() +

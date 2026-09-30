@@ -395,8 +395,8 @@
       });
     },
 
-    /* Optional Firebase AI Logic / Gemini. Same app. Failure is not fatal —
-       js/khayt.js falls back to the mock adapter with the same interface. */
+    /* Optional Firebase AI Logic / Gemini. Same app. Unused by the product:
+       KHAYT is the local scripted companion in data.js and does not call this. */
     ai: function () {
       return load().then(function (bundle) {
         if (!bundle || !bundle.enabled) {

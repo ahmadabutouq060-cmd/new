@@ -834,6 +834,19 @@ html.auth-locked body {
 .card-host {
   position: relative;
 }
+/* Home featured-thread row only: equal image band, shared footer baseline. */
+.featured-thread-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.featured-thread-foot {
+  margin-top: auto;
+}
+.featured-progress {
+  min-height: 1.75rem;
+  margin-bottom: 1rem;
+}
 .card-link::after {
   content: "";
   position: absolute;

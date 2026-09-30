@@ -1433,7 +1433,11 @@
   });
 
   const activeThreads = derivedThreads([6]).map(function (t) {
-    return Object.assign({}, t, { progress: 43, nextWaypoint: 'Ajloun Castle Lookout' });
+    return Object.assign({}, t, {
+      progress: 43,
+      nextWaypoint: 'Ajloun Castle Lookout',
+      demoSeed: true,
+    });
   });
 
   /* ── Landing statistics ───────────────────────────────────────────────────
@@ -1464,10 +1468,7 @@
     logoText: "assets/92fb6.png",
     petraHero: "assets/petra-hero.png",
     jordanMap: "assets/jordan-map-new.png",
-    maan: "assets/maan-seven-wonders.png",
-    ajloun: "assets/ajloun-thread.png",
-    madaba: "assets/madaba-thread.png",
-  }
+  };
 
   // ── UserProfile.tsx ──────────────────────────────────────────────────────────
   const profileBadges = [

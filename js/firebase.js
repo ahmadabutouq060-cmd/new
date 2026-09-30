@@ -8,9 +8,10 @@
  * import(), which *is* allowed here, and only when a service is first
  * requested — a visitor who never touches Sign In never downloads it.
  *
- * Auth loads firebase-app.js and firebase-auth.js. Optional firestore() and
- * ai() loaders remain on this module for a later layer. KHAYT does not call
- * them: it is the local scripted companion in data.js. Analytics is not loaded.
+ * Auth loads firebase-app.js and firebase-auth.js. Firestore is loaded only
+ * after a weaver is signed in, to read/write weavers/{uid}. KHAYT does not
+ * call ai(): it is the local scripted companion in data.js. Analytics is not
+ * loaded.
  *
  * There is exactly ONE Firebase app initialisation, here. No other file calls
  * initializeApp(); js/auth.js drives this module through NASEEJ.services.
@@ -22,6 +23,8 @@
  *   signInWithGoogle()   -> Promise<{ status }>  (popup on desktop, redirect on mobile)
  *   signOut()            -> Promise<void>
  *   onAuthStateChanged() -> unsubscribe fn; fires immediately with the current user
+ *   loadWeaver(uid)      -> Promise<weaver doc | null>
+ *   saveWeaver(uid, data)-> Promise<{ status }>
  *
  * To disable authentication without touching any other file, set ENABLED=false
  * below. Nothing else in the app depends on Firebase being reachable: the
@@ -166,6 +169,32 @@
         return '';
       });
     return configProbe;
+  }
+
+  /* Firestore rejects `undefined`. Walk the snapshot so a missing optional
+     field becomes an omitted key rather than a failed write. */
+  function forFirestore(value) {
+    if (value === undefined) return undefined;
+    if (value === null) return null;
+    if (Array.isArray(value)) {
+      const list = [];
+      for (let i = 0; i < value.length; i++) {
+        const item = forFirestore(value[i]);
+        if (item !== undefined) list.push(item);
+      }
+      return list;
+    }
+    if (typeof value === 'object') {
+      const out = {};
+      for (const key in value) {
+        if (!Object.prototype.hasOwnProperty.call(value, key)) continue;
+        const item = forFirestore(value[key]);
+        if (item !== undefined) out[key] = item;
+      }
+      return out;
+    }
+    if (typeof value === 'number' && !isFinite(value)) return null;
+    return value;
   }
 
   /* ── SDK load ───────────────────────────────────────────────────────────────
@@ -373,6 +402,44 @@
 
     /* Exposed so the UI can reuse the human-readable mapping. */
     describeError: describe,
+
+    /* weavers/{uid}: identity plus the same progress snapshot data.js stores
+       locally. Auth is required by the security rules; this client never writes
+       another user's document. */
+    loadWeaver: function (uid) {
+      if (!uid) return Promise.resolve(null);
+      return NASEEJ.services.firestore().then(function (bundle) {
+        if (!bundle || !bundle.enabled || !bundle.db) {
+          return null;
+        }
+        const ref = bundle.firestore.doc(bundle.db, 'weavers', String(uid));
+        return bundle.firestore.getDoc(ref).then(function (snap) {
+          return snap.exists() ? snap.data() : null;
+        }).catch(function (err) {
+          console.warn('Naseej: could not load weaver profile (' + (err && err.message) + ').');
+          return null;
+        });
+      });
+    },
+
+    saveWeaver: function (uid, data) {
+      if (!uid || !data) return Promise.resolve({ status: 'error', message: 'Missing weaver.' });
+      return NASEEJ.services.firestore().then(function (bundle) {
+        if (!bundle || !bundle.enabled || !bundle.db) {
+          return { status: 'error', message: (bundle && bundle.reason) || 'Firestore is unavailable.' };
+        }
+        const ref = bundle.firestore.doc(bundle.db, 'weavers', String(uid));
+        const payload = forFirestore(data);
+        payload.uid = String(uid);
+        payload.updatedAt = Date.now();
+        return bundle.firestore.setDoc(ref, payload, { merge: true }).then(function () {
+          return { status: 'success' };
+        }).catch(function (err) {
+          console.warn('Naseej: could not save weaver profile (' + (err && err.message) + ').');
+          return { status: 'error', message: describe(err) };
+        });
+      });
+    },
 
     /* Optional Firestore, same app. Never initialises a second Firebase app.
        Resolves to { enabled, app, db, firestore } or { enabled:false, reason }. */

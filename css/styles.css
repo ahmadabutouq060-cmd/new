@@ -674,16 +674,10 @@ html.auth-locked body {
   font-size: 0.8125rem;
   line-height: 1.5;
 }
-/* Both status colours now reference the tokens their comments already named.
-   .auth-msg-ok was the real leftover: it still carried #4A6318, the pre-token
-   olive, long after --color-olive-dark was redefined to #02302B — so the
-   success state was the one colour in the dialog that had silently fallen out
-   of the palette. .auth-msg-error's literal happened to equal its token, so
-   converting it changes nothing and keeps the pair symmetric. Neither
-   conversion moves a contrast ratio: the dialog background is unchanged and
-   both replacements are darker than the values they replace. */
+/* .auth-msg-error matches --color-difficulty-strenuous. .auth-msg-ok keeps the
+   contrast-tuned literal #4A6318 rather than --color-olive-dark. */
 .auth-msg-error { color: var(--color-difficulty-strenuous); }
-.auth-msg-ok { color: var(--color-olive-dark); }
+.auth-msg-ok { color: #4A6318; }
 
 .auth-foot {
   margin-top: 1rem;

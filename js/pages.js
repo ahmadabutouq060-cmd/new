@@ -1280,7 +1280,7 @@
       const claimed = session.redemptions || {};
       body = '<div class="py-10">' +
         '<div class="flex items-center justify-between mb-2 flex-wrap gap-4"><div>' +
-        '<h2 class="font-display text-2xl font-semibold" style="color:#12211E">Community Rewards</h2>' +
+        '<h2 class="font-display text-2xl font-semibold" style="color:#12211E">Demo Rewards Catalogue</h2>' +
         '<p class="text-sm font-body mt-1" style="color:#4A5C58">Spend your ' + TP + ' ATHAR with local Jordan partners</p></div>' +
         '<div class="flex items-center gap-2 px-4 py-2 rounded-full" style="background-color:rgba(1,62,55,0.08);border:1px solid rgba(1,62,55,0.2)">' +
         '<span class="font-display text-lg font-semibold" style="color:#013E37">' + TP + '</span>' +

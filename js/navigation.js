@@ -82,13 +82,39 @@
      local state; leaving the page unmounts it and clears that state.          */
   let mountedPage = null;
 
+  /* A route is the whole truth about which thread/waypoint is being shown:
+     whatever the hash does not mention is cleared, never inherited from the
+     previous route. Otherwise `#/thread` after a mystery thread would silently
+     reopen that thread, and `#/place/3/2` -> `#/place/4` would show waypoint 2
+     of thread 4.
+     An id that is not a number, or names no thread, is reported and then
+     treated as absent — data.getThread() still applies the documented fallback
+     to the default thread. */
+  function readId(part, label) {
+    if (part == null || part === '') return null;
+    const n = +part;
+    if (isNaN(n)) {
+      console.warn('Naseej: "' + part + '" is not a valid ' + label + ' id — ignoring it.');
+      return null;
+    }
+    return n;
+  }
+
   function route() {
     const parts = location.hash.replace(/^#\/?/, '').split('/');
     if (PAGES.indexOf(parts[0]) < 0) parts.splice(0, parts.length, 'home'); // first visit -> home
     const samePage = mountedPage === parts[0];
+
+    let threadId = readId(parts[1], 'thread');
+    if (threadId != null && NASEEJ.data && !NASEEJ.data.hasThread(threadId)) {
+      console.warn('Naseej: thread ' + threadId + ' does not exist — falling back to the default thread.');
+      threadId = null;
+    }
+    const waypointId = readId(parts[2], 'waypoint');
+
     NASEEJ.state.page = parts[0];
-    if (parts[1] && !isNaN(+parts[1])) NASEEJ.state.threadId = +parts[1];
-    if (parts[2] && !isNaN(+parts[2])) NASEEJ.state.waypointId = +parts[2];
+    NASEEJ.state.threadId = threadId;
+    NASEEJ.state.waypointId = waypointId;
     mountedPage = parts[0];
     mount(!samePage);
   }

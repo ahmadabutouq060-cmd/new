@@ -8,9 +8,9 @@
  * import(), which *is* allowed here, and only when a service is first
  * requested — a visitor who never touches Sign In never downloads it.
  *
- * Only the modules actually used are imported: firebase-app.js and
- * firebase-auth.js. Firestore and Analytics are not part of the auth flow, so
- * they are not loaded (see `load()`).
+ * Auth loads firebase-app.js and firebase-auth.js. Firestore and Firebase AI
+ * Logic are pulled in later, through firestore() / ai(), still using the same
+ * app instance. Analytics is not loaded.
  *
  * There is exactly ONE Firebase app initialisation, here. No other file calls
  * initializeApp(); js/auth.js drives this module through NASEEJ.services.
@@ -191,7 +191,9 @@
         const firebaseApp = modules[0];
         const firebaseAuth = modules[1];
 
-        const app = firebaseApp.initializeApp(config);
+        const app = firebaseApp.getApps && firebaseApp.getApps().length
+          ? firebaseApp.getApp()
+          : firebaseApp.initializeApp(config);
         const auth = firebaseAuth.getAuth(app);
 
         /* Persist the session across reloads so a signed-in visitor stays
@@ -371,5 +373,56 @@
 
     /* Exposed so the UI can reuse the human-readable mapping. */
     describeError: describe,
+
+    /* Optional Firestore, same app. Never initialises a second Firebase app.
+       Resolves to { enabled, app, db, firestore } or { enabled:false, reason }. */
+    firestore: function () {
+      return load().then(function (bundle) {
+        if (!bundle || !bundle.enabled) {
+          return fail((bundle && bundle.reason) || 'Firebase is unavailable.');
+        }
+        if (bundle.db && bundle.firestore) return bundle;
+        return import(SDK + 'firebase-firestore.js')
+          .then(function (fs) {
+            bundle.firestore = fs;
+            bundle.db = fs.getFirestore(bundle.app);
+            return bundle;
+          })
+          .catch(function (err) {
+            console.warn('Naseej: Firestore SDK failed to load (' + (err && err.message) + ').');
+            return fail('Firestore is unavailable: ' + (err && err.message));
+          });
+      });
+    },
+
+    /* Optional Firebase AI Logic / Gemini. Same app. Failure is not fatal —
+       js/khayt.js falls back to the mock adapter with the same interface. */
+    ai: function () {
+      return load().then(function (bundle) {
+        if (!bundle || !bundle.enabled) {
+          return fail((bundle && bundle.reason) || 'Firebase is unavailable.');
+        }
+        if (bundle.aiModel) return bundle;
+        return import(SDK + 'firebase-ai.js')
+          .then(function (aiMod) {
+            if (!aiMod || typeof aiMod.getAI !== 'function') {
+              return fail('Firebase AI Logic is not available in this SDK build.');
+            }
+            const opts = aiMod.GoogleAIBackend
+              ? { backend: new aiMod.GoogleAIBackend() }
+              : undefined;
+            const ai = opts ? aiMod.getAI(bundle.app, opts) : aiMod.getAI(bundle.app);
+            bundle.ai = ai;
+            bundle.aiMod = aiMod;
+            bundle.aiModel = aiMod.getGenerativeModel(ai, { model: 'gemini-2.0-flash' });
+            bundle.aiLive = true;
+            return bundle;
+          })
+          .catch(function (err) {
+            console.warn('Naseej: Firebase AI SDK failed to load (' + (err && err.message) + '). KHAYT will use the mock adapter.');
+            return fail('Firebase AI Logic is not configured: ' + (err && err.message));
+          });
+      });
+    },
   };
 })(window.NASEEJ || (window.NASEEJ = {}));

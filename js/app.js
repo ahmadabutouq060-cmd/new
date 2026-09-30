@@ -13,6 +13,13 @@
     /* A stale/invalid hash should not keep the visitor off the site, but a
        genuinely broken renderer is a real error worth surfacing. */
     try {
+      /* Restore the weaver's ATHAR, completed nodes, clues, branch and reveal
+         BEFORE the first render, so a refresh mid-thread or after the reveal
+         lands on the state that was actually saved. Malformed stored data is
+         discarded inside data.js and never reaches the renderers. */
+      if (NASEEJ.data && typeof NASEEJ.data.hydrateProgress === 'function') {
+        NASEEJ.data.hydrateProgress();
+      }
       NASEEJ.route();
     } catch (err) {
       console.error('Naseej: failed to render ' + (NASEEJ.state && NASEEJ.state.page) + ' (' + err.message + ').');

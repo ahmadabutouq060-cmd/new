@@ -144,7 +144,8 @@
      The Sign In control is drawn by js/auth.js (NASEEJ.authControl) so the
      signed-in state can swap it for the account chip without this file knowing
      anything about Firebase. The nav-* classes are layout hooks for the
-     responsive layer in css/styles.css; they carry no styling of their own. */
+     responsive layer in css/styles.css, which owns lockup size and link
+     type so each breakpoint can scale them independently. */
   NASEEJ.navBar = function () {
     const items = [
       ['Home', 'home'],
@@ -166,11 +167,11 @@
       ['My Journey', 'profile'],
     ];
     const assets = NASEEJ.data.assets;
-    return '<nav class="nav-root fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-4"' +
+    return '<nav class="nav-root fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-3"' +
       ' style="background-color:rgba(249,247,243,0.95);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid #E8E0D0">' +
-      '<button ' + navAttrs('home') + ' class="nav-logo flex items-center gap-3 group">' +
-      '<img src="' + assets.logoIcon + '" alt="Naseej emblem" style="width:39px;height:34px;object-fit:contain">' +
-      '<img src="' + assets.logoText + '" alt="Naseej" style="width:74px;height:34px;object-fit:contain"></button>' +
+      '<button ' + navAttrs('home') + ' class="nav-logo flex items-center group">' +
+      '<img class="nav-logo-mark" src="' + assets.logoIcon + '" alt="Naseej emblem" width="39" height="34">' +
+      '<img class="nav-logo-word" src="' + assets.logoText + '" alt="Naseej" width="74" height="34"></button>' +
       '<div class="nav-links flex items-center gap-8">' + items.map(function (item) {
         return '<button ' + navAttrs(item[1]) +
           ' class="text-sm font-medium transition-colors"' +

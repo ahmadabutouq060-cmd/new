@@ -159,6 +159,51 @@ function checkAssets() {
   }
   const unused = [...onDisk].filter((f) => !seen.has(f));
   for (const f of unused) warnings.push('unused asset (not referenced by any script): ' + f);
+  checkAssetTypes(dir);
+}
+
+/* Extension/content agreement.
+
+   Firebase Hosting derives Content-Type from the file extension, so an asset
+   whose bytes disagree with its name is served with the wrong header on every
+   request. Browsers sniff images and cope, which is exactly why this goes
+   unnoticed until something else reads the file — an image pipeline, a
+   validator, a cache. This repo had eleven files named .jpg holding PNG data.
+
+   Cheap to check and impossible to check later, so it is a build error rather
+   than a note. An LFS pointer smudged into the working tree is reported too,
+   because a pointer served as an image is a broken image with no local symptom
+   until the clone that lacks the object. */
+const SIGNATURES = [
+  { ext: '.png', test: (b) => b.length > 8 && b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47 },
+  { ext: '.jpg', test: (b) => b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
+  { ext: '.jpeg', test: (b) => b.length > 3 && b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff },
+  { ext: '.gif', test: (b) => b.length > 6 && b.slice(0, 3).toString('latin1') === 'GIF' },
+  { ext: '.webp', test: (b) => b.length > 12 && b.slice(0, 4).toString('latin1') === 'RIFF' && b.slice(8, 12).toString('latin1') === 'WEBP' },
+  { ext: '.svg', test: (b) => /<svg[\s>]/i.test(b.slice(0, 200).toString('utf8')) },
+];
+
+function checkAssetTypes(dir) {
+  for (const name of fs.readdirSync(dir)) {
+    const file = path.join(dir, name);
+    if (!fs.statSync(file).isFile()) continue;
+    const ext = path.extname(name).toLowerCase();
+    const known = SIGNATURES.find((s) => s.ext === ext);
+    if (!known) continue; /* not an image type we can verify */
+
+    const buf = fs.readFileSync(file);
+    const head = buf.slice(0, 120).toString('utf8');
+    if (/^version https?:\/\/git-lfs\.github\.com\/spec\/v1/.test(head)) {
+      errors.push('assets/' + name + ' is an unresolved Git LFS pointer, not image data');
+      continue;
+    }
+    if (!known.test(buf)) {
+      const actual = SIGNATURES.find((s) => s.test(buf));
+      errors.push(
+        'assets/' + name + ' does not contain ' + ext + ' data' + (actual ? ' — it looks like ' + actual.ext : '')
+      );
+    }
+  }
 }
 
 /* No bundler means no bundler diagnostics, but the utility-class coverage is

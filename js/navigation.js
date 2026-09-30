@@ -26,10 +26,18 @@
   /* ── Markup helpers ─────────────────────────────────────────────────────── */
 
   function escapeHtml(value) {
+    /* The apostrophe is escaped because values are interpolated into
+       single-quoted attribute values in several renderers, and a lone
+       "it's" would close the attribute. `&` goes first or the entities
+       below would be re-escaped. The &#39; form is used rather than &apos;
+       because &apos; is not defined in HTML4 and some parsers render it
+       literally. */
     return String(value)
       .replace(/&/g, '&amp;')
       .replace(/</g, '&lt;')
-      .replace(/"/g, '&quot;');
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
   NASEEJ.escapeHtml = escapeHtml;
 
@@ -103,6 +111,16 @@
   function route() {
     const parts = location.hash.replace(/^#\/?/, '').split('/');
     if (PAGES.indexOf(parts[0]) < 0) parts.splice(0, parts.length, 'home'); // first visit -> home
+
+    /* `#/thread` with no id used to fall through to the default thread (id 7).
+       That is the same defect as the nav item: a route that promises a thread
+       collection opened one arbitrary story, and a bookmark or a shared bare
+       link did the same. It now resolves to the library, which is what the
+       segment means without an id. An explicit `#/thread/7` is unaffected. */
+    if (parts[0] === 'thread' && (parts[1] == null || parts[1] === '')) {
+      parts.splice(0, parts.length, 'discover');
+    }
+
     const samePage = mountedPage === parts[0];
 
     let threadId = readId(parts[1], 'thread');
@@ -130,8 +148,17 @@
   NASEEJ.navBar = function () {
     const items = [
       ['Home', 'home'],
-      ['Discover', 'discover'],
-      ['Threads', 'thread'],
+      /* "Threads" points at the library, not a single thread. It used to link
+         to `thread`, which the router resolves to the default thread (id 7), so
+         a visitor who chose Threads from the nav was dropped into one arbitrary
+         story with no way back to the list. The label promises a collection, so
+         the destination has to be a collection — the Discover renderer, whose
+         heading is already "Discover Threads".
+
+         There is therefore no separate "Discover" entry: two nav items pointing
+         at one page is a duplicate, and after this change they would have been
+         the same link twice over. The library is reachable under one name. */
+      ['Threads', 'discover'],
       ['Community', 'profile'],
     ];
     const assets = NASEEJ.data.assets;
@@ -143,14 +170,14 @@
       '<div class="nav-links flex items-center gap-8">' + items.map(function (item) {
         return '<button ' + navAttrs(item[1]) +
           ' class="text-sm font-medium transition-colors"' +
-          ' style="color:' + (NASEEJ.state.page === item[1] ? '#D98A6C' : '#2C2417') + '">' + item[0] + '</button>';
+          ' style="color:' + (NASEEJ.state.page === item[1] ? '#8C3211' : '#12211E') + '">' + item[0] + '</button>';
       }).join('') + '</div>' +
       '<div class="nav-actions flex items-center gap-3">' +
       (NASEEJ.authControl ? NASEEJ.authControl() :
         '<button ' + navAttrs('profile') +
-        ' class="text-sm font-medium px-5 py-2 rounded-full transition-all" style="color:#2C2417;border:1px solid #C9BDA8">Sign In</button>') +
+        ' class="text-sm font-medium px-5 py-2 rounded-full transition-all" style="color:#12211E;border:1px solid #C9BDA8">Sign In</button>') +
       '<button ' + navAttrs('discover') +
-      ' class="nav-cta text-sm font-medium px-5 py-2 rounded-full transition-all" style="background-color:#6B8E23;color:white">Start Naseej</button>' +
+      ' class="nav-cta text-sm font-medium px-5 py-2 rounded-full transition-all" style="background-color:#013E37;color:white">Start Naseej</button>' +
       '</div></nav>';
   };
 
@@ -238,5 +265,42 @@
     if (ev.target.id !== 'lib-search') return;
     NASEEJ.ui.search = ev.target.value;
     if (NASEEJ.updateLibrary) NASEEJ.updateLibrary();
+  });
+
+  /* ── Keyboard ───────────────────────────────────────────────────────────────
+     The story-path map draws its waypoints as SVG <g> elements. A <g> is not a
+     button: it takes focus with tabindex but fires no click on Enter or Space,
+     so a keyboard visitor could tab to a node and do nothing with it. This is
+     the second listener, not a growth of the first, and it only covers what
+     the click path cannot reach.
+
+     The handler is invoked directly rather than by synthesising a click: the
+     actions are already plain functions, and a dispatched MouseEvent would
+     carry coordinates and a target that do not correspond to anything real. */
+  document.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Enter' && ev.key !== ' ' && ev.key !== 'Spacebar') return;
+    const el = ev.target.closest && ev.target.closest(INTERACTIVE);
+    if (!el) return;
+
+    /* A real <button>/<a> already handles these keys natively. Dispatching again
+       would double-fire — a nav would navigate twice, a reward would be
+       claimed twice. Only non-native elements need this. */
+    const native = el.tagName === 'BUTTON' || el.tagName === 'A' || el.tagName === 'INPUT';
+    if (native) return;
+
+    if (el.dataset.nav) {
+      ev.preventDefault();
+      navigate(
+        el.dataset.nav,
+        el.dataset.thread != null ? +el.dataset.thread : undefined,
+        el.dataset.wp != null ? +el.dataset.wp : undefined
+      );
+      return;
+    }
+    const handler = NASEEJ.actions && NASEEJ.actions[el.dataset.act];
+    if (handler) {
+      ev.preventDefault();
+      handler(el.dataset.v);
+    }
   });
 })(window.NASEEJ || (window.NASEEJ = {}));

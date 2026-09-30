@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=Noto+Naskh+Arabic:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@300;400;500;600;700&family=Noto+Color+Emoji&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@200;300;400;500;700;800;900&display=swap');
 
 /* ── Tailwind v4 preflight (ported by hand) ── */
 *,::after,::before,::backdrop{box-sizing:border-box;margin:0;padding:0;border:0 solid}
@@ -16,20 +16,54 @@ button,input:where([type=button],[type=reset],[type=submit]){-webkit-appearance:
 ol,ul,menu{list-style:none}
 [hidden]:where(:not([hidden=until-found])){display:none!important}
 
-/* ── Theme tokens (from @theme in index.css) ── */
+/* ── Theme tokens ──────────────────────────────────────────────────────────
+   The Naseej brand palette, and the roles it fills.
+
+   The brand is two teals and two terracottas. They are not interchangeable, and
+   the contrast numbers are why:
+
+     Deep Teal        #013E37  white on it 12.03:1   text on paper 11.24:1
+     Heritage Teal    #046852  white on it  6.76:1   text on paper  6.32:1
+     Deep Terracotta  #A23B17  white on it  6.62:1   text on paper  6.18:1
+     Warm Terracotta  #D6672B  white on it  3.60:1   text on paper  3.36:1
+
+   So the deep teal is the primary and it dominates: it carries the CTAs, the
+   nav, the active states and the dark editorial panels. Heritage teal is the
+   secondary step. Terracotta is the accent, and Warm Terracotta is an ACCENT
+   ONLY — it clears 3:1 for large text and nothing else. It is never a button
+   behind white type and never small body copy; for those it steps down to
+   --color-terra-ink (#8C3211, 8.14:1 under white). That distinction is the
+   whole reason there are two terracotta tokens.
+
+   Neutrals are unchanged and stay warm and quiet. Their job is legibility, not
+   personality. */
 :root{
 
+  /* ── The brand ── */
+  --color-teal: #013E37;              /* primary  — Deep Teal */
+  --color-teal-heritage: #046852;     /* secondary — Heritage Teal */
+  --color-teal-deep: #02302B;         /* deepest step, gradient end */
+  --color-terra: #D6672B;             /* accent — Warm Terracotta, large/graphic only */
+  --color-terra-deep: #A23B17;        /* Deep Terracotta, white type sits on this */
+  --color-terra-ink: #8C3211;         /* text-safe terracotta for small copy (8.14:1) */
+  --color-terra-light: #EDB99E;       /* tint for dark panels */
+
+  /* ── Semantic roles ──
+     These are the names the markup used before the brand migration and they
+     now point at the brand, so most of the ported UI inherited the new palette
+     without being rewritten. "olive" was the old primary and is the deep teal;
+     "petra" was the old accent and is the terracotta. */
   --color-background: #F9F7F3;
-  --color-foreground: #2C2417;
-  --color-petra: #D98A6C;
+  --color-foreground: #12211E;        /* deep teal-black ink, 15.4:1 on paper */
+  --color-petra: #D6672B;             /* was #D98A6C — 2.52:1, unreadable as text */
   --color-petra-light: #EDB99E;
-  --color-petra-dark: #B8633E;
-  --color-olive: #6B8E23;
-  --color-olive-light: #8CB02E;
-  --color-olive-dark: #4A6318;
+  --color-petra-dark: #A23B17;        /* was #B8633E — 4.01:1, still short of AA */
+  --color-olive: #013E37;             /* was #6B8E23 — 3.56:1, the old primary */
+  --color-olive-light: #046852;       /* was #8CB02E */
+  --color-olive-dark: #02302B;        /* was #4A6318 */
   --color-sand: #E8E0D0;
   --color-sand-dark: #C9BDA8;
-  --color-muted: #8A7B6B;
+  --color-muted: #55635E;             /* was #8A7B6B — 3.83:1, failed AA */
   --color-card: #FDFCFA;
 
   /* ── Registry for the colours the renderers use ──
@@ -41,22 +75,24 @@ ol,ul,menu{list-style:none}
      role in the UI, not a ramp. */
   --color-map-surface: #F4EFE6;      /* discover: map panel + selected card */
   --color-map-border: #D8CDB8;       /* discover: map frame, floating chips */
-  --color-map-node: #CCC0A8;         /* discover: unselected city node stroke */
-  --color-map-label: #3A2810;        /* discover: unselected city label */
-  --color-compass: #B0A090;          /* discover: north compass */
+  --color-map-node: #9C8F7A;         /* discover: unselected city node stroke */
+  --color-map-label: #12211E;        /* discover: unselected city label */
+  --color-compass: #7C8A85;          /* discover: north compass */
   --color-card-border: #E0D5C2;      /* discover: selected thread card */
-  --color-muted-strong: #6B5E50;     /* discover: thread hook text */
-  --color-olive-strong: #5A7A1A;     /* thread: challenge text */
-  --color-foreground-deep: #3D3020;  /* thread: challenge/footer gradient end */
-  --color-difficulty-easy: #C5A028;      /* data.difficultyColor */
-  --color-difficulty-moderate: #B05A2A;
+  --color-muted-strong: #4A5C58;     /* discover: thread hook text, 7.1:1 */
+  --color-olive-strong: #046852;     /* thread: challenge text */
+  --color-foreground-deep: #02302B;  /* thread: challenge/footer gradient end */
+  --color-surface-disabled: #F1EDE4; /* a control that is genuinely disabled */
+  --color-difficulty-easy: #046852;      /* data.difficultyColor — was #C5A028,
+                                            which was 2.33:1 and unreadable */
+  --color-difficulty-moderate: #A23B17;  /* was #B05A2A */
   --color-difficulty-strenuous: #8B2A2A;
-  --color-ink-muted: #8A7B6B;     /* --color-muted */
-  --color-ink-muted-strong: #6F6153; /* 5.8:1 on --color-card; the muted tone
-                                       stepped down just far enough for 12-14px
-                                       body copy to clear WCAG AA 4.5:1.
-                                       --color-muted is 4.0:1 and is kept for
-                                       large text and the pre-existing pages. */
+  --color-ink-muted: #55635E;     /* --color-muted: 5.89:1 on paper, clears AA
+                                       for the 12-14px body copy that used to
+                                       fail at 3.83:1. */
+  --color-ink-muted-strong: #4A5C58; /* 7.1:1 on --color-card; for the smallest
+                                          captions, where even muted is a step
+                                          too soft. */
   --color-white: #FFFFFF;                /* auth: Google button, on-accent text */
 
   /* Google's own brand mark, inlined in js/auth.js so the sign-in button
@@ -69,22 +105,52 @@ ol,ul,menu{list-style:none}
   --color-google-red: #EA4335;
 
   /* ── Type stacks ──────────────────────────────────────────────────────────
-     Fraunces and Outfit carry no Arabic and no emoji glyphs, so anything
-     outside Latin silently fell through to whatever the operating system
-     happened to ship — which is why the same page rendered the Arabic brand
-     mark and the 🔒/🧵 icons differently on Windows, macOS, iOS and Android.
+     One family for the whole product, per the documented direction: Tajawal.
+     The previous stack was Fraunces (a display serif) for headings and Outfit (a
+     geometric sans) for body, which meant a second and third typeface had to be
+     appended for Arabic and emoji coverage — four font families in total, and
+     two different voices across a single page.
 
-     The fallbacks below give those two script classes a fixed face, so they
-     are identical everywhere. Latin is untouched: Outfit still wins every
-     Latin glyph because it is listed first. Google Fonts serves all three
-     under unicode-range, so a page with no Arabic and no emoji downloads no
-     extra font bytes at all — only these @font-face rules (~2 KB of CSS). */
-  --font-display: 'Fraunces', 'Noto Naskh Arabic', Georgia, 'Times New Roman', serif;
-  --font-body: 'Outfit', 'Noto Sans Arabic', 'Noto Color Emoji', system-ui, -apple-system,
-    'Segoe UI', Roboto, sans-serif;
+     Tajawal is a humanist sans with a full Arabic companion, so headings, body,
+     buttons, KHAYT, challenges and rewards all speak with one voice, and
+     hierarchy is carried by weight and size rather than by switching typeface.
+
+     Both tokens resolve to the same family on purpose. The names are kept
+     because the markup asks for --font-display and --font-body explicitly, and
+     collapsing them would mean rewriting class names across every renderer for
+     no visual gain.
+
+     'Noto Color Emoji' stays in the body stack: Tajawal has no emoji glyphs, and
+     the node icons, badge marks and mood emoji in the content are meaningful,
+     so they need a fixed face rather than whatever the OS supplies. It is
+     unicode-range-split, so a page with no emoji downloads none of it. */
+  --font-display: 'Tajawal', 'Noto Color Emoji', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Tajawal', 'Noto Color Emoji', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* The display weight, so hierarchy comes from the token rather than from
+     whatever weight a class happened to name. Fraunces carried its personality
+     in the letterforms; Tajawal carries it in the weight range, so the display
+     end is 800 and the body sits at 400. */
+  --weight-display: 800;
+  --weight-body: 400;
 }
 
 /* ── Global styles (from index.css) ── */
+
+/* WCAG 2.5.8 (Target Size, Minimum, AA) asks for 24x24 CSS px. The text-only
+   buttons here are exactly the shape that misses it: a bare label with no
+   padding, so the tap area is the cap-height of the text — 20px. Measured in a
+   real browser, that was seven controls: the three nav links, "View all N
+   threads", the "← Discover" back link, and the two breadcrumb segments. They
+   are the most-tapped controls on the site, so the floor is worth enforcing
+   rather than leaving to each call site's padding.
+
+   `min-height` only ever raises a box, so the pill buttons that already clear
+   the bar are untouched. The 44px comfort target for phones is set separately,
+   and only for the primary controls, in the media block at the end. */
+button {
+  min-height: 24px;
+}
 
 /* App shell (was <div className="min-h-screen" style={{backgroundColor:'#F9F7F3'}}>) */
 #app {
@@ -123,8 +189,10 @@ body {
   font-family: var(--font-display);
 }
 
+/* The progress fill. Terracotta on the journey from none to found: the same
+   ramp the reveal uses, so a finished thread looks like the thread it earned. */
 .progress-bar {
-  background: linear-gradient(90deg, #6B8E23, #8CB02E);
+  background: linear-gradient(90deg, #a23b17, #d6672b);
 }
 
 /* Reserved component classes. These ported from components/ThreadMap.tsx and
@@ -714,9 +782,69 @@ html.auth-locked body {
    users with no focus indicator at all. Restore one, but only for keyboard
    focus (:focus-visible) so it does not appear on mouse clicks. */
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
-  outline: 2px solid #6B8E23;
+  outline: 2px solid var(--color-teal);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* On a dark surface the teal ring is 1.3:1 against #12211E, which is not an
+   indicator. The ring has to be visible wherever the control sits, so the dark
+   sections restate it rather than relying on the inherited one. */
+[style*="background-color:#12211E"] :focus-visible,
+[style*="background-color:#013E37"] :focus-visible,
+[style*="background-color:#A23B17"] :focus-visible {
+  outline-color: #edb99e;
+}
+
+/* ── Stretched card control ────────────────────────────────────────────────
+   A card is not a control, but it has to be clickable everywhere. The fix is
+   one real <button> per card, with a pseudo-element covering the card, so the
+   whole surface is the hit area while the tab order keeps exactly one stop.
+
+   Without this the cards were <div data-nav>: a mouse could click them and a
+   keyboard could not reach them at all. It is not a styling nicety — it is the
+   only difference between a card and a picture of a card. */
+/* Visually hidden, still announced. Needed whenever a control's visible label
+   is not its accessible name — here a stretched, transparent button that covers
+   a whole card and takes its name from the text inside it. Clipped rather than
+   display:none, which would drop the element from the accessibility tree and
+   make it unfocusable. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.card-host {
+  position: relative;
+}
+.card-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+/* Anything that must stay clickable on its own (a share button, a map link)
+   has to sit above the stretched overlay, or the card swallows the click. */
+.card-link-above {
+  position: relative;
+  z-index: 2;
+}
+/* The stretched control is a small button wearing a card-sized hit area, so
+   the ring is drawn on the card instead. :has() is the only way to reach the
+   ancestor, and it is an enhancement, not the mechanism: the button keeps its
+   own :focus-visible ring from the block above, so a browser without :has()
+   still shows a focus indicator on the control itself. */
+.card-host:has(.card-link:focus-visible) {
+  outline: 2px solid var(--color-teal);
+  outline-offset: 2px;
+  border-radius: 1rem;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -792,10 +920,20 @@ html { scroll-padding-top: 6rem; }
   .pt-20 { padding-top: 7rem; }
   .pt-24 { padding-top: 7rem; }
 
-  /* Every 12-column row stacks; the col-span-* children go full width with it. */
+  /* Every 12-column row stacks; the col-span-* children go full width with it.
+
+     `.col-span-12` belongs in that reset and was missing from it. A grid
+     collapsed to one explicit column still lays a `span 12` item out by
+     generating eleven *implicit* columns, which are sized by their content
+     rather than by the container — so the panel measured 503px wide inside a
+     390px screen. `body { overflow-x: hidden }` then hid the scrollbar that
+     would have shown it, so the KHAYT panel and the fourth clue were simply cut
+     off the right edge with nothing to indicate it. Resetting the span is the
+     whole fix. */
   .grid-cols-12 { grid-template-columns: minmax(0, 1fr); }
   .col-span-3, .col-span-4, .col-span-5, .col-span-6,
-  .col-span-7, .col-span-8, .col-span-9 { grid-column: span 1 / span 1; }
+  .col-span-7, .col-span-8, .col-span-9,
+  .col-span-12 { grid-column: span 1 / span 1; }
 
   .grid-cols-3, .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
@@ -814,14 +952,40 @@ html { scroll-padding-top: 6rem; }
   /* The hero art is a fixed 18rem square; cap it so it cannot force overflow. */
   .w-72 { width: min(18rem, 70vw); }
 
+  /* The hero is `h-screen` over an `overflow-hidden` section, and on a phone the
+     content is taller than the viewport — 957px of it inside an 844px box at
+     390x844. A fixed height plus a hidden overflow means the tail of the hero is
+     simply gone: no scrollbar, no ellipsis, just missing. Treating the viewport
+     height as a *minimum* lets the section grow to whatever the copy needs, and
+     `.min-h-[700px]` still applies underneath it. Desktop is untouched, because
+     this rule only exists inside this media query. */
+  .h-screen { height: auto; min-height: 100vh; }
+  /* With the parent's height no longer definite, `h-full` on the inner column
+     resolves to auto and the copy would sit against the top of the viewport
+     instead of centred in it. Giving that column the same minimum restores the
+     centring while still allowing it to grow. */
+  .h-screen > .h-full { min-height: 100vh; }
+
   /* Touch targets. 44px is the minimum comfortable tap size; the pill buttons
-     on the site are already 36-40px tall, which is too small for a thumb. */
+     on the site are already 36-40px tall, which is too small for a thumb.
+
+     Measured in a real browser at 390px, the controls that were still under it
+     were: the nav logo (34px), the library category filters (36px), the card
+     CTA pills (39.6px, just short), and the underlined text buttons (20px —
+     under the 24px floor WCAG 2.5.8 sets for *any* pointer, so that one was a
+     genuine failure rather than a matter of comfort). Each selector below is
+     the one that control already carries; no new classes were introduced. */
   .nav-links button,
   .nav-signin,
   .nav-account,
   .nav-cta,
   .auth-btn,
-  .auth-close { min-height: 2.75rem; }
+  .auth-close,
+  .nav-logo,
+  [data-act="cat"],
+  .card-link,
+  [data-act="khaytHint"],
+  button.underline { min-height: 2.75rem; }
 
   /* Rows of profile stats, and the name/level row, wrap instead of forcing
      the card wider than the screen. The 1px dividers between stats are dropped

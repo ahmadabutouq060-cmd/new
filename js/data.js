@@ -70,7 +70,7 @@
       category: 'Nature',
       difficulty: 'Moderate',
       duration: '1 day',
-      image: null,
+      image: 'assets/irbid-bride-of-the-north.png',
       progress: 0,
       tip: 'The gorge is most dramatic in early morning light. Bring binoculars — the Yarmouk corridor is one of the top birdwatching spots in the Middle East during migration season (March–May and Sept–Nov). KHAYT\'s advice: don\'t only read the board. Look around you.',
 
@@ -122,6 +122,32 @@
       branchReaction: {
         person: 'Then keep their steps. A person leaves more than footprints.',
         object: 'Then keep what they left. Objects are honest — they cannot revise a story.',
+      },
+
+      /* One secret, on this thread only. It is not a fifth waypoint: the four
+         story nodes stay the story, and this sits beside them until its
+         condition is actually met. */
+      secretChallenge: {
+        id: 'hidden-crack',
+        isSecret: true,
+        title: 'Most visitors walk past this.',
+        prompt: 'Tucked in a basalt crack beside the viewpoint — too small for the trail board — what did they leave?',
+        interaction: 'challenge',
+        interactionLabel: 'Secret observation — name what you found',
+        evidence: 'One correct answer, chosen by you',
+        fieldNote: 'Fiction: the wrap is part of the invented mystery, not a documented find.',
+        unlockCondition: { clue: 1, branch: true, waypoint: 2 },
+        secretReward: { badgeId: 10, badgeName: 'Hidden Thread' },
+        quiz: {
+          prompt: 'Most visitors walk past this. What is caught in the crack?',
+          correct: 'herb-wrap',
+          options: [
+            { id: 'coin', text: 'A Roman coin, still bright' },
+            { id: 'herb-wrap', text: 'A small herb wrap, tied with red thread' },
+            { id: 'feather', text: 'An eagle feather, freshly dropped' },
+            { id: 'nail', text: 'A survey nail from the trail crew' },
+          ],
+        },
       },
 
       /* Branch-dependent final text. Built into a full narrative by
@@ -1126,8 +1152,8 @@
 
     { id: 10, title: 'Yarmouk Nature Walk',
       hook: 'A living mystery along the Yarmouk: four hidden clues, a KHAYT companion, and a thread that branches.',
-      city: 'Irbid', region: 'Yarmouk River Gorge', image: null,
-      waypoints: 4, duration: '2 days', difficulty: 'Easy–Moderate', points: 200, travelers: 310, progress: 0,
+      city: 'Irbid', region: 'Yarmouk River Gorge', image: 'assets/irbid-bride-of-the-north.png',
+      waypoints: 4, duration: '1 day', difficulty: 'Moderate', points: 200, travelers: 310, progress: 0,
       category: 'Nature', mood: 'Curious', tags: ['Gorge', 'Mystery'],
       start: 'Yarmouk Trail Head', end: 'Riverside Picnic Meadow' },
 
@@ -1316,15 +1342,15 @@
   ]
 
   const cities = [
-    { id: 'Irbid',    label: 'Irbid',    x: 132, y: 118, labelSide: 'right', labelDy: -16 },
-    { id: 'Ajloun',   label: 'Ajloun',   x: 106, y: 162, labelSide: 'right', labelDy: -18 },
-    { id: 'Jerash',   label: 'Jerash',   x: 162, y: 165, labelSide: 'right', labelDy: 8   },
-    { id: 'Amman',    label: 'Amman',    x: 182, y: 215, labelSide: 'right', labelDy: -11 },
-    { id: 'Dead Sea', label: 'Dead Sea', x: 96,  y: 240, labelSide: 'right', labelDy: -18 },
-    { id: 'Madaba',   label: 'Madaba',   x: 148, y: 265, labelSide: 'right', labelDy: 8   },
-    { id: 'Karak',    label: 'Karak',    x: 132, y: 332, labelSide: 'right', labelDy: -16 },
-    { id: "Ma'an",    label: "Ma'an",    x: 165, y: 418, labelSide: 'right', labelDy: -5  },
-    { id: 'Al-Aqaba', label: 'Al-Aqaba', x: 100, y: 482, labelSide: 'right', labelDy: -18 },
+    { id: 'Irbid',    name: 'Irbid',    label: 'Irbid',    image: 'assets/irbid-bride-of-the-north.png', x: 132, y: 118, labelSide: 'right', labelDy: -16 },
+    { id: 'Ajloun',   name: 'Ajloun',   label: 'Ajloun',   image: 'assets/ajloun-thread.png', x: 106, y: 162, labelSide: 'right', labelDy: -18 },
+    { id: 'Jerash',   name: 'Jerash',   label: 'Jerash',   image: 'assets/jerash-roman-remains.png', x: 162, y: 165, labelSide: 'right', labelDy: 8   },
+    { id: 'Amman',    name: 'Amman',    label: 'Amman',    image: 'assets/amman-the-capital.png', x: 182, y: 215, labelSide: 'right', labelDy: -11 },
+    { id: 'Dead Sea', name: 'Dead Sea', label: 'Dead Sea', image: 'assets/dead-sea-lowest-place.png', x: 96,  y: 240, labelSide: 'right', labelDy: -18 },
+    { id: 'Madaba',   name: 'Madaba',   label: 'Madaba',   image: 'assets/madaba-thread.png', x: 148, y: 265, labelSide: 'right', labelDy: 8   },
+    { id: 'Karak',    name: 'Karak',    label: 'Karak',    image: 'assets/karak-thread.png', x: 132, y: 332, labelSide: 'right', labelDy: -16 },
+    { id: "Ma'an",    name: "Ma'an",    label: "Ma'an",    image: 'assets/maan-seven-wonders.png', x: 165, y: 418, labelSide: 'right', labelDy: -5  },
+    { id: 'Al-Aqaba', name: 'Al-Aqaba', label: 'Al-Aqaba', image: 'assets/aqaba-bride-of-red-sea.png', x: 100, y: 482, labelSide: 'right', labelDy: -18 },
   ]
 
   const moodEmoji = {
@@ -1371,7 +1397,7 @@
       title: (lib && lib.title) || (full && full.title) || 'Untitled thread',
       region: (lib && lib.region) || (full && full.city) || '',
       subtitle: (lib && lib.city) || (full && full.city) || '',
-      image: (lib && lib.image) || null,
+      image: (lib && lib.image) || (full && full.image) || null,
       category: (lib && lib.category) || '',
       waypoints: (lib && lib.waypoints) || ((full && full.waypoints || []).length),
       duration: (lib && lib.duration) || '',
@@ -1398,10 +1424,11 @@
 
   /* The weaver's journey is a real state, not a copy of the featured list, so
      these keep their own ids and their own earned figures. */
-  const completedThreads = derivedThreads([1, 9]).map(function (t, i) {
+  const completedThreads = derivedThreads([1, 9]).map(function (t) {
     return Object.assign({}, t, {
       pointsEarned: t.points,
-      completedDate: i === 0 ? 'Jul 15, 2026' : 'Aug 22, 2026',
+      completedDate: null,
+      demoSeed: true,
     });
   });
 
@@ -1444,15 +1471,16 @@
 
   // ── UserProfile.tsx ──────────────────────────────────────────────────────────
   const profileBadges = [
-    { id: 1, name: 'North Explorer', icon: '🧭', desc: 'Completed all threads in Northern Jordan', earned: true, date: 'Sep 2026', rarity: 'Rare' },
-    { id: 2, name: 'Olive Master', icon: '🫒', desc: 'Visited 3+ olive heritage sites', earned: true, date: 'Aug 2026', rarity: 'Common' },
-    { id: 3, name: 'Rose Pilgrim', icon: '🌹', desc: 'Walked through Petra at dawn', earned: true, date: 'Jul 2026', rarity: 'Epic' },
+    { id: 1, name: 'North Explorer', icon: '🧭', desc: 'Completed all threads in Northern Jordan', earned: true, date: null, rarity: 'Rare', demoSeed: true },
+    { id: 2, name: 'Olive Master', icon: '🫒', desc: 'Visited 3+ olive heritage sites', earned: true, date: null, rarity: 'Common', demoSeed: true },
+    { id: 3, name: 'Rose Pilgrim', icon: '🌹', desc: 'Walked through Petra at dawn', earned: true, date: null, rarity: 'Epic', demoSeed: true },
     { id: 4, name: 'Desert Weaver', icon: '🏜', desc: 'Spent a night in Wadi Rum', earned: false, date: null, rarity: 'Rare' },
     { id: 5, name: 'Souk Sage', icon: '🏺', desc: 'Visited 5 traditional craft workshops', earned: false, date: null, rarity: 'Common' },
     { id: 6, name: 'Dead Sea Drifter', icon: '🌊', desc: 'Float the lowest point on earth', earned: false, date: null, rarity: 'Common' },
     { id: 7, name: 'Castle Keeper', icon: '🏰', desc: 'Completed all castle waypoints', earned: false, date: null, rarity: 'Epic' },
     { id: 8, name: 'Grand Loom', icon: '🎖', desc: 'Complete 10 full threads', earned: false, date: null, rarity: 'Legendary' },
     { id: 9, name: 'Thread Seer', icon: '🧵', desc: 'Found the living mystery thread at Yarmouk', earned: false, date: null, rarity: 'Epic' },
+    { id: 10, name: 'Hidden Thread', icon: '🔒', desc: 'Found the secret challenge on the Yarmouk mystery', earned: false, date: null, rarity: 'Legendary' },
   ]
 
   /* completedThreads and activeThreads are derived above, from the ids of the
@@ -1499,6 +1527,7 @@
      so the two representations are never mixed in one array. */
   const HERO_THREAD_ID = 10;
   const HERO_BADGE_ID = 9;
+  const SECRET_BADGE_ID = 10;
 
   /* ── ATHAR ────────────────────────────────────────────────────────────────
      One balance: NASEEJ.session.points. That is the number the profile, the
@@ -1515,6 +1544,7 @@
     clue: 100,
     chapter: 200,
     reveal: 500,
+    secret: 250,
   };
 
   /* ── Levels ───────────────────────────────────────────────────────────────
@@ -1707,12 +1737,11 @@
       clues: clues,
       branch: branch,
       answers: answersMap(raw.answers),
-      /* Which option was observed is kept, not just that something was: the
-         observation is the weaver's own claim about the place. */
       observations: stringMap(raw.observations) || {},
       awarded: awardedMap(raw.awarded),
       completed: completed,
       reveal: !!raw.reveal,
+      secret: raw.secret ? String(raw.secret) : null,
       earned: 0,
     };
   }
@@ -1791,6 +1820,7 @@
       awarded: awarded,
       completed: record.completed.slice(),
       reveal: !!record.reveal,
+      secret: record.secret || null,
     };
   }
 
@@ -1870,6 +1900,7 @@
         completed: [],
         earned: 0,
         reveal: false,
+        secret: null,
       };
     }
     return bag[tid];
@@ -1915,6 +1946,7 @@
       return title ? 'Chapter · ' + title.replace(/^The /, '') : 'Chapter';
     }
     if (kind === 'reveal') return 'Reveal';
+    if (kind === 'secret') return 'Secret Challenge';
     return kind === 'observation' ? 'Observation' : 'Challenge';
   }
 
@@ -2039,7 +2071,16 @@
     for (let i = 0; i < profileBadges.length; i++) {
       if (profileBadges[i].id === HERO_BADGE_ID) {
         profileBadges[i].earned = true;
-        profileBadges[i].date = profileBadges[i].date || 'Sep 2026';
+        profileBadges[i].date = profileBadges[i].date || 'Today';
+      }
+    }
+  }
+
+  function earnSecretBadge() {
+    for (let i = 0; i < profileBadges.length; i++) {
+      if (profileBadges[i].id === SECRET_BADGE_ID) {
+        profileBadges[i].earned = true;
+        profileBadges[i].date = profileBadges[i].date || 'Today';
       }
     }
   }
@@ -2184,10 +2225,21 @@
     const m = mysteryRecord(threadIdOf(thread));
     const ch = thread.chapters || {};
     if (m.reveal) return ch.reveal || 'The Thread';
-    if (getClueProgress(threadIdOf(thread)).unlocked >= 3) return ch.connection || 'The Connection';
+    /* Connection is a milestone (waypoint 4 / clue 4), not "three clues".
+       A branch plus an observation unlocks clue 3 and must still show the
+       branch chapter until that milestone is actually completed. */
+    if (isConnectionComplete(threadIdOf(thread))) return ch.connection || 'The Connection';
     if (m.branch === 'person') return ch.person || 'Follow the Person';
     if (m.branch === 'object') return ch.object || 'Follow the Object';
     return ch.start || 'The Entrance';
+  }
+
+  function isConnectionComplete(threadId) {
+    const thread = threadsById[threadId];
+    if (!thread) return false;
+    const wp = findWaypoint(thread.waypoints || [], 4);
+    if (wp && isCompleted(wp, thread)) return true;
+    return isClueUnlocked(threadId, 4);
   }
 
   function branchOption(thread, branchId) {
@@ -2289,6 +2341,9 @@
     isLive: false,
 
     ask: function (context) {
+      if (context && context.kind === 'dna') {
+        return context.line || 'I\'ve noticed how you explore Jordan. Keep following the thread that pulls you.';
+      }
       const c = context && context.thread ? context : khaytContext(context, null);
       if (!c) return '';
       return khaytMessage(c.thread, c.waypoint);
@@ -2482,6 +2537,73 @@
     };
   }
 
+  function heroSecret(thread) {
+    const t = thread || threadsById[HERO_THREAD_ID];
+    return (t && t.secretChallenge) || null;
+  }
+
+  function isSecretUnlocked(threadId) {
+    const thread = threadsById[threadId == null ? HERO_THREAD_ID : threadId];
+    const secret = heroSecret(thread);
+    if (!secret || !secret.unlockCondition) return false;
+    const cond = secret.unlockCondition;
+    const tid = threadId == null ? HERO_THREAD_ID : threadId;
+    const m = mysteryRecord(tid);
+    if (cond.clue && !isClueUnlocked(tid, cond.clue)) return false;
+    if (cond.branch && !m.branch) return false;
+    if (cond.waypoint) {
+      const wp = findWaypoint(thread.waypoints || [], cond.waypoint);
+      if (!wp || !isCompleted(wp, thread)) return false;
+    }
+    return true;
+  }
+
+  function secretState(threadId) {
+    const tid = threadId == null ? HERO_THREAD_ID : threadId;
+    const secret = heroSecret(threadsById[tid]);
+    const m = mysteryRecord(tid);
+    return {
+      locked: !isSecretUnlocked(tid),
+      solved: !!(secret && m.secret),
+      optionId: m.secret || null,
+      secret: secret,
+    };
+  }
+
+  function answerSecretChallenge(threadId, optionId) {
+    resetChips();
+    const tid = threadId == null ? HERO_THREAD_ID : threadId;
+    const thread = threadsById[tid];
+    const secret = heroSecret(thread);
+    if (!secret || !secret.quiz) return { status: 'invalid' };
+    if (!isSecretUnlocked(tid)) return { status: 'locked', message: 'This secret is still sealed.' };
+    const m = mysteryRecord(tid);
+    if (m.secret) {
+      return { status: 'duplicate', correct: true, chips: [],
+        message: 'You already found this. The ATHAR were paid once.' };
+    }
+    let known = false;
+    for (let i = 0; i < secret.quiz.options.length; i++) {
+      if (secret.quiz.options[i].id === optionId) known = true;
+    }
+    if (!known) return { status: 'invalid' };
+    if (optionId !== secret.quiz.correct) {
+      return { status: 'incorrect', correct: false, chips: [],
+        message: 'Most visitors walk past this. Look again.' };
+    }
+    m.secret = optionId;
+    awardAthar(tid, 'secret', secret.id, 'Secret Challenge');
+    earnSecretBadge();
+    const chips = takeChips();
+    saveProgress();
+    return {
+      status: 'correct',
+      correct: true,
+      chips: chips,
+      message: 'You found what most visitors miss.',
+    };
+  }
+
   /* ── Final reveal ──────────────────────────────────────────────────────────
      Assembled from what the weaver actually did, in the order they did it, and
      ending on the text for the branch they chose. The renderer prints it; it
@@ -2597,9 +2719,10 @@
       NASEEJ.session.mystery[tid] = stored.mystery[tid];
     }
     for (let i = 0; i < profileBadges.length; i++) {
-      if (profileBadges[i].id === HERO_BADGE_ID && stored.badges.indexOf(HERO_BADGE_ID) >= 0) {
+      if (stored.badges.indexOf(profileBadges[i].id) >= 0 &&
+          (profileBadges[i].id === HERO_BADGE_ID || profileBadges[i].id === SECRET_BADGE_ID)) {
         profileBadges[i].earned = true;
-        profileBadges[i].date = profileBadges[i].date || 'Sep 2026';
+        profileBadges[i].date = profileBadges[i].date || 'Today';
       }
     }
     syncHeroProgress(HERO_THREAD_ID);
@@ -2612,6 +2735,140 @@
       if (cities[i].id === cityId) return cities[i];
     }
     return null;
+  }
+
+  function countVisitedWaypoints() {
+    const seen = {};
+    let n = 0;
+    const keys = NASEEJ.session.completedWaypointKeys || {};
+    for (const tid in keys) {
+      const list = keys[tid] || [];
+      for (let i = 0; i < list.length; i++) {
+        const token = tid + ':' + list[i];
+        if (seen[token]) continue;
+        seen[token] = true;
+        n += 1;
+      }
+    }
+    const bare = NASEEJ.session.completedWaypointIds || [];
+    for (let i = 0; i < bare.length; i++) {
+      const token = 'id:' + bare[i];
+      if (seen[token]) continue;
+      seen[token] = true;
+      n += 1;
+    }
+    return n;
+  }
+
+  function dnaBucket(category) {
+    if (category === 'History') return 'History';
+    if (category === 'Nature') return 'Nature';
+    if (category === 'Culinary') return 'Food';
+    if (category === 'Adventure') return 'Adventure';
+    if (category === 'Local Culture' || category === 'Art & Craft' || category === 'Pilgrimage') return 'Culture';
+    if (category === 'Wellness') return 'Nature';
+    return 'Hidden Gems';
+  }
+
+  function addDna(scores, bucket, amount) {
+    if (!scores[bucket]) scores[bucket] = 0;
+    scores[bucket] += amount;
+  }
+
+  function jordanDna() {
+    const labels = ['History', 'Nature', 'Culture', 'Food', 'Adventure', 'Hidden Gems'];
+    const scores = {};
+    for (let i = 0; i < labels.length; i++) scores[labels[i]] = 0;
+
+    const progress = NASEEJ.session.threadProgress || {};
+    for (const tid in progress) {
+      if (!progress[tid] || progress[tid] <= 0) continue;
+      const lib = libraryThreadById(+tid);
+      addDna(scores, dnaBucket(lib && lib.category), progress[tid] >= 100 ? 4 : 2);
+    }
+
+    const m = mysteryRecord(HERO_THREAD_ID);
+    const heroLib = libraryThreadById(HERO_THREAD_ID);
+    if ((m.clues || []).length || m.branch || (m.completed || []).length) {
+      addDna(scores, dnaBucket(heroLib && heroLib.category), 3);
+      addDna(scores, 'Hidden Gems', 2 + (m.clues || []).length);
+      if (m.branch === 'person') addDna(scores, 'Adventure', 3);
+      if (m.branch === 'object') addDna(scores, 'Culture', 3);
+      if (m.secret) addDna(scores, 'Hidden Gems', 5);
+      if (m.reveal) addDna(scores, 'Hidden Gems', 3);
+    }
+
+    const wish = NASEEJ.session.wishlist || {};
+    for (const id in wish) {
+      if (!wish[id]) continue;
+      const lib = libraryThreadById(+id);
+      addDna(scores, dnaBucket(lib && lib.category), 1);
+    }
+
+    let total = 0;
+    for (let i = 0; i < labels.length; i++) total += scores[labels[i]];
+    const empty = total <= 0;
+    const bars = labels.map(function (name) {
+      return { name: name, percent: empty ? 0 : Math.round((scores[name] / total) * 100) };
+    }).sort(function (a, b) { return b.percent - a.percent; });
+
+    let leftover = 100;
+    if (!empty) {
+      for (let i = 0; i < bars.length; i++) leftover -= bars[i].percent;
+      if (bars[0]) bars[0].percent += leftover;
+    }
+
+    const titles = {
+      History: 'THE STORY HUNTER',
+      Nature: 'THE GORGE WALKER',
+      Culture: 'THE THREAD KEEPER',
+      Food: 'THE TABLE FINDER',
+      Adventure: 'THE PATH CHASER',
+      'Hidden Gems': 'THE SECRET WEAVER',
+    };
+    const top = bars[0] && bars[0].percent > 0 ? bars[0].name : 'Hidden Gems';
+    const line = empty
+      ? 'Walk a thread and I will start to notice how you explore Jordan.'
+      : 'I\'ve noticed how you explore Jordan. You lean toward ' + top.toLowerCase() +
+        ' — keep following the thread that pulls you.';
+
+    return {
+      empty: empty,
+      title: empty ? 'A THREAD NOT YET DRAWN' : titles[top] || 'THE STORY HUNTER',
+      playful: true,
+      bars: bars,
+      khaytLine: line,
+    };
+  }
+
+  function passportSummary() {
+    const m = mysteryRecord(HERO_THREAD_ID);
+    const regions = {};
+    const liveCompleted = [];
+    const demoCompleted = [];
+    const done = NASEEJ.session.completedThreads || [];
+    for (let i = 0; i < done.length; i++) {
+      const t = done[i];
+      const city = t.city || t.subtitle || t.region;
+      if (city) regions[city] = true;
+      if (t.demoSeed) demoCompleted.push(t);
+      else liveCompleted.push(t);
+    }
+    if ((m.completed || []).length || m.reveal) regions.Irbid = true;
+    const earned = profileBadges.filter(function (b) { return b.earned; });
+    const mysteryFound = m.reveal ? 1 : 0;
+    const secrets = m.secret ? 1 : 0;
+    return {
+      regions: Object.keys(regions),
+      completedLive: liveCompleted,
+      completedDemo: demoCompleted,
+      badges: earned,
+      athar: NASEEJ.session.points,
+      mysteryFound: mysteryFound,
+      secrets: secrets,
+      clues: (m.clues || []).length,
+      waypoints: countVisitedWaypoints(),
+    };
   }
 
   /* ── Public content API ──────────────────────────────────────────────────── */
@@ -2667,6 +2924,13 @@
     observeHeroWaypoint: observeHeroWaypoint,
     branchState: branchState,
     setHeroBranch: setHeroBranch,
+    isSecretUnlocked: isSecretUnlocked,
+    secretState: secretState,
+    answerSecretChallenge: answerSecretChallenge,
+    heroSecret: heroSecret,
+    passportSummary: passportSummary,
+    jordanDna: jordanDna,
+    visitedWaypointCount: countVisitedWaypoints,
 
     heroStats: heroStats,
     isRevealed: function (threadId) {
@@ -2750,20 +3014,34 @@
        substitute is the point: it forces the UI to admit the gap instead of
        covering it. */
     photoFor: function (thread) {
-      const city = thread && findCity(thread.city);
-      /* Only a real, local file is returned. Nothing here can produce a remote
-         URL, so a card cannot silently re-introduce a third-party dependency. */
-      if (city && typeof city.image === 'string' && city.image.indexOf('assets/') === 0) {
-        return { src: city.image, subject: city.name, scope: 'city' };
+      const localPhoto = function (src, subject, scope) {
+        if (typeof src !== 'string' || src.indexOf('assets/') !== 0) return null;
+        if (/^https?:/i.test(src)) return null;
+        return { src: src, subject: subject, scope: scope };
+      };
+      if (!thread) return null;
+      const fromThread = localPhoto(thread.image, thread.title, 'thread');
+      if (fromThread) return fromThread;
+      const lib = thread.id != null ? libraryThreadById(thread.id) : null;
+      if (lib) {
+        const fromLib = localPhoto(lib.image, lib.title || thread.title, 'thread');
+        if (fromLib) return fromLib;
+      }
+      const city = findCity(thread.city);
+      if (city) {
+        const fromCity = localPhoto(city.image, city.name || city.label || thread.city, 'city');
+        if (fromCity) return fromCity;
       }
       return null;
     },
 
-    /* Waypoints deliberately have no photo hook. Kept as an explicit null so the
-       intent is visible at the call site rather than inferred from a missing
-       field. */
-    waypointPhoto: function () {
-      return null;
+    /* Only a verified local file on that waypoint. Never a city or thread
+       photograph presented as the stop itself. */
+    waypointPhoto: function (waypoint) {
+      if (!waypoint || typeof waypoint.image !== 'string') return null;
+      if (waypoint.image.indexOf('assets/') !== 0) return null;
+      if (/^https?:/i.test(waypoint.image)) return null;
+      return { src: waypoint.image, subject: waypoint.name, scope: 'waypoint' };
     },
 
     /* Library filter, ported from ThreadsLibrary.tsx `match`. */
@@ -2839,7 +3117,6 @@
        spending ATHAR on a reward cannot demote anyone. Never decreases. */
     atharPeak: totalPoints,
     threadsCompleted: 2,
-    waypointsVisited: 14,
 
     badges: profileBadges,
     rewards: rewards,
@@ -2876,6 +3153,9 @@
       return profileBadges.filter(function (badge) {
         return badge.earned;
       }).length;
+    },
+    get waypointsVisited() {
+      return countVisitedWaypoints();
     },
   };
 

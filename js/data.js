@@ -62,22 +62,31 @@
       id: 10,
       livingMystery: true,
       title: 'Yarmouk Nature Walk',
-      subtitle: 'Yarmouk River Gorge · Living Mystery · 4 clues',
+      /* Clean copy. Difficulty and duration used to be scraped out of this
+         string by the place page's regex, so the mystery badge broke both
+         parsers; they are explicit fields now (see place() in pages.js). */
+      subtitle: 'Yarmouk River Gorge · Living Mystery',
       city: 'Irbid',
+      region: 'Yarmouk River Gorge',
+      category: 'Nature',
+      difficulty: 'Moderate',
+      duration: '1 day',
+      image: unsplashImage('photo-1501854140801-50d01698950b'),
       progress: 0,
       tip: 'The gorge is most dramatic in early morning light. Bring binoculars — the Yarmouk corridor is one of the top birdwatching spots in the Middle East during migration season (March–May and Sept–Nov). KHAYT\'s advice: don\'t only read the board. Look around you.',
-      stats: [
-        { label: 'ATHAR Earned', value: '0', icon: '✦' },
-        { label: 'Clues', value: '0 / 4', icon: '◇' },
-        { label: 'Chapter', value: 'The Entrance', icon: '📖' },
-        { label: 'Waypoints', value: '0 / 4', icon: '⊕' },
-      ],
+
+      /* Every clue carries the interaction that earns it, so a clue is never
+         "waypoint N unlocked" by position — it is unlocked by the player doing
+         something. Clue 3 comes from the branch choice, which is not a waypoint
+         at all. `kind` is the interaction: 'challenge' (a validated multiple
+         choice answer) or 'branch' (the CHOOSE YOUR PATH decision). */
       clues: [
-        { id: 1, text: 'Someone passed through this place before you.' },
-        { id: 2, text: 'What they carried changed the story.' },
-        { id: 3, text: 'The answer is closer than you think.' },
-        { id: 4, text: 'Now you can see the connection.' },
+        { id: 1, text: 'Someone passed through this place before you.', unlock: { kind: 'challenge', waypoint: 1 } },
+        { id: 2, text: 'What they carried changed the story.', unlock: { kind: 'observation', waypoint: 2 } },
+        { id: 3, text: 'The answer is closer than you think.', unlock: { kind: 'branch' } },
+        { id: 4, text: 'Now you can see the connection.', unlock: { kind: 'challenge', waypoint: 4 } },
       ],
+
       chapters: {
         start: 'The Entrance',
         person: 'Follow the Person',
@@ -85,34 +94,71 @@
         connection: 'The Connection',
         reveal: 'The Thread',
       },
+
       branchOptions: [
         { id: 'person', label: 'Follow the Person', prompt: 'A figure is still moving along the gorge rim.' },
         { id: 'object', label: 'Follow the Object', prompt: 'Something they carried was left at the basalt wall.' },
       ],
+
+      /* KHAYT reacts to the choice itself, not only to the waypoint state. */
+      branchReaction: {
+        person: 'Then keep their steps. A person leaves more than footprints.',
+        object: 'Then keep what they left. Objects are honest — they cannot revise a story.',
+      },
+
+      /* Branch-dependent final text. Built into a full narrative by
+         data.revealStory(), so the renderer only has to print it. */
+      reveal: {
+        headline: 'YOU FOUND THE THREAD',
+        connection:
+          'The ibex mark at the trail head, the pause on the ledge, the token caught in the basalt, the wrap of za\'atar drying at the confluence. Four places, one traveller, and a red thread tying the wrap closed.',
+        story: {
+          person:
+            'You followed the person and never saw their face. They set out before dawn, walked the rim while the gorge was still cold, stopped where the basalt opens onto the river, and came down to the meadow with herbs in their arms. Whatever they were carrying, they left it behind on purpose — the thread is the route, not the parcel. Somebody walked this river before the road, and left the water the only address.',
+          object:
+            'You followed the object and it led you further than they did. The wrap was travel-stained and tied with red thread; the herbs inside were gathered from this bank, not bought. It moved from hand to hand, gorge to meadow, until it came to rest in a crack of columnar basalt. The thread is not the traveller. The thread is the thing they carried, and where it finally stopped.',
+        },
+        khayt: 'You found it. Not the answer — the thread. A thread only means something once you hold both ends.',
+      },
+
       waypoints: [
         { id: 1, name: 'Yarmouk Trail Head', type: 'Nature Reserve', status: 'active', points: 50, icon: '🌿', location: 'Yarmouk River, Northern Jordan · 32.68° N, 35.75° E',
           desc: 'The Yarmouk River is the largest tributary of the Jordan River, fed by springs from southern Syria and the Hauran plateau. At the trail head, the basalt-walled gorge drops steeply, and the sound of rushing water replaces the noise of the modern road. The trail follows the ancient path used by seasonal herders for millennia.',
           challenge: 'Record the air temperature at the trail head and again at the river level. Calculate the difference and explain what causes the temperature gradient in a river canyon.',
           image: unsplashImage('photo-1759556969418-47a8172a7b6a'),
+          interaction: 'challenge',
           unlocksClue: 1,
           chapterKey: 'entrance',
           quiz: {
-            prompt: 'What symbol can you find near the entrance?',
+            prompt: 'Before you walk in, look at the trail stone by the gate. What mark is cut into it?',
             correct: 'ibex',
             options: [
-              { id: 'crown', text: 'A golden crown carved into the gate' },
-              { id: 'ibex', text: 'A small ibex mark on the trail stone' },
-              { id: 'anchor', text: 'A ship\'s anchor hanging from a tree' },
-              { id: 'sun', text: 'A painted sun on a metal road sign' },
+              { id: 'crown', text: 'A crown — the old Hauran kings marked their road' },
+              { id: 'ibex', text: 'A small ibex, horns back, mid-leap' },
+              { id: 'anchor', text: 'An anchor, worn smooth by rope' },
+              { id: 'sun', text: 'A sun with seven rays, painted' },
             ],
           } },
         { id: 2, name: 'Basalt Canyon Viewpoint', type: 'Geological Site', status: 'locked', points: 45, icon: '🪨', location: 'Yarmouk Gorge, Northern Jordan',
           desc: 'The Yarmouk gorge is carved through layers of ancient basalt lava flows originating from volcanic activity in the Hauran region of Syria. The exposed cliff faces reveal distinct lava episodes stacked over hundreds of thousands of years. Columnar jointing — the geometric cracking of cooling basalt — creates striking natural columns in the canyon walls.',
           challenge: 'Photograph examples of columnar basalt jointing in the canyon walls and sketch the layers visible in cross-section. Estimate the thickness of at least three separate lava flows.',
           image: unsplashImage('photo-1670788050263-4c193ee10715'),
+          interaction: 'observation',
           unlocksClue: 2,
-          chapterKey: 'branch',
+          chapterKey: 'follow',
           lookPrompt: 'Look around this stretch of the gorge. The next clue is not on the information board.',
+          /* The observation is a validated question, not a button: you have to
+             name what you actually saw before the clue opens. */
+          observation: {
+            prompt: 'You are standing at the viewpoint. Which of these did you just see on the basalt?',
+            correct: 'boot-prints',
+            options: [
+              { id: 'boot-prints', text: 'Boot prints cut into the basalt dust, stopping at the ledge' },
+              { id: 'column', text: 'A perfect hexagonal column, unbroken' },
+              { id: 'nest', text: 'A nest, still warm, in the rock face' },
+              { id: 'sign', text: 'A trail marker bolted into the wall' },
+            ],
+          },
           branches: {
             person: {
               name: 'The Traveler\'s Trace',
@@ -131,15 +177,37 @@
           desc: 'The Yarmouk valley acts as a natural funnel for migratory birds travelling between their European breeding grounds and their African wintering grounds. Over 300 bird species have been recorded along this corridor, including raptors such as short-toed snake eagles, steppe eagles, and lesser spotted eagles.',
           challenge: 'Using the identification chart at the watch station, record 5 distinct bird species observed during a 30-minute timed count. Note their behaviour and flight direction.',
           image: unsplashImage('photo-1501854140801-50d01698950b'),
-          unlocksClue: 3,
-          lookPrompt: 'The birds are a distraction. The clue is closer than the sky.' },
+          interaction: 'challenge',
+          chapterKey: 'follow',
+          quiz: {
+            prompt: 'The flock wheels and settles. KHAYT asks which raptor this corridor is famous for in spring.',
+            correct: 'steppe-eagle',
+            options: [
+              { id: 'osprey', text: 'The osprey, hunting the shallows' },
+              { id: 'steppe-eagle', text: 'The steppe eagle, riding the last thermal of the day' },
+              { id: 'kingfisher', text: 'The kingfisher, holding station over the weir' },
+              { id: 'vulture', text: 'The griffon vulture, circling the gorge rim' },
+            ],
+          } },
         { id: 4, name: 'Riverside Picnic Meadow', type: 'Local Culture', status: 'locked', points: 50, icon: '🧺', location: 'Yarmouk Riverside, Irbid Governorate',
           desc: 'At the confluence of a seasonal tributary with the Yarmouk, a flat riverside meadow has been used as a picnic and gathering spot by local Irbid families for generations. Wild herbs including za\'atar, marjoram, and mint grow along the bank. Local families traditionally prepare musakhan for outdoor meals here.',
           challenge: 'Collect three wild herb samples from the riverbank, identify each using the field guide, and prepare a simple dish with local ingredients under the guidance of a community guide.',
           image: unsplashImage('photo-1501854140801-50d01698950b'),
+          interaction: 'challenge',
           unlocksClue: 4,
           chapterKey: 'connection',
-          lookPrompt: 'Stand where the tributary meets the river. This is where the thread knits together.' },
+          lookPrompt: 'Stand where the tributary meets the river. This is where the thread knits together.',
+          /* The secret one: KHAWT stops hinting and asks the weaver outright. */
+          quiz: {
+            prompt: 'KHAYT, quietly: what knits this thread together?',
+            correct: 'red-thread',
+            options: [
+              { id: 'water', text: 'The water — it joins every place here' },
+              { id: 'basalt', text: 'The basalt — one wall, end to end' },
+              { id: 'red-thread', text: 'A red thread, tied round what they carried' },
+              { id: 'birds', text: 'The birds — they fly the whole route' },
+            ],
+          } },
       ],
     },
 
@@ -1309,15 +1377,240 @@
      the fallback in App.tsx / ActiveThread.tsx. */
   const DEFAULT_THREAD_ID = 7;
 
-  /* Proof-of-concept living-mystery thread. Other threads keep the original
-     completion model (bare waypoint ids). This one namespaces completion as
-     `${threadId}:${waypointId}` so it cannot collide with other catalogs. */
+  /* The living-mystery thread. Every other thread keeps the original
+     completion model (bare waypoint ids in session.completedWaypointIds); this
+     one records progress in session.completedWaypointKeys, keyed by thread id,
+     so the two representations are never mixed in one array. */
   const HERO_THREAD_ID = 10;
   const HERO_BADGE_ID = 9;
-  const MYSTERY_STORAGE_KEY = 'naseej.mystery.v1';
-  const ATHAR_CHALLENGE = 150;
-  const ATHAR_CLUE = 100;
-  const ATHAR_CHAPTER = 200;
+
+  /* ── ATHAR ────────────────────────────────────────────────────────────────
+     One balance: NASEEJ.session.points. That is the number the profile, the
+     rewards tab and the hero thread's stat row all read, so a reward can never
+     land in a second, parallel purse.
+
+     The amounts live here and nowhere else. Callers name *what* happened
+     (kind) and *which* one it was (key); they never pass an amount, so there is
+     no path by which a caller can invent a payout. `awarded` is the ledger:
+     one entry per reward, written once, which is what makes a duplicate award
+     impossible rather than merely unlikely. */
+  const ATHAR = {
+    challenge: 150,
+    clue: 100,
+    chapter: 200,
+    reveal: 500,
+  };
+
+  /* ── Persistence ───────────────────────────────────────────────────────────
+     Progress is written to sessionStorage on every change and hydrated on
+     boot. A signed-out demo weaver gets exactly the same treatment; the key is
+     namespaced to the app, not to an account, because there is no account yet.
+     When sessionStorage is unavailable (private mode, quota, sandboxed iframe)
+     it falls back to localStorage and finally to memory — progress is never
+     the reason the page fails.
+
+     Swap both halves for Firestore (weavers/{uid}/progress) when the security
+     rules exist; nothing else has to change, because every read and write in
+     the app already goes through the record helpers below. */
+  const PROGRESS_KEY = 'naseej.progress.v1';
+
+  function storage(kind) {
+    try {
+      const s = window[kind];
+      /* Touch it: Safari private mode has the object but throws on use. */
+      s.getItem(PROGRESS_KEY);
+      return s;
+    } catch (err) {
+      return null;
+    }
+  }
+
+  /* last resort: per-document in-memory store, so one page's session works. */
+  let memoryStore = null;
+
+  function readStored() {
+    const stores = [storage('sessionStorage'), storage('localStorage')];
+    for (let i = 0; i < stores.length; i++) {
+      if (!stores[i]) continue;
+      let raw = null;
+      try { raw = stores[i].getItem(PROGRESS_KEY); } catch (err) { continue; }
+      if (!raw) continue;
+      const parsed = parseStored(raw);
+      if (parsed) return parsed;
+    }
+    return memoryStore;
+  }
+
+  function writeStored(snapshot) {
+    const raw = JSON.stringify(snapshot);
+    const stores = [storage('sessionStorage'), storage('localStorage')];
+    let stored = false;
+    for (let i = 0; i < stores.length; i++) {
+      if (!stores[i]) continue;
+      try { stores[i].setItem(PROGRESS_KEY, raw); stored = true; } catch (err) { /* quota: try the next one */ }
+    }
+    memoryStore = snapshot;
+    return stored;
+  }
+
+  /* ── Validation ───────────────────────────────────────────────────────────
+     Hydration reads whatever is in storage, which may be half-written, from an
+     older build, or hand-edited. Every field is checked against the shape the
+     app writes: a record that fails any check is dropped whole rather than
+     half-applied, so a corrupt blob can never leave the mystery in a state
+     that no interaction could reach. */
+
+  function isFiniteNumber(v) {
+    return typeof v === 'number' && isFinite(v);
+  }
+
+  function numList(v) {
+    if (!Array.isArray(v)) return null;
+    const out = [];
+    for (let i = 0; i < v.length; i++) {
+      const n = +v[i];
+      if (!isFiniteNumber(n)) return null;
+      if (out.indexOf(n) < 0) out.push(n);
+    }
+    return out;
+  }
+
+  function stringMap(v) {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return null;
+    const out = {};
+    for (const key in v) {
+      if (typeof v[key] === 'string') out[key] = v[key];
+    }
+    return out;
+  }
+
+  /* Award amounts live in ATHAR, never in storage: whatever the blob claims,
+     it is read back out of the table by key, so a tampered "amount" is
+     discarded rather than credited. */
+  function awardedMap(v) {
+    if (!v || typeof v !== 'object' || Array.isArray(v)) return {};
+    const out = {};
+    for (const key in v) {
+      const kind = key.split(':')[0];
+      if (ATHAR[kind]) out[key] = ATHAR[kind];
+    }
+    return out;
+  }
+
+  /* The stored answer map is the record of what was *earned*, so every entry in
+     it is correct by construction. A wrong attempt is deliberately not written:
+     it is kept in memory only to give the same wrong option a stable reply in
+     the same visit, and persisting it would have to persist "incorrect" as well,
+     since a stored answer is read back as a solved waypoint. */
+  function answersMap(v) {
+    const src = stringMap(v);
+    if (!src) return {};
+    const out = {};
+    for (const key in src) {
+      const n = +key;
+      if (!isFiniteNumber(n)) continue;
+      out[n] = { optionId: src[key], correct: true };
+    }
+    return out;
+  }
+
+  function parseRecord(raw) {
+    if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return null;
+    const clues = numList(raw.clues);
+    const completed = numList(raw.completed);
+    if (!clues || !completed) return null;
+    const branch = raw.branch == null ? null : String(raw.branch);
+    return {
+      clues: clues,
+      branch: branch,
+      answers: answersMap(raw.answers),
+      /* Which option was observed is kept, not just that something was: the
+         observation is the weaver's own claim about the place. */
+      observations: stringMap(raw.observations) || {},
+      awarded: awardedMap(raw.awarded),
+      completed: completed,
+      reveal: !!raw.reveal,
+      earned: 0,
+    };
+  }
+
+  function parseStored(rawText) {
+    let parsed;
+    try { parsed = JSON.parse(rawText); } catch (err) { return null; }
+    if (!parsed || typeof parsed !== 'object' || parsed.v !== 1) return null;
+
+    const snapshot = {
+      v: 1,
+      points: isFiniteNumber(parsed.points) && parsed.points >= 0 ? Math.floor(parsed.points) : null,
+      completedWaypointIds: numList(parsed.completedWaypointIds) || [],
+      completedWaypointKeys: {},
+      threadProgress: {},
+      mystery: {},
+      badges: [],
+    };
+
+    if (parsed.completedWaypointKeys && typeof parsed.completedWaypointKeys === 'object' &&
+        !Array.isArray(parsed.completedWaypointKeys)) {
+      for (const tid in parsed.completedWaypointKeys) {
+        const ids = numList(parsed.completedWaypointKeys[tid]);
+        if (!ids) continue;
+        if (!threadsById[tid]) continue;
+        snapshot.completedWaypointKeys[tid] = ids;
+      }
+    }
+
+    if (parsed.threadProgress && typeof parsed.threadProgress === 'object' &&
+        !Array.isArray(parsed.threadProgress)) {
+      for (const tid in parsed.threadProgress) {
+        const pct = parsed.threadProgress[tid];
+        if (!isFiniteNumber(pct) || pct < 0 || pct > 100) continue;
+        if (!threadsById[tid]) continue;
+        snapshot.threadProgress[tid] = Math.round(pct);
+      }
+    }
+
+    if (parsed.mystery && typeof parsed.mystery === 'object' && !Array.isArray(parsed.mystery)) {
+      for (const tid in parsed.mystery) {
+        if (!threadsById[tid] || !isHeroThread(threadsById[tid])) continue;
+        const record = parseRecord(parsed.mystery[tid]);
+        if (record) snapshot.mystery[tid] = record;
+      }
+    }
+
+    if (Array.isArray(parsed.badges)) {
+      for (let i = 0; i < parsed.badges.length; i++) {
+        const id = +parsed.badges[i];
+        if (isFiniteNumber(id)) snapshot.badges.push(id);
+      }
+    }
+
+    return snapshot;
+  }
+
+  function recordSnapshot(record) {
+    const answers = {};
+    for (const key in record.answers) {
+      /* Only solved waypoints are stored; see answersMap. */
+      if (record.answers[key] && record.answers[key].correct) answers[key] = record.answers[key].optionId;
+    }
+    const observations = {};
+    for (const key in record.observations) {
+      if (record.observations[key]) observations[key] = record.observations[key];
+    }
+    const awarded = {};
+    for (const key in record.awarded) awarded[key] = record.awarded[key];
+    return {
+      clues: record.clues.slice(),
+      branch: record.branch,
+      answers: answers,
+      observations: observations,
+      awarded: awarded,
+      completed: record.completed.slice(),
+      reveal: !!record.reveal,
+    };
+  }
+
+  /* ── Lookups ────────────────────────────────────────────────────────────── */
 
   function findWaypoint(waypoints, waypointId) {
     for (let i = 0; i < waypoints.length; i++) {
@@ -1326,10 +1619,28 @@
     return null;
   }
 
+  function waypointIndex(thread, waypoint) {
+    const waypoints = (thread && thread.waypoints) || [];
+    for (let i = 0; i < waypoints.length; i++) {
+      if (waypoints[i].id === waypoint.id) return i;
+    }
+    return -1;
+  }
+
+  /* Most threads in threadsById carry no `id` field (they are keyed by it), so
+     the id is resolved by reverse lookup when it is absent. Everything that
+     needs to key session state by thread goes through here, so a synthetic
+     stand-in object still resolves to its real thread. */
+  const THREAD_ID_BY_OBJECT = [];
+  for (const tid in threadsById) THREAD_ID_BY_OBJECT.push({ tid: +tid, thread: threadsById[tid] });
+
   function threadIdOf(thread) {
     if (!thread) return null;
     if (thread.id != null) return thread.id;
     if (thread.livingMystery) return HERO_THREAD_ID;
+    for (let i = 0; i < THREAD_ID_BY_OBJECT.length; i++) {
+      if (THREAD_ID_BY_OBJECT[i].thread === thread) return THREAD_ID_BY_OBJECT[i].tid;
+    }
     return null;
   }
 
@@ -1339,47 +1650,152 @@
     return thread.id === HERO_THREAD_ID;
   }
 
-  function heroWaypointKey(thread, waypoint) {
-    return threadIdOf(thread) + ':' + waypoint.id;
+  /* Completion is unioned, never overridden: a waypoint the static data marks
+     done stays done, and a future Firestore layer can only add to the set.
+     Completion is monotonic, so there is no un-complete path to get wrong.
+
+     The two representations are kept in two structures. session.completedWaypointIds
+     holds bare numeric ids and is what every original thread matches on;
+     session.completedWaypointKeys maps thread id -> waypoint ids and is what
+     the hero thread matches on. Nothing is ever pushed into both. */
+  function heroKeys(threadId) {
+    const bag = NASEEJ.session.completedWaypointKeys;
+    if (!bag[threadId]) bag[threadId] = [];
+    return bag[threadId];
   }
 
-  /* Completion is unioned, never overridden: a waypoint the static data marks
-     done stays done, and Firestore can only add to the set. Completion is
-     monotonic, so there is no un-complete path to get wrong. The hero thread
-     is the exception that uses prefixed keys; other threads still match on
-     the bare waypoint id. */
   function isCompleted(waypoint, thread) {
     if (!waypoint) return false;
-    const ids = NASEEJ.session.completedWaypointIds;
     if (isHeroThread(thread)) {
-      return ids.indexOf(heroWaypointKey(thread, waypoint)) >= 0;
+      return heroKeys(threadIdOf(thread)).indexOf(waypoint.id) >= 0;
     }
     if (waypoint.status === 'completed') return true;
-    return ids.indexOf(waypoint.id) >= 0;
+    return NASEEJ.session.completedWaypointIds.indexOf(waypoint.id) >= 0;
   }
 
   function mysteryRecord(threadId) {
     const bag = NASEEJ.session.mystery;
-    if (!bag[threadId]) {
-      bag[threadId] = {
-        athar: 0,
+    const tid = threadId == null ? HERO_THREAD_ID : threadId;
+    if (!bag[tid]) {
+      bag[tid] = {
         clues: [],
         branch: null,
         answers: {},
+        observations: {},
         awarded: {},
         completed: [],
+        earned: 0,
         reveal: false,
-        toast: null,
       };
     }
-    return bag[threadId];
+    return bag[tid];
   }
 
-  function persistMystery() {
-    /* Swap point for Firestore: write weavers/{uid}/threads/{threadId}. */
-    try {
-      sessionStorage.setItem(MYSTERY_STORAGE_KEY, JSON.stringify(NASEEJ.session.mystery));
-    } catch (err) { /* private mode / quota: progress still lives in-memory */ }
+  /* ATHAR earned on a thread is derived from the ledger, so it can never drift
+     from the balance: the ledger is what awardAthar writes and what hydration
+     validates, and this is only ever a sum over it. */
+  function earnedAthar(threadId) {
+    const m = mysteryRecord(threadId);
+    let total = 0;
+    for (const key in m.awarded) total += m.awarded[key];
+    m.earned = total;
+    return total;
+  }
+
+  /* Every payout is announced by the one function that makes it, so the chips
+     shown after an action are the ledger, not a hand-written guess at it. A
+     clue award happens inside unlockClue and a chapter award inside
+     completeHeroWaypoint; if each call site assembled its own list, those two
+     would silently go unannounced while the balance moved. */
+  let chipLog = [];
+
+  /* A chapter is announced by its name, not by the key it is stored under:
+     "Chapter 2" is meaningless, "Chapter · Follow the Person" is the thing the
+     weaver just reached. 'follow' resolves through the chosen branch, which is
+     why the branch must already be set when that award happens. */
+  function chapterTitleFor(threadId, key) {
+    const thread = threadsById[threadId];
+    const chapters = (thread && thread.chapters) || {};
+    const m = mysteryRecord(threadId);
+    if (key === 'entrance') return chapters.start || null;
+    if (key === 'follow') return chapters[m.branch === 'object' ? 'object' : 'person'] || null;
+    if (key === 'connection') return chapters.connection || null;
+    return null;
+  }
+
+  function awardLabel(threadId, kind, key, label) {
+    if (label) return label;
+    if (kind === 'clue') return 'Clue ' + key;
+    if (kind === 'chapter') {
+      const title = chapterTitleFor(threadId, key);
+      return title ? 'Chapter · ' + title.replace(/^The /, '') : 'Chapter';
+    }
+    if (kind === 'reveal') return 'Reveal';
+    return kind === 'observation' ? 'Observation' : 'Challenge';
+  }
+
+  function awardAthar(threadId, kind, key, label) {
+    const amount = ATHAR[kind];
+    if (!amount) return 0;
+    const m = mysteryRecord(threadId);
+    const entry = kind + ':' + key;
+    if (m.awarded[entry]) return 0;
+    m.awarded[entry] = amount;
+    NASEEJ.session.points += amount;
+    chipLog.push({ label: awardLabel(threadId, kind, key, label), athar: amount });
+    return amount;
+  }
+
+  /* Chips are drained, never read: an action clears the log, does its work and
+     takes whatever was paid, so a rejected attempt reports nothing. */
+  function resetChips() { chipLog.length = 0; }
+  function takeChips() {
+    const chips = chipLog.slice();
+    chipLog.length = 0;
+    return chips;
+  }
+
+  /* ── Clues ─────────────────────────────────────────────────────────────────
+     A clue opens because an interaction succeeded, never because a waypoint
+     index was reached. The condition is declared on the clue; this is the only
+     function that can open one, and it is not exported — a renderer cannot ask
+     for a clue, so a plain button press cannot produce one. */
+  function clueById(thread, clueId) {
+    const clues = (thread && thread.clues) || [];
+    for (let i = 0; i < clues.length; i++) {
+      if (clues[i].id === clueId) return clues[i];
+    }
+    return null;
+  }
+
+  function isClueUnlocked(threadId, clueId) {
+    return mysteryRecord(threadId).clues.indexOf(clueId) >= 0;
+  }
+
+  function unlockClueIfEarned(threadId, kind, waypointId) {
+    const thread = threadsById[threadId];
+    if (!thread) return null;
+    const clues = thread.clues || [];
+    for (let i = 0; i < clues.length; i++) {
+      const unlock = clues[i].unlock || {};
+      if (unlock.kind !== kind) continue;
+      if (kind === 'branch') {
+        if (unlock.waypoint != null && unlock.waypoint !== waypointId) continue;
+      } else if (unlock.waypoint !== waypointId) continue;
+      if (unlockClue(threadId, clues[i].id)) return clues[i];
+    }
+    return null;
+  }
+
+  function unlockClue(threadId, clueId) {
+    const m = mysteryRecord(threadId);
+    if (m.clues.indexOf(clueId) >= 0) return false;
+    const thread = threadsById[threadId];
+    /* Only a declared clue can be opened, and only once. */
+    if (!clueById(thread, clueId)) return false;
+    m.clues.push(clueId);
+    awardAthar(threadId, 'clue', clueId);
+    return true;
   }
 
   function getClueProgress(threadId) {
@@ -1390,52 +1806,48 @@
     return { unlocked: m.clues.length, total: total || 4, ids: m.clues.slice() };
   }
 
-  function isClueUnlocked(threadId, clueId) {
-    const m = mysteryRecord(threadId == null ? HERO_THREAD_ID : threadId);
-    return m.clues.indexOf(clueId) >= 0;
-  }
-
-  function awardAthar(threadId, key, amount) {
-    const m = mysteryRecord(threadId);
-    if (m.awarded[key]) return 0;
-    m.awarded[key] = true;
-    m.athar += amount;
-    return amount;
-  }
-
-  function unlockClue(threadId, clueId) {
-    const m = mysteryRecord(threadId);
-    if (m.clues.indexOf(clueId) >= 0) return false;
-    m.clues.push(clueId);
-    awardAthar(threadId, 'clue:' + clueId, ATHAR_CLUE);
-    return true;
-  }
-
-  function syncHeroProgress(threadId) {
-    const thread = threadsById[threadId];
-    if (!thread) return;
-    const n = (thread.waypoints || []).length || 1;
-    const done = (thread.waypoints || []).filter(function (wp) {
-      return isCompleted(wp, thread);
-    }).length;
-    const pct = Math.round((done / n) * 100);
-    NASEEJ.session.threadProgress[threadId] = pct;
-    mysteryRecord(threadId).progress = pct;
-  }
+  /* ── Progress ───────────────────────────────────────────────────────────── */
 
   function completeHeroWaypoint(threadId, waypointId) {
     const thread = threadsById[threadId];
     const m = mysteryRecord(threadId);
     if (m.completed.indexOf(waypointId) < 0) m.completed.push(waypointId);
-    const key = threadId + ':' + waypointId;
-    const ids = NASEEJ.session.completedWaypointIds;
-    if (ids.indexOf(key) < 0) ids.push(key);
+    const keys = heroKeys(threadId);
+    if (keys.indexOf(waypointId) < 0) keys.push(waypointId);
     const wp = thread ? findWaypoint(thread.waypoints || [], waypointId) : null;
-    if (wp && wp.chapterKey) {
-      awardAthar(threadId, 'chapter:' + wp.chapterKey, ATHAR_CHAPTER);
-    }
+    if (wp && wp.chapterKey) awardAthar(threadId, 'chapter', wp.chapterKey);
     syncHeroProgress(threadId);
-    maybeReveal(threadId);
+  }
+
+  function syncHeroProgress(threadId) {
+    const thread = threadsById[threadId];
+    if (!thread) return;
+    const wps = thread.waypoints || [];
+    const n = wps.length || 1;
+    const done = wps.filter(function (wp) { return isCompleted(wp, thread); }).length;
+    const pct = Math.round((done / n) * 100);
+    NASEEJ.session.threadProgress[threadId] = pct;
+    syncHeroJourney(threadId);
+  }
+
+  /* The reveal opens only when the whole mystery is actually solved: every
+     waypoint completed, every clue earned, a path chosen. */
+  function maybeReveal(threadId) {
+    const thread = threadsById[threadId];
+    const m = mysteryRecord(threadId);
+    if (!thread || m.reveal) return false;
+    const clues = getClueProgress(threadId);
+    const wps = thread.waypoints || [];
+    let allDone = wps.length > 0;
+    for (let i = 0; i < wps.length; i++) {
+      if (!isCompleted(wps[i], thread)) allDone = false;
+    }
+    if (clues.unlocked < clues.total || !allDone || !m.branch) return false;
+    m.reveal = true;
+    awardAthar(threadId, 'reveal', 'final');
+    earnHeroBadge();
+    syncHeroJourney(threadId);
+    return true;
   }
 
   function earnHeroBadge() {
@@ -1447,35 +1859,94 @@
     }
   }
 
-  function maybeReveal(threadId) {
+  /* ── Journey (My Threads) ───────────────────────────────────────────────────
+     session.activeThreads stays the list the profile renders; this keeps the
+     hero thread's entry in step with live progress so the branch choice shows
+     up there too. Written once when progress is first seen, updated after. */
+  function heroJourneyEntry(threadId) {
     const thread = threadsById[threadId];
+    if (!thread) return null;
     const m = mysteryRecord(threadId);
-    if (!thread || m.reveal) return;
-    const clues = getClueProgress(threadId);
-    const wps = thread.waypoints || [];
-    let allDone = wps.length > 0;
-    for (let i = 0; i < wps.length; i++) {
-      if (!isCompleted(wps[i], thread)) allDone = false;
+    const list = NASEEJ.session.activeThreads;
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].id === threadId) return list[i];
     }
-    if (clues.unlocked >= clues.total && allDone && m.branch) {
-      m.reveal = true;
-      earnHeroBadge();
-    }
+    const branch = branchOption(thread, m.branch);
+    const entry = {
+      id: threadId,
+      title: thread.title,
+      region: thread.subtitle,
+      progress: 0,
+      nextWaypoint: (thread.waypoints[0] || {}).name || thread.title,
+      image: thread.image || ((thread.waypoints[0] || {}).image),
+      livingMystery: true,
+      branch: null,
+    };
+    if (branch) entry.branch = branch.label;
+    list.unshift(entry);
+    return entry;
   }
 
+  function syncHeroJourney(threadId) {
+    const thread = threadsById[threadId];
+    if (!thread) return;
+    const m = mysteryRecord(threadId);
+    const pct = NASEEJ.session.threadProgress[threadId] || 0;
+    const list = NASEEJ.session.activeThreads;
+    for (let i = 0; i < list.length; i++) {
+      if (list[i].id === threadId && !m.reveal) {
+        list[i].progress = pct;
+        const active = findActiveWaypoint(thread);
+        if (active) list[i].nextWaypoint = active.name;
+        const branch = branchOption(thread, m.branch);
+        list[i].branch = branch ? branch.label : null;
+      }
+    }
+
+    /* Solved: it stops being "in progress" and becomes a completed thread, once. */
+    if (!m.reveal) return;
+    for (let i = list.length - 1; i >= 0; i--) {
+      if (list[i].id === threadId) list.splice(i, 1);
+    }
+    const done = NASEEJ.session.completedThreads;
+    for (let i = 0; i < done.length; i++) {
+      if (done[i].id === threadId) return;
+    }
+    const clues = getClueProgress(threadId);
+    const branch = branchOption(thread, m.branch);
+    done.unshift({
+      id: threadId,
+      title: thread.title,
+      region: thread.subtitle,
+      waypoints: (thread.waypoints || []).length,
+      pointsEarned: earnedAthar(threadId),
+      completedDate: 'Today',
+      image: thread.image || ((thread.waypoints[0] || {}).image),
+      livingMystery: true,
+      /* Kept on the completed card: which of the two paths this weaver finished
+         is part of the record of the thread, not of the running progress. */
+      branch: branch ? branch.label : null,
+      clues: clues.unlocked + ' / ' + clues.total,
+    });
+    if (isFiniteNumber(NASEEJ.session.threadsCompleted)) NASEEJ.session.threadsCompleted += 1;
+  }
+
+  /* ── Waypoint state ─────────────────────────────────────────────────────────
+     Status is derived, never stored: the same inputs (completion, order,
+     branch) always produce the same status, which is what lets the renderer
+     treat it as read-only and keeps a reload from desynchronising the map. */
   function waypointLiveStatus(thread, waypoint) {
+    if (!waypoint) return 'locked';
     if (!isHeroThread(thread)) return waypoint.status;
     if (isCompleted(waypoint, thread)) return 'completed';
     const wps = thread.waypoints || [];
-    let idx = -1;
-    for (let i = 0; i < wps.length; i++) {
-      if (wps[i].id === waypoint.id) { idx = i; break; }
-    }
-    if (idx < 0) return 'locked';
-    if (idx === 0) return 'active';
+    const idx = waypointIndex(thread, waypoint);
+    if (idx <= 0) return idx === 0 ? 'active' : 'locked';
     if (!isCompleted(wps[idx - 1], thread)) return 'locked';
-    const m = mysteryRecord(threadIdOf(thread));
-    if (idx >= 1 && !m.branch) return 'locked';
+    /* The second waypoint is where the path is chosen: it stays shut until
+       the weaver picks a branch, so CHOOSE YOUR PATH is the gate rather than
+       decoration. */
+    if (idx === 1 && !mysteryRecord(threadIdOf(thread)).branch) return 'locked';
     return 'active';
   }
 
@@ -1492,113 +1963,368 @@
     return waypoints[0] || null;
   }
 
+  /* Branch overlay + live status in one read-only copy. Renderers get the
+     decorated waypoint and never mutate the source data. */
   function resolveHeroWaypoint(thread, waypoint) {
     if (!waypoint || !isHeroThread(thread)) return waypoint;
     const m = mysteryRecord(threadIdOf(thread));
     const overlay = waypoint.branches && m.branch ? waypoint.branches[m.branch] : null;
-    if (!overlay) {
-      return Object.assign({}, waypoint, { status: waypointLiveStatus(thread, waypoint) });
+    const decorated = Object.assign({}, waypoint);
+    if (overlay) Object.assign(decorated, overlay);
+    /* An interaction the weaver has already satisfied is not re-offered. */
+    if (waypointLiveStatus(thread, waypoint) === 'completed') {
+      decorated.interactionDone = true;
+      if (waypoint.interaction === 'challenge') decorated.solvedOption = (m.answers[waypoint.id] || {}).optionId;
+      if (waypoint.interaction === 'observation') decorated.solvedOption = m.observations[waypoint.id] || null;
     }
-    return Object.assign({}, waypoint, overlay, { status: waypointLiveStatus(thread, waypoint) });
+    decorated.status = waypointLiveStatus(thread, waypoint);
+    return decorated;
   }
+
+  /* ── Chapters, branch, KHAYT ─────────────────────────────────────────────── */
 
   function currentChapter(thread) {
     if (!isHeroThread(thread)) return '';
     const m = mysteryRecord(threadIdOf(thread));
     const ch = thread.chapters || {};
     if (m.reveal) return ch.reveal || 'The Thread';
-    const clues = getClueProgress(threadIdOf(thread));
-    if (clues.unlocked >= 3) return ch.connection || 'The Connection';
+    if (getClueProgress(threadIdOf(thread)).unlocked >= 3) return ch.connection || 'The Connection';
     if (m.branch === 'person') return ch.person || 'Follow the Person';
     if (m.branch === 'object') return ch.object || 'Follow the Object';
     return ch.start || 'The Entrance';
   }
 
+  function branchOption(thread, branchId) {
+    const opts = (thread && thread.branchOptions) || [];
+    for (let i = 0; i < opts.length; i++) {
+      if (opts[i].id === branchId) return opts[i];
+    }
+    return null;
+  }
+
+  function branchState(thread) {
+    const m = mysteryRecord(threadIdOf(thread));
+    const chosen = branchOption(thread, m.branch);
+    return {
+      open: !!(thread.branchOptions || []).length,
+      chosen: m.branch || null,
+      label: chosen ? chosen.label : null,
+      /* The choice is offered once the first clue is earned — that is what the
+         trail head's ibex mark is for. */
+      available: !m.branch && isClueUnlocked(threadIdOf(thread), 1),
+      reaction: m.branch && thread.branchReaction ? thread.branchReaction[m.branch] : null,
+      options: (thread.branchOptions || []).map(function (o) {
+        return { id: o.id, label: o.label, prompt: o.prompt, selected: o.id === m.branch };
+      }),
+    };
+  }
+
   function khaytMessage(thread, waypoint) {
     if (!isHeroThread(thread)) return '';
-    const m = mysteryRecord(threadIdOf(thread));
-    if (m.reveal) return 'Now you see why every place was connected.';
+    const tid = threadIdOf(thread);
+    const m = mysteryRecord(tid);
+    if (m.reveal) return (thread.reveal && thread.reveal.khayt) || 'You found the thread.';
+    if (m.branch && thread.branchReaction) return thread.branchReaction[m.branch];
     if (waypoint) {
       const status = waypointLiveStatus(thread, waypoint);
       const answered = m.answers[waypoint.id];
-      if (answered && answered.correct) return 'You\'re getting closer.';
-      if (answered && !answered.correct) return 'Don\'t read. Look around you.';
-      if (status === 'completed') return 'You\'re getting closer.';
-      if (status === 'active' && waypoint.quiz && !answered) return 'Don\'t read. Look around you.';
-      if (status === 'active' && waypoint.lookPrompt) {
-        if (!isClueUnlocked(threadIdOf(thread), waypoint.unlocksClue)) {
-          return 'You found the place. But you\'re missing the clue.';
-        }
-      }
+      const observed = m.observations[waypoint.id];
       if (status === 'locked') return 'Every story starts with a thread.';
+      if (status === 'completed') {
+        if (answered && !answered.correct) return 'Right place. Wrong mark. Look again.';
+        return 'You\'re getting closer.';
+      }
+      if (answered && answered.correct) return 'That\'s the mark. Keep walking.';
+      if (answered && !answered.correct) return 'Don\'t read. Look around you.';
+      if (observed) return 'You saw it. That was a real observation.';
+      if (waypoint.observation) return 'Look around you. Then tell me what you saw.';
+      if (waypoint.quiz) return 'Don\'t read. Look around you.';
       return 'You found the place.';
     }
-    if (!m.branch && isClueUnlocked(threadIdOf(thread), 1)) {
-      return 'You\'re getting closer.';
-    }
-    if (getClueProgress(threadIdOf(thread)).unlocked === 0) {
-      return 'You don\'t know where this one ends.';
-    }
-    return 'You\'re getting closer.';
+    if (isClueUnlocked(tid, 1)) return 'Now choose your path.';
+    return 'You don\'t know where this one ends.';
   }
 
-  function answerHeroChallenge(threadId, waypointId, optionId) {
-    const thread = threadsById[threadId];
-    if (!thread) return { status: 'invalid' };
-    const wp = findWaypoint(thread.waypoints || [], waypointId);
-    if (!wp || !wp.quiz) return { status: 'invalid' };
-    if (waypointLiveStatus(thread, wp) === 'locked') return { status: 'locked' };
-    const m = mysteryRecord(threadId);
-    if (m.answers[waypointId] && m.answers[waypointId].correct) {
-      return { status: 'duplicate', correct: true };
-    }
-    const correct = optionId === wp.quiz.correct;
-    m.answers[waypointId] = { optionId: optionId, correct: correct };
-    const toast = [];
-    if (correct) {
-      const gained = awardAthar(threadId, 'challenge:' + waypointId, ATHAR_CHALLENGE);
-      if (gained) toast.push('+' + ATHAR_CHALLENGE + ' ATHAR');
-      if (wp.unlocksClue && unlockClue(threadId, wp.unlocksClue)) toast.push('Clue Unlocked');
-      completeHeroWaypoint(threadId, waypointId);
-      m.toast = toast;
-    } else {
-      m.toast = ['Not that mark. Look around you.'];
-    }
-    persistMystery();
-    return { status: correct ? 'correct' : 'incorrect', correct: correct };
+  /* ── Interactions ──────────────────────────────────────────────────────────
+     Both interactions answer the same shape of question, so one validated path
+     covers them: pick an option, submit it, get the truth of it. A wrong answer
+     changes nothing and can be retried; a right one is recorded once and pays
+     once. */
+
+  function heroQuestion(thread, waypoint) {
+    if (!waypoint || waypoint.status === 'completed') return null;
+    if (waypoint.status === 'locked') return null;
+    const kind = waypoint.interaction;
+    const body = kind === 'challenge' ? waypoint.quiz : kind === 'observation' ? waypoint.observation : null;
+    if (!body || !Array.isArray(body.options) || !body.options.length) return null;
+    return {
+      kind: kind,
+      waypointId: waypoint.id,
+      prompt: body.prompt,
+      options: body.options.map(function (o) { return { id: o.id, text: o.text }; }),
+      lookPrompt: waypoint.lookPrompt || null,
+    };
   }
 
-  function lookAroundHero(threadId, waypointId) {
+  function answerHeroQuestion(threadId, waypointId, optionId) {
+    /* One attempt, one chip log. */
+    resetChips();
     const thread = threadsById[threadId];
-    if (!thread) return { status: 'invalid' };
+    if (!thread || !isHeroThread(thread)) return { status: 'invalid' };
     const wp = findWaypoint(thread.waypoints || [], waypointId);
     if (!wp) return { status: 'invalid' };
-    if (waypointLiveStatus(thread, wp) === 'locked') return { status: 'locked' };
-    if (isCompleted(wp, thread)) return { status: 'duplicate' };
-    const toast = [];
-    if (wp.unlocksClue && unlockClue(threadId, wp.unlocksClue)) toast.push('Clue Unlocked');
-    completeHeroWaypoint(threadId, waypointId);
+    const kind = wp.interaction;
+    const body = kind === 'challenge' ? wp.quiz : kind === 'observation' ? wp.observation : null;
+    if (!body) return { status: 'invalid' };
+
+    const status = waypointLiveStatus(thread, wp);
+    if (status === 'locked') return { status: 'locked', waypointId: wp.id, chips: [] };
+    /* Solved already: the panel hides Validate, so reaching this means a direct
+       call. Report it the way the other duplicate paths do rather than as a bare
+       status, so a caller cannot mistake it for a refusal. */
+    if (status === 'completed') {
+      return { status: 'duplicate', correct: true, kind: kind, waypointId: wp.id, chips: [],
+        message: 'This waypoint is already solved. The ATHAR were paid once.' };
+    }
+
+    let known = false;
+    for (let i = 0; i < body.options.length; i++) {
+      if (body.options[i].id === optionId) known = true;
+    }
+    if (!known) return { status: 'invalid' };
+
     const m = mysteryRecord(threadId);
-    if (m.reveal) toast.push('YOU FOUND THE THREAD');
-    m.toast = toast.length ? toast : null;
-    persistMystery();
-    return { status: 'ok', reveal: m.reveal };
+    const correct = optionId === body.correct;
+
+    if (kind === 'challenge') {
+      /* Already solved: re-submitting the right answer is a duplicate, not a
+         second payout, and re-submitting a wrong one is refused outright. */
+      const previous = m.answers[waypointId];
+      if (previous && previous.correct) {
+        return { status: 'duplicate', correct: true, kind: kind, waypointId: waypointId,
+          message: 'Already solved here. The ATHAR were paid once.', chips: [] };
+      }
+      if (previous && previous.optionId === optionId) {
+        return { status: 'incorrect', correct: false, kind: kind, waypointId: waypointId,
+          message: 'That mark is not it. Look around you.', chips: [] };
+      }
+    } else {
+      if (m.observations[waypointId]) {
+        return { status: 'duplicate', correct: true, kind: kind, waypointId: waypointId,
+          message: 'You already recorded that observation.', chips: [] };
+      }
+    }
+
+    if (!correct) {
+      /* Wrong answers change nothing durable: no completion, no clue, no ATHAR,
+         and nothing written that a reload could read back as progress. The same
+         question stays open so it can be answered again. Only the option just
+         tried is remembered, and only for this visit, so a repeat gets a reply
+         that names it instead of the generic one. */
+      if (kind === 'challenge') m.answers[waypointId] = { optionId: optionId, correct: false };
+      return { status: 'incorrect', correct: false, kind: kind, waypointId: waypointId,
+        message: kind === 'observation'
+          ? 'Nothing like that on the basalt. Look again.'
+          : 'Not that mark. Look around you.',
+        chips: [] };
+    }
+
+    if (kind === 'observation') m.observations[waypointId] = optionId;
+    else m.answers[waypointId] = { optionId: optionId, correct: true };
+
+    /* Order is the order the weaver experiences: the answer pays, the clue it
+       earned pays, the chapter it reached pays, and if that was the last piece
+       the ending pays. Each of those awards logs itself (see awardAthar), so
+       this list is complete by construction. */
+    awardAthar(threadId, 'challenge', waypointId,
+      kind === 'observation' ? 'Observation' : 'Challenge');
+
+    const clue = unlockClueIfEarned(threadId, kind, waypointId);
+
+    completeHeroWaypoint(threadId, waypointId);
+    /* Last waypoint solved is the only moment the reveal can open: before this
+       the "everything solved" test is false, and the branch is chosen long
+       before the last clue. Called here so the ending and its ATHAR arrive with
+       the answer that earned them. */
+    maybeReveal(threadId);
+    const reveal = mysteryRecord(threadId).reveal;
+    const chips = takeChips();
+    saveProgress();
+    return {
+      status: 'correct',
+      correct: true,
+      kind: kind,
+      waypointId: waypointId,
+      clue: clue ? clue.id : null,
+      reveal: reveal,
+      message: reveal ? 'You found the thread.'
+        : kind === 'observation' ? 'You saw it. That was a real observation.'
+          : 'That\'s the mark. Keep walking.',
+      chips: chips,
+    };
+  }
+
+  /* Kept as the two named entry points the renderers use; both go through the
+     same validated path. */
+  function answerHeroChallenge(threadId, waypointId, optionId) {
+    return answerHeroQuestion(threadId, waypointId, optionId);
+  }
+
+  function observeHeroWaypoint(threadId, waypointId, optionId) {
+    return answerHeroQuestion(threadId, waypointId, optionId);
   }
 
   function setHeroBranch(threadId, branchId) {
+    resetChips();
     const thread = threadsById[threadId];
     const m = mysteryRecord(threadId);
-    if (!thread || m.branch) return m.branch;
-    if (!isClueUnlocked(threadId, 1)) return null;
-    let allowed = false;
-    const opts = thread.branchOptions || [];
-    for (let i = 0; i < opts.length; i++) {
-      if (opts[i].id === branchId) allowed = true;
+    if (!thread) return { status: 'invalid', branch: m.branch };
+    /* A path is chosen once. Re-submitting returns what was already chosen
+       rather than switching branches or paying twice. */
+    if (m.branch) {
+      return { status: 'duplicate', branch: m.branch, chips: [],
+        message: 'You already chose ' + ((branchOption(thread, m.branch) || {}).label || 'a path') + '.' };
     }
-    if (!allowed) return null;
+    if (!branchOption(thread, branchId)) return { status: 'invalid', branch: null, chips: [] };
+    if (!isClueUnlocked(threadId, 1)) return { status: 'locked', branch: null, chips: [] };
+
     m.branch = branchId;
-    persistMystery();
-    return m.branch;
+    /* The choice is itself a solved interaction: it opens the third clue. */
+    const clue = unlockClueIfEarned(threadId, 'branch', null);
+    /* Opening the next chapter is its own reward, keyed on the chapter. */
+    const next = findActiveWaypoint(thread);
+    if (next && next.chapterKey) awardAthar(threadId, 'chapter', next.chapterKey);
+    syncHeroProgress(threadId);
+    maybeReveal(threadId);
+    const chips = takeChips();
+    saveProgress();
+    return {
+      status: 'ok',
+      branch: m.branch,
+      clue: clue ? clue.id : null,
+      chips: chips,
+      message: thread.branchReaction ? thread.branchReaction[branchId] : 'Path chosen.',
+    };
+  }
+
+  /* ── Final reveal ──────────────────────────────────────────────────────────
+     Assembled from what the weaver actually did, in the order they did it, and
+     ending on the text for the branch they chose. The renderer prints it; it
+     does not compose it, so the two branches cannot drift apart.
+     Gated on the reveal flag, not just on the content existing: this is the one
+     function that can return the ending, so until the thread is solved it
+     answers null and no renderer — or caller holding this namespace — can read
+     the story, the clue texts or the chapter names early. */
+  function revealStory(threadId) {
+    const thread = threadsById[threadId == null ? HERO_THREAD_ID : threadId];
+    if (!thread || !thread.reveal) return null;
+    const m = mysteryRecord(threadId);
+    if (!m.reveal) return null;
+    const clues = getClueProgress(threadId);
+    const chapters = thread.chapters || {};
+    const chosen = branchOption(thread, m.branch);
+    const wp2 = findWaypoint(thread.waypoints || [], 2);
+    const overlay = wp2 && wp2.branches && m.branch ? wp2.branches[m.branch] : null;
+    const clueText = function (id) {
+      const c = clueById(thread, id);
+      return c ? c.text : '';
+    };
+    const steps = [
+      { label: 'Chapter 1 · ' + (chapters.start || 'The Entrance'), text: ((thread.waypoints || [])[0] || {}).desc || '' },
+      { label: 'Clue 1', text: clueText(1) },
+      { label: 'Your Choice', text: chosen ? chosen.label + ' — ' + chosen.prompt : 'You never chose a path.' },
+      { label: 'Chapter 2 · ' + (m.branch === 'person' ? (chapters.person || '') : (chapters.object || '')), text: overlay ? overlay.desc : '' },
+      { label: 'Clue 2', text: clueText(2) },
+      { label: 'Clue 3', text: clueText(3) },
+      { label: 'Clue 4', text: clueText(4) },
+      { label: 'The Connection', text: thread.reveal.connection },
+    ];
+    return {
+      headline: thread.reveal.headline,
+      badge: profileBadges[HERO_BADGE_ID - 1] ? profileBadges[HERO_BADGE_ID - 1].name : '',
+      badgeIcon: profileBadges[HERO_BADGE_ID - 1] ? profileBadges[HERO_BADGE_ID - 1].icon : '🧵',
+      athar: ATHAR.reveal,
+      branch: chosen ? chosen.label : 'The Thread',
+      steps: steps,
+      story: (thread.reveal.story || {})[m.branch] || thread.reveal.connection,
+      khayt: thread.reveal.khayt,
+      clues: clues.unlocked + ' / ' + clues.total,
+    };
+  }
+
+  /* Live stat row for the hero thread, in the same shape as the static `stats`
+     the other threads carry, so the thread renderer stays one renderer. */
+  function heroStats(thread) {
+    const tid = threadIdOf(thread);
+    const m = mysteryRecord(tid);
+    const clues = getClueProgress(tid);
+    const total = (thread.waypoints || []).length;
+    const done = (thread.waypoints || []).filter(function (wp) { return isCompleted(wp, thread); }).length;
+    return [
+      { label: 'ATHAR Earned', value: String(earnedAthar(tid)), icon: '✦' },
+      { label: 'Clues', value: clues.unlocked + ' / ' + clues.total, icon: '◇' },
+      { label: 'Chapter', value: currentChapter(thread), icon: '📖' },
+      { label: 'Waypoints', value: done + ' / ' + total, icon: '⊕' },
+    ].concat(m.reveal ? [{ label: 'Thread', value: 'Found', icon: '🧵' }] : []);
+  }
+
+  /* ── Persistence entry points ────────────────────────────────────────────── */
+
+  function saveProgress() {
+    const snapshot = {
+      v: 1,
+      points: NASEEJ.session.points,
+      completedWaypointIds: NASEEJ.session.completedWaypointIds.slice(),
+      completedWaypointKeys: {},
+      threadProgress: {},
+      mystery: {},
+      badges: [],
+    };
+    for (const tid in NASEEJ.session.completedWaypointKeys) {
+      snapshot.completedWaypointKeys[tid] = NASEEJ.session.completedWaypointKeys[tid].slice();
+    }
+    for (const tid in NASEEJ.session.threadProgress) {
+      snapshot.threadProgress[tid] = NASEEJ.session.threadProgress[tid];
+    }
+    for (const tid in NASEEJ.session.mystery) {
+      snapshot.mystery[tid] = recordSnapshot(NASEEJ.session.mystery[tid]);
+    }
+    for (let i = 0; i < profileBadges.length; i++) {
+      if (profileBadges[i].earned) snapshot.badges.push(profileBadges[i].id);
+    }
+    return writeStored(snapshot);
+  }
+
+  /* Called once at boot, before the first route renders. Anything that fails
+     validation is dropped silently — a bad blob must never stop the site from
+     starting — and the demo balance is kept when no valid one was stored. */
+  function hydrateProgress() {
+    const stored = readStored();
+    if (!stored) return false;
+
+    if (stored.points != null) NASEEJ.session.points = stored.points;
+
+    if (stored.completedWaypointIds.length) {
+      NASEEJ.session.completedWaypointIds = stored.completedWaypointIds.slice();
+    }
+    for (const tid in stored.completedWaypointKeys) {
+      NASEEJ.session.completedWaypointKeys[tid] = stored.completedWaypointKeys[tid].slice();
+    }
+    for (const tid in stored.threadProgress) {
+      NASEEJ.session.threadProgress[tid] = stored.threadProgress[tid];
+    }
+    for (const tid in stored.mystery) {
+      NASEEJ.session.mystery[tid] = stored.mystery[tid];
+    }
+    for (let i = 0; i < profileBadges.length; i++) {
+      if (profileBadges[i].id === HERO_BADGE_ID && stored.badges.indexOf(HERO_BADGE_ID) >= 0) {
+        profileBadges[i].earned = true;
+        profileBadges[i].date = profileBadges[i].date || 'Sep 2026';
+      }
+    }
+    syncHeroProgress(HERO_THREAD_ID);
+    heroJourneyEntry(HERO_THREAD_ID);
+    return true;
   }
 
   function findCity(cityId) {
@@ -1620,6 +2346,8 @@
     moodEmoji: moodEmoji,
     difficultyColor: difficultyColor,
 
+    defaultThreadId: DEFAULT_THREAD_ID,
+
     /* Returns the requested thread, or the default thread when the id is
        null/unknown. Returns null only when the data itself is broken. */
     getThread: function (threadId) {
@@ -1627,20 +2355,43 @@
       return found || threadsById[DEFAULT_THREAD_ID] || null;
     },
 
+    /* Whether an id names a real thread — the router uses it to tell a typo
+       from a deliberate fallback. */
+    hasThread: function (threadId) {
+      return !!(threadId != null && threadsById[threadId]);
+    },
+
     heroThreadId: HERO_THREAD_ID,
     isHeroThread: isHeroThread,
+    /* The read-only view of a waypoint a renderer should use: branch overlay
+       applied and live status derived. Always called with the REAL thread. */
     decorateWaypoint: resolveHeroWaypoint,
     waypointStatus: waypointLiveStatus,
     currentChapter: currentChapter,
     khaytMessage: khaytMessage,
+
     getClueProgress: getClueProgress,
-    unlockClue: unlockClue,
     isClueUnlocked: isClueUnlocked,
+    clueById: clueById,
+
+    /* The validated question for a waypoint, or null when there is none to ask
+       (already answered, or still locked). */
+    heroQuestion: heroQuestion,
     answerHeroChallenge: answerHeroChallenge,
-    lookAroundHero: lookAroundHero,
+    observeHeroWaypoint: observeHeroWaypoint,
+    branchState: branchState,
     setHeroBranch: setHeroBranch,
-    mysteryRecord: mysteryRecord,
-    persistMystery: persistMystery,
+
+    heroStats: heroStats,
+    isRevealed: function (threadId) {
+      return !!mysteryRecord(threadId == null ? HERO_THREAD_ID : threadId).reveal;
+    },
+    earnedAthar: earnedAthar,
+    atharRewards: ATHAR,
+    revealStory: revealStory,
+
+    saveProgress: saveProgress,
+    hydrateProgress: hydrateProgress,
 
     /* The waypoint a waypoint route should show: the requested one, else the
        thread's active waypoint, else its first. */
@@ -1738,6 +2489,9 @@
       verified: true,
     },
 
+    /* THE ATHAR BALANCE. One number, one owner: every reward the mystery pays
+       adds to this, and the profile, the rewards tab and the thread stat row
+       all read it back. Nothing else keeps a parallel purse. */
     points: totalPoints,
     /* Share of the way to the next level, and how many points are missing. */
     levelProgress: 73,
@@ -1755,9 +2509,18 @@
        getActiveWaypoint. They are empty here, so every helper falls through to
        the demo threads' own `status` and `progress` fields — which is why
        filling these two in is the only change needed to make the whole site
-       read live Firestore progress. */
+       read live Firestore progress.
+
+       completedWaypointIds is the original model: bare numeric waypoint ids,
+       matched against any thread. completedWaypointKeys is the same idea keyed
+       by thread (thread id -> waypoint ids) and is what the living-mystery
+       thread uses. The two are deliberately separate arrays: one list of
+       numbers and one map of lists can never be confused for each other. */
     completedWaypointIds: [],
+    completedWaypointKeys: {},
     threadProgress: {},
+    /* threadId -> progress record for a living-mystery thread (clues, branch,
+       answers, observations, awarded rewards, completed nodes, reveal). */
     mystery: {},
 
     get badgesEarned() {

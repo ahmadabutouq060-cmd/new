@@ -561,7 +561,7 @@
       '<div class="col-span-6 flex items-end justify-end">' +
       '<button ' + N('discover') + ' class="text-sm font-body font-medium underline underline-offset-4" style="color:#8C3211">View all ' + data.libraryStats.threads + ' threads →</button></div>' +
       '</div>' + heroFeature() +
-      '<div class="grid grid-cols-3 gap-6">' + data.featuredThreads.map(function (t, i) {
+      '<div class="grid grid-cols-3 gap-6">' + data.featuredThreads.map(function (t) {
         /* Three identical tiles read as one tile repeated, and the repetition
            hid the most useful thing on the card: whether this weaver has
            already started it. The progress is real (getThreadProgress reads the
@@ -569,8 +569,8 @@
            the region — instead of three copies of the same CTA. */
         const prog = data.getThreadProgress(t);
         const started = prog > 0;
-        return '<div class="card-host group rounded-2xl overflow-hidden transition-all hover:-translate-y-1" style="background-color:#FDFCFA;border:1px solid #E8E0D0;box-shadow:0 2px 12px rgba(18,33,30,0.06)">' +
-          '<div class="relative overflow-hidden ' + (i === 0 ? 'h-56' : 'h-48') + '">' +
+        return '<div class="card-host featured-thread-card group rounded-2xl overflow-hidden transition-all hover:-translate-y-1" style="background-color:#FDFCFA;border:1px solid #E8E0D0;box-shadow:0 2px 12px rgba(18,33,30,0.06)">' +
+          '<div class="relative overflow-hidden h-48">' +
       media(data.photoFor(t), t.title, 'w-full h-full object-cover transition-transform duration-500 group-hover:scale-105') +
           '<div class="absolute top-3 left-3 flex gap-1.5">' +
           '<span class="text-xs font-body font-medium px-2.5 py-1 rounded-full" style="background-color:rgba(249,247,243,0.92);color:#8C3211">' + E(t.category) + '</span>' +
@@ -578,23 +578,26 @@
             ? '<span class="text-xs font-body font-semibold px-2.5 py-1 rounded-full" style="background-color:#013E37;color:white">In progress</span>'
             : '') + '</div>' +
           '<div class="absolute bottom-0 left-0 right-0 h-16" style="background:linear-gradient(to top, rgba(18,33,30,0.5), transparent)"></div></div>' +
-          '<div class="p-5">' +
+          '<div class="p-5 flex flex-col flex-1">' +
           '<div class="text-xs font-body mb-1" style="color:#8C3211">' + E(t.region) + '</div>' +
           '<h3 class="font-display text-lg font-semibold mb-1" style="color:#12211E">' + E(t.title) + '</h3>' +
           '<p class="text-sm font-body mb-4" style="color:#55635E">' + E(t.hook) + '</p>' +
           '<div class="flex items-center justify-between text-xs font-body mb-4" style="color:#55635E">' +
           '<span>⊕ ' + t.waypoints + ' waypoints</span><span>⏱ ' + E(t.duration) + '</span>' +
           '<span>◈ ' + (t.travelers || 0).toLocaleString('en-US') + ' weavers</span></div>' +
+          '<div class="featured-thread-foot">' +
+          '<div class="featured-progress">' +
           (started
-            ? '<div class="mb-4"><div class="flex justify-between text-xs font-body mb-1" style="color:#55635E">' +
+            ? '<div class="flex justify-between text-xs font-body mb-1" style="color:#55635E">' +
               '<span>Your progress</span><span>' + prog + '%</span></div>' +
               '<div class="h-1.5 rounded-full" style="background-color:#E8E0D0">' +
-              '<div class="h-full rounded-full" style="width:' + prog + '%;background-color:#013E37"></div></div></div>'
+              '<div class="h-full rounded-full" style="width:' + prog + '%;background-color:#013E37"></div></div>'
             : '') +
+          '</div>' +
           '<button ' + N('thread', t.id) + ' class="card-link w-full py-2.5 rounded-full text-sm font-body font-medium transition-all" style="' +
           (started ? 'background-color:#013E37;color:white' : 'background-color:#F9F7F3;color:#12211E;border:1px solid #E8E0D0') + '">' +
           (started ? 'Continue Thread →' : 'Begin Thread →') + '</button>' +
-          '</div></div>';
+          '</div></div></div>';
       }).join('') + '</div></section>' +
 
       /* How it works */

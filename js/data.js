@@ -3279,7 +3279,7 @@
   /* ── Maps ─────────────────────────────────────────────────────────────────
      A waypoint only gets a maps link when it has real coordinates. Inventing
      them for the sake of a button would put a pin in the wrong place, so a
-     waypoint without coordinates gets no button at all — see mediaFor() in
+     waypoint without coordinates gets no button at all — see media() in
      pages.js, which applies the same rule to photography. */
   function waypointCoords(waypoint) {
     if (!waypoint) return null;

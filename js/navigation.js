@@ -159,7 +159,11 @@
          at one page is a duplicate, and after this change they would have been
          the same link twice over. The library is reachable under one name. */
       ['Threads', 'discover'],
-      ['Community', 'profile'],
+      /* "Community" promised a social layer this product does not have: no
+         feed, no other weavers, nothing to read. The route is the profile, so
+         the label is the profile — a journey's own record of what it has
+         completed, and the honest name for it. */
+      ['My Journey', 'profile'],
     ];
     const assets = NASEEJ.data.assets;
     return '<nav class="nav-root fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-10 py-4"' +

@@ -165,7 +165,11 @@ html {
 body {
   font-family: var(--font-body);
   background-color: #F9F7F3;
-  color: #2C2417;
+  /* --color-foreground. Was a raw #2C2417, the last warm-brown ink left in the
+     global rules; everything downstream that sets its own colour is a token, so
+     the body inheriting a literal made the page read warmer than the palette.
+     #12211E is also the stronger of the two on paper (15.4:1). */
+  color: var(--color-foreground);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -221,8 +225,12 @@ body {
   50% { box-shadow: 0 0 0 4px #F9F7F3, 0 0 0 9px #D98A6C, 0 0 30px rgba(217, 138, 108, 0.7); }
 }
 
+/* The earned-badge halo. Was rgba(107, 142, 35, 0.4) — the old olive primary
+   that --color-olive already replaced with #013E37, at the same 0.4 alpha so
+   the glow keeps its original weight. Kept as a literal because a token cannot
+   carry an alpha channel; the token it derives from is named here. */
 .badge-glow {
-  box-shadow: 0 0 12px rgba(107, 142, 35, 0.4);
+  box-shadow: 0 0 12px rgba(1, 62, 55, 0.4); /* --color-olive at 0.4 */
 }
 
 @keyframes pulse{50%{opacity:.5}}
@@ -461,7 +469,7 @@ body {
    set the number flush against its label with nothing between them.
 
    Only the arrangement changed — the four values, the petra-light accent, the
-   Fraunces/Outfit pairing and the rule above the band are all as they were.
+   Tajawal weight pairing and the rule above the band are all as they were.
    A grid gives the four columns one width and evenly spaced centres; a
    stretched cell with a centred stack puts every number on the same baseline
    however many lines its label wraps to.
@@ -522,7 +530,7 @@ body {
    Authentication UI (js/auth.js)
 
    Everything here is drawn from the existing palette and type scale: the
-   rounded-full buttons, the Fraunces heading over Outfit body copy, the
+   rounded-full buttons, the Tajawal weight range, the
    petra/olive accents and the same 1px sand borders the rest of the site uses.
    No new colour, radius or spacing scale is introduced.
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -666,8 +674,16 @@ html.auth-locked body {
   font-size: 0.8125rem;
   line-height: 1.5;
 }
-.auth-msg-error { color: #8B2A2A; }   /* --color-difficulty-strenuous */
-.auth-msg-ok { color: #4A6318; }      /* --color-olive-dark */
+/* Both status colours now reference the tokens their comments already named.
+   .auth-msg-ok was the real leftover: it still carried #4A6318, the pre-token
+   olive, long after --color-olive-dark was redefined to #02302B — so the
+   success state was the one colour in the dialog that had silently fallen out
+   of the palette. .auth-msg-error's literal happened to equal its token, so
+   converting it changes nothing and keeps the pair symmetric. Neither
+   conversion moves a contrast ratio: the dialog background is unchanged and
+   both replacements are darker than the values they replace. */
+.auth-msg-error { color: var(--color-difficulty-strenuous); }
+.auth-msg-ok { color: var(--color-olive-dark); }
 
 .auth-foot {
   margin-top: 1rem;

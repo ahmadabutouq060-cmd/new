@@ -1618,14 +1618,13 @@
   /* ── Persistence ───────────────────────────────────────────────────────────
      Progress is written to sessionStorage on every change and hydrated on
      boot. A signed-out demo weaver gets exactly the same treatment; the key is
-     namespaced to the app, not to an account, because there is no account yet.
-     When sessionStorage is unavailable (private mode, quota, sandboxed iframe)
-     it falls back to localStorage and finally to memory — progress is never
-     the reason the page fails.
+     namespaced to the app, not to an account. When sessionStorage is unavailable
+     (private mode, quota, sandboxed iframe) it falls back to localStorage and
+     finally to memory — progress is never the reason the page fails.
 
-     Swap both halves for Firestore (weavers/{uid}/progress) when the security
-     rules exist; nothing else has to change, because every read and write in
-     the app already goes through the record helpers below. */
+     Signed-in weavers still write here (so a refresh before Firestore returns
+     is not a blank slate) and js/auth.js mirrors the same snapshot to
+     weavers/{uid} through setCloudWriter / accountPayload. */
   const PROGRESS_KEY = 'naseej.progress.v1';
 
   function storage(kind) {
@@ -1750,12 +1749,17 @@
   function parseStored(rawText) {
     let parsed;
     try { parsed = JSON.parse(rawText); } catch (err) { return null; }
+    return parseSnapshot(parsed);
+  }
+
+  function parseSnapshot(parsed) {
     if (!parsed || typeof parsed !== 'object' || parsed.v !== 1) return null;
 
     const snapshot = {
       v: 1,
       points: isFiniteNumber(parsed.points) && parsed.points >= 0 ? Math.floor(parsed.points) : null,
       atharPeak: isFiniteNumber(parsed.atharPeak) && parsed.atharPeak >= 0 ? Math.floor(parsed.atharPeak) : null,
+      savedAt: isFiniteNumber(parsed.savedAt) && parsed.savedAt >= 0 ? parsed.savedAt : 0,
       completedWaypointIds: numList(parsed.completedWaypointIds) || [],
       completedWaypointKeys: {},
       threadProgress: {},
@@ -2668,11 +2672,12 @@
 
   /* ── Persistence entry points ────────────────────────────────────────────── */
 
-  function saveProgress() {
+  function captureProgressSnapshot() {
     const snapshot = {
       v: 1,
       points: NASEEJ.session.points,
       atharPeak: NASEEJ.session.atharPeak,
+      savedAt: Date.now(),
       completedWaypointIds: NASEEJ.session.completedWaypointIds.slice(),
       completedWaypointKeys: {},
       threadProgress: {},
@@ -2691,15 +2696,29 @@
     for (let i = 0; i < profileBadges.length; i++) {
       if (profileBadges[i].earned) snapshot.badges.push(profileBadges[i].id);
     }
-    return writeStored(snapshot);
+    return snapshot;
+  }
+
+  let lastSavedAt = 0;
+
+  function saveProgress() {
+    const snapshot = captureProgressSnapshot();
+    lastSavedAt = snapshot.savedAt;
+    const ok = writeStored(snapshot);
+    notifyCloud();
+    return ok;
   }
 
   /* Called once at boot, before the first route renders. Anything that fails
      validation is dropped silently — a bad blob must never stop the site from
      starting — and the demo balance is kept when no valid one was stored. */
   function hydrateProgress() {
-    const stored = readStored();
+    return applyProgress(readStored());
+  }
+
+  function applyProgress(stored) {
     if (!stored) return false;
+    if (stored.savedAt) lastSavedAt = stored.savedAt;
 
     if (stored.points != null) NASEEJ.session.points = stored.points;
     /* The peak can never be below the balance, whatever the file claims, and it
@@ -2961,6 +2980,13 @@
 
     saveProgress: saveProgress,
     hydrateProgress: hydrateProgress,
+    accountPayload: accountPayload,
+    setCloudWriter: setCloudWriter,
+    applyAccountState: applyAccountState,
+    restoreGuestSession: restoreGuestSession,
+    lastSavedAt: function () {
+      return lastSavedAt;
+    },
 
     /* The waypoint a waypoint route should show: the requested one, else the
        thread's active waypoint, else its first. */
@@ -3224,12 +3250,134 @@
   }
 
   function saveWishlist() {
-    return writeSmall(WISHLIST_KEY, NASEEJ.session.wishlist);
+    const ok = writeSmall(WISHLIST_KEY, NASEEJ.session.wishlist);
+    notifyCloud();
+    return ok;
   }
 
   function saveRedemptions() {
-    return writeSmall(REDEMPTIONS_KEY, NASEEJ.session.redemptions);
+    const ok = writeSmall(REDEMPTIONS_KEY, NASEEJ.session.redemptions);
+    notifyCloud();
+    return ok;
   }
+
+  /* ── Account mirror ───────────────────────────────────────────────────────
+     auth.js is the only caller. data.js still does not touch the network: it
+     just hands a validated snapshot to a writer auth.js registered, and applies
+     one that writer loaded. Unsigned visitors never register a writer, so they
+     keep the local demo/seeded behaviour. */
+  let cloudWriter = null;
+  let suppressCloud = false;
+
+  function cloneJson(value) {
+    return JSON.parse(JSON.stringify(value));
+  }
+
+  let guestSeed = null;
+
+  function captureGuestSeed() {
+    guestSeed = {
+      points: NASEEJ.session.points,
+      atharPeak: NASEEJ.session.atharPeak,
+      threadsCompleted: NASEEJ.session.threadsCompleted,
+      completedWaypointIds: NASEEJ.session.completedWaypointIds.slice(),
+      completedWaypointKeys: cloneJson(NASEEJ.session.completedWaypointKeys),
+      threadProgress: cloneJson(NASEEJ.session.threadProgress),
+      mystery: cloneJson(NASEEJ.session.mystery),
+      wishlist: cloneJson(NASEEJ.session.wishlist),
+      redemptions: cloneJson(NASEEJ.session.redemptions),
+      activeThreads: cloneJson(NASEEJ.session.activeThreads),
+      completedThreads: cloneJson(NASEEJ.session.completedThreads),
+      badges: profileBadges.map(function (b) {
+        return { id: b.id, earned: !!b.earned, date: b.date || null };
+      }),
+      profile: {
+        displayName: NASEEJ.session.profile.displayName,
+        avatarUrl: NASEEJ.session.profile.avatarUrl,
+        verified: NASEEJ.session.profile.verified,
+        memberSince: NASEEJ.session.profile.memberSince,
+        city: NASEEJ.session.profile.city,
+      },
+    };
+  }
+
+  function replaceList(target, items) {
+    target.length = 0;
+    for (let i = 0; i < items.length; i++) target.push(items[i]);
+  }
+
+  function restoreGuestSeed(opts) {
+    if (!guestSeed) return;
+    NASEEJ.session.points = guestSeed.points;
+    NASEEJ.session.atharPeak = guestSeed.atharPeak;
+    NASEEJ.session.threadsCompleted = guestSeed.threadsCompleted;
+    NASEEJ.session.completedWaypointIds = guestSeed.completedWaypointIds.slice();
+    NASEEJ.session.completedWaypointKeys = cloneJson(guestSeed.completedWaypointKeys);
+    NASEEJ.session.threadProgress = cloneJson(guestSeed.threadProgress);
+    NASEEJ.session.mystery = cloneJson(guestSeed.mystery);
+    NASEEJ.session.wishlist = cloneJson(guestSeed.wishlist);
+    NASEEJ.session.redemptions = cloneJson(guestSeed.redemptions);
+    replaceList(NASEEJ.session.activeThreads, cloneJson(guestSeed.activeThreads));
+    replaceList(NASEEJ.session.completedThreads, cloneJson(guestSeed.completedThreads));
+    if (!(opts && opts.keepProfile)) {
+      NASEEJ.session.profile.displayName = guestSeed.profile.displayName;
+      NASEEJ.session.profile.avatarUrl = guestSeed.profile.avatarUrl;
+      NASEEJ.session.profile.verified = guestSeed.profile.verified;
+      NASEEJ.session.profile.memberSince = guestSeed.profile.memberSince;
+      NASEEJ.session.profile.city = guestSeed.profile.city;
+    }
+    for (let i = 0; i < profileBadges.length; i++) {
+      const seed = guestSeed.badges.filter(function (b) { return b.id === profileBadges[i].id; })[0];
+      if (!seed) continue;
+      profileBadges[i].earned = seed.earned;
+      profileBadges[i].date = seed.date;
+    }
+  }
+
+  function accountPayload() {
+    return {
+      progress: captureProgressSnapshot(),
+      wishlist: NASEEJ.session.wishlist,
+      redemptions: NASEEJ.session.redemptions,
+    };
+  }
+
+  function setCloudWriter(fn) {
+    cloudWriter = typeof fn === 'function' ? fn : null;
+  }
+
+  function notifyCloud() {
+    if (suppressCloud || typeof cloudWriter !== 'function') return;
+    cloudWriter(accountPayload());
+  }
+
+  function applyAccountState(remote) {
+    suppressCloud = true;
+    restoreGuestSeed({ keepProfile: true });
+    if (remote && remote.progress) {
+      const stored = parseSnapshot(remote.progress);
+      if (stored) applyProgress(stored);
+    }
+    if (remote && remote.wishlist) {
+      const wishlist = cleanWishlist(remote.wishlist);
+      NASEEJ.session.wishlist = wishlist || {};
+    }
+    if (remote && remote.redemptions) {
+      const redemptions = cleanRedemptions(remote.redemptions);
+      NASEEJ.session.redemptions = redemptions || {};
+    }
+    suppressCloud = false;
+  }
+
+  function restoreGuestSession() {
+    suppressCloud = true;
+    restoreGuestSeed();
+    hydrateProgress();
+    hydrateFeatures();
+    suppressCloud = false;
+  }
+
+  captureGuestSeed();
 
   function hydrateFeatures() {
     const wishlist = readSmall(WISHLIST_KEY, cleanWishlist);

@@ -189,20 +189,16 @@
           '<div class="auth-user-name">' + E(auth.user.displayName || 'Google account') + '</div>' +
           (auth.user.email ? '<div class="auth-user-email">' + E(auth.user.email) + '</div>' : '') +
           '</div></div>' +
-          /* The truth about what signing in does. It attaches a Google identity
-             to this browser's progress. It does not sync anything: progress
-             lives in local storage, so the previous copy — "your threads and
-             badges are saved to this account" — described a cloud save that has
-             never existed, and a visitor who cleared their browser would have
-             lost work while believing it was safe. */
+          /* Signing in attaches this Google identity and saves progress to
+             weavers/{uid}. Guest play stays in this browser until then. */
           '<p class="auth-sub">Signed in as ' + E(auth.user.displayName || 'this Google account') +
-          '. Your progress is stored in this browser. Account sync is not connected yet, so clearing site data will clear your progress.</p>' +
+          '. Your threads, ATHAR and badges are saved to this Naseej account, so they follow you to other devices and survive clearing site data.</p>' +
           statusRegion() +
           '<button type="button" class="auth-btn auth-btn-ghost" data-auth="signout"' +
           ' style="color:' + C.ink + ';border:1px solid ' + C.inkSoft + ';background-color:' + C.page + '">Sign out</button>' +
           '<button type="button" class="auth-btn" data-auth="close"' +
           ' style="background-color:' + C.oliveDark + ';color:#FFFFFF">Continue exploring</button>'
-        : '<p class="auth-sub">Sign in to identify yourself. You can weave, earn ATHAR and collect badges without an account — progress is kept in this browser.</p>' +
+        : '<p class="auth-sub">Sign in to save your threads, ATHAR and badges to your Naseej account and pick them up on another device. You can weave without an account — progress is kept in this browser.</p>' +
           statusRegion() +
           googleButton() +
           '<p class="auth-foot">Naseej uses your Google profile only to identify you. Nothing is posted without your action.</p>');
@@ -350,11 +346,103 @@
     }
   });
 
+  /* ── Account document ──────────────────────────────────────────────────────
+     Firebase Auth is the identity. The weaver document is the progress. Guest
+     play stays on the local snapshot until a Google session exists. */
+  let accountUid = null;
+  let accountGen = 0;
+  let saveTimer = null;
+  const SAVE_WAIT = 400;
+
+  function memberSinceLabel(user) {
+    const raw = user && user.metadata && (user.metadata.creationTime || user.metadata.createdAt);
+    if (!raw) return null;
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return null;
+    const months = ['January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'];
+    return months[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  function weaverFields(user, bag) {
+    const payload = bag || (NASEEJ.data && NASEEJ.data.accountPayload && NASEEJ.data.accountPayload());
+    const me = NASEEJ.session.profile;
+    return {
+      email: (user && user.email) || '',
+      displayName: (user && user.displayName) || me.displayName || '',
+      photoURL: (user && user.photoURL) || me.avatarUrl || '',
+      memberSince: me.memberSince || memberSinceLabel(user),
+      createdAt: user && user.metadata && user.metadata.creationTime
+        ? Date.parse(user.metadata.creationTime) || Date.now()
+        : Date.now(),
+      progress: payload.progress,
+      wishlist: payload.wishlist || {},
+      redemptions: payload.redemptions || {},
+    };
+  }
+
+  function queueCloudSave(bag) {
+    if (!accountUid || !services || typeof services.saveWeaver !== 'function') return;
+    const uid = accountUid;
+    const user = auth.user;
+    window.clearTimeout(saveTimer);
+    saveTimer = window.setTimeout(function () {
+      services.saveWeaver(uid, weaverFields(user, bag));
+    }, SAVE_WAIT);
+  }
+
+  function detachAccount() {
+    accountGen += 1;
+    accountUid = null;
+    window.clearTimeout(saveTimer);
+    saveTimer = null;
+    if (NASEEJ.data && typeof NASEEJ.data.setCloudWriter === 'function') {
+      NASEEJ.data.setCloudWriter(null);
+    }
+    if (NASEEJ.data && typeof NASEEJ.data.restoreGuestSession === 'function') {
+      NASEEJ.data.restoreGuestSession();
+    }
+  }
+
+  function attachAccount(user) {
+    accountGen += 1;
+    const gen = accountGen;
+    accountUid = user.uid;
+    if (NASEEJ.data && typeof NASEEJ.data.setCloudWriter === 'function') {
+      NASEEJ.data.setCloudWriter(queueCloudSave);
+    }
+
+    return services.loadWeaver(user.uid).then(function (remote) {
+      if (gen !== accountGen) return;
+      const hasCloud = !!(remote && remote.progress);
+      const localAt = (NASEEJ.data && NASEEJ.data.lastSavedAt) ? NASEEJ.data.lastSavedAt() : 0;
+      const cloudAt = (remote && (remote.updatedAt || (remote.progress && remote.progress.savedAt))) || 0;
+      /* Cloud wins across devices. Local wins only when this browser has a
+         newer snapshot (refresh before a debounced write landed). */
+      if (hasCloud && cloudAt >= localAt && NASEEJ.data && typeof NASEEJ.data.applyAccountState === 'function') {
+        NASEEJ.data.applyAccountState(remote);
+      }
+      if (NASEEJ.session && NASEEJ.session.profile) {
+        const me = NASEEJ.session.profile;
+        if (remote && remote.memberSince) me.memberSince = remote.memberSince;
+        else if (!me.memberSince) me.memberSince = memberSinceLabel(user);
+      }
+      /* First visit creates the document from this browser's session; later
+         visits refresh identity fields and keep progress in sync. */
+      return services.saveWeaver(user.uid, weaverFields(user));
+    }).then(function () {
+      if (gen !== accountGen) return;
+      if (typeof NASEEJ.paint === 'function') NASEEJ.paint();
+      if (auth.open) render();
+    });
+  }
+
   /* ── Auth state ──────────────────────────────────────────────────────────────
      A single subscription, started once. onAuthStateChanged fires immediately
      with the current user, so a refresh keeps the signed-in nav button. */
   function syncUser(user, failure) {
-    const wasSignedIn = !!auth.user;
+    const prev = auth.user;
+    const wasSignedIn = !!prev;
     const wasOpen = auth.open;
     auth.user = user || null;
     auth.ready = true;
@@ -375,6 +463,8 @@
         displayName: me.displayName,
         avatarUrl: me.avatarUrl,
         verified: me.verified,
+        memberSince: me.memberSince,
+        city: me.city,
       };
     }
     if (user) {
@@ -385,10 +475,15 @@
       me.verified = !!(user.providerData || []).some(function (p) {
         return p && p.providerId === 'google.com';
       });
+      if (!me.memberSince) me.memberSince = memberSinceLabel(user);
+      if (!prev || prev.uid !== user.uid) attachAccount(user);
     } else if (wasSignedIn) {
       me.displayName = demoProfile.displayName;
       me.avatarUrl = demoProfile.avatarUrl;
       me.verified = demoProfile.verified;
+      me.memberSince = demoProfile.memberSince;
+      me.city = demoProfile.city;
+      detachAccount();
     }
 
     if (failure && !user) {

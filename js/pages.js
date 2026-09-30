@@ -23,13 +23,271 @@
     return data.getThread(st.threadId);
   }
 
-  function selectWaypoint(waypoints, waypointId) {
-    if (waypointId != null) {
-      for (let i = 0; i < waypoints.length; i++) {
-        if (waypoints[i].id === waypointId) return waypoints[i];
-      }
+  /* The waypoint list a renderer draws from: each entry decorated by the data
+     layer with its live status and, for the living-mystery thread, the overlay
+     for the branch that was chosen.
+
+     The REAL thread object goes into data.decorateWaypoint — never a
+     stand-in like { waypoints }. The mystery helpers are keyed off
+     isHeroThread(thread), so anything other than the real object reports
+     itself as an ordinary thread and every clue, branch and status goes
+     quiet. */
+  function threadWaypoints(t) {
+    return (t.waypoints || []).map(function (wp) {
+      return data.decorateWaypoint(t, wp);
+    });
+  }
+
+  function isHero(t) {
+    return data.isHeroThread(t);
+  }
+
+  /* indexOf by id, so a decorated copy still knows where it sits. */
+  function waypointIndexById(wps, wp) {
+    if (!wp) return -1;
+    for (let i = 0; i < wps.length; i++) {
+      if (wps[i].id === wp.id) return i;
     }
-    return data.getActiveWaypoint({ waypoints: waypoints }) || waypoints[0];
+    return -1;
+  }
+
+  /* ═════════════════════ LIVING MYSTERY ═════════════════════
+     The four pieces of the hero thread that have no equivalent in the original
+     renderers: the KHAYT companion panel (chapter, clue ledger, branch choice),
+     the validated question on a waypoint, the reward chips, and the reveal.
+     All of it is a read of data.js state plus a delegated data-act, so none of
+     it writes state from a renderer. */
+
+  function heroThread() {
+    return data.getThread(data.heroThreadId);
+  }
+
+  /* Reward chips: "+150 ATHAR". The amounts come from data.atharRewards, so a
+     renderer can never name its own. */
+  function atharChips(chips) {
+    if (!chips || !chips.length) return '';
+    return chips.map(function (c) {
+      return '<span class="text-xs font-body font-semibold px-2.5 py-1 rounded-full" style="background-color:#6B8E23;color:white">' +
+        E(c.label) + ' +' + c.athar + '</span>';
+    }).join('');
+  }
+
+  function heroFeature() {
+    const t = heroThread();
+    if (!t) return '';
+    const clues = data.getClueProgress(data.heroThreadId);
+    const record = data.heroStats(t);
+    const solved = data.isRevealed(data.heroThreadId);
+    const progress = data.getThreadProgress(t);
+    return '<div ' + N('thread', data.heroThreadId) +
+      ' class="group rounded-2xl overflow-hidden cursor-pointer transition-all hover:-translate-y-1 mb-10" style="background-color:#FDFCFA;border:1px solid #D98A6C;box-shadow:0 4px 20px rgba(217,138,108,0.18)">' +
+      '<div class="grid grid-cols-12">' +
+      '<div class="col-span-5 relative overflow-hidden" style="min-height:220px">' +
+      '<img src="' + t.image + '" alt="' + E(t.title) + '" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">' +
+      '<div class="absolute inset-0" style="background:linear-gradient(120deg, rgba(44,36,23,0.55), rgba(44,36,23,0.1))"></div>' +
+      '<div class="absolute top-4 left-4"><span class="text-xs font-body font-semibold px-3 py-1.5 rounded-full uppercase tracking-widest" style="background-color:#D98A6C;color:white">Living Mystery</span></div>' +
+      '</div>' +
+      '<div class="col-span-7 p-8">' +
+      '<h3 class="font-display text-2xl font-semibold mb-1" style="color:#2C2417">' + E(t.title) + '</h3>' +
+      '<p class="text-sm font-body mb-4" style="color:#8A7B6B">' + E(t.subtitle) + '</p>' +
+      '<p class="text-sm font-body leading-relaxed mb-5" style="color:#6B5E50">A living mystery: four hidden clues, a KHAYT companion, and a path you choose yourself. Every clue is earned by a validated observation, never by simply arriving.</p>' +
+      '<div class="flex items-center gap-5 text-xs font-body mb-5" style="color:#8A7B6B">' +
+      '<span>⊕ ' + (t.waypoints || []).length + ' waypoints</span>' +
+      '<span>◇ ' + clues.unlocked + ' / ' + clues.total + ' clues</span>' +
+      '<span>⏱ ' + E(t.duration) + '</span>' +
+      '<span>✦ ' + record[0].value + ' ATHAR</span></div>' +
+      '<div class="mb-5"><div class="h-1.5 rounded-full" style="background-color:#E8E0D0">' +
+      '<div class="h-full rounded-full" style="width:' + progress + '%;background-color:#D98A6C"></div></div></div>' +
+      '<div class="flex items-center gap-3">' +
+      '<button ' + N('thread', data.heroThreadId) + ' class="px-6 py-3 rounded-full text-sm font-body font-semibold transition-all hover:scale-105" style="background-color:#6B8E23;color:white">' +
+      (progress > 0 ? 'Continue the Mystery →' : 'Enter the Mystery →') + '</button>' +
+      '<span class="text-xs font-body" style="color:#B8633E">' +
+      (solved ? 'Thread found · ' + record[3].value : 'Chapter: ' + E(data.currentChapter(t))) + '</span>' +
+      '</div></div></div></div>';
+  }
+
+  /* ── KHAYT panel on the thread page ──────────────────────────────────────────
+     Chapter, the companion's line, the clue ledger (sealed clues show no text,
+     so the mystery cannot be read ahead of being earned), and CHOOSE YOUR PATH
+     the moment it is available. */
+  function heroKhaytPanel(t) {
+    const clues = data.getClueProgress(data.heroThreadId);
+    const chapter = data.currentChapter(t);
+    const branch = data.branchState(t);
+    const message = data.khaytMessage(t, null);
+
+    const ledger = (t.clues || []).map(function (c) {
+      const open = clues.ids.indexOf(c.id) >= 0;
+      return '<div class="p-3 rounded-xl" style="background-color:' + (open ? '#6B8E23' : '#F9F7F3') +
+        ';border:1px solid ' + (open ? '#6B8E23' : '#E8E0D0') + '">' +
+        '<div class="text-xs font-body font-semibold mb-1" style="color:' + (open ? '#FDFCFA' : '#8A7B6B') + '">Clue ' + c.id + '</div>' +
+        '<div class="text-xs font-body leading-snug" style="color:' + (open ? '#FDFCFA' : '#C9BDA8') + '">' +
+        (open ? E(c.text) : '◇ Sealed — solve the interaction that opens it') + '</div></div>';
+    }).join('');
+
+    /* The branch result is shown where the branch is chosen. A wrong or refused
+       attempt has no message to print; a successful one prints the reaction
+       (again, in KHAYT's own voice) and what the choice paid. */
+    const branchResult = NASEEJ.ui.heroResult;
+    const earned = branchResult && branchResult.branch && atharChips(branchResult.chips)
+      ? '<div class="flex flex-wrap gap-2 mt-3">' + atharChips(branchResult.chips) + '</div>' : '';
+
+    let choice = '';
+    if (branch.chosen) {
+      choice = '<div class="mt-6 p-4 rounded-xl" style="background-color:#FDFCFA;border:1px solid #E8E0D0">' +
+        '<div class="text-xs font-body font-semibold uppercase tracking-widest mb-2" style="color:#8A7B6B">Your Path</div>' +
+        '<div class="font-display text-base font-semibold mb-1" style="color:#2C2417">' + E(branch.label) + '</div>' +
+        '<p class="text-xs font-body leading-relaxed" style="color:#6B5E50">' + E(branch.reaction || '') + '</p>' +
+        earned + '</div>';
+    } else if (branch.available) {
+      choice = '<div class="mt-6">' +
+        '<div class="text-xs font-body font-semibold uppercase tracking-widest mb-1" style="color:#D98A6C">Choose Your Path</div>' +
+        '<p class="text-xs font-body mb-3" style="color:#8A7B6B">The ibex mark was a sign, not an ending. This is the only branch in the thread — pick one and the story after it is yours.</p>' +
+        '<div class="flex flex-wrap gap-3">' + branch.options.map(function (o) {
+          return '<button data-act="heroBranch" data-v="' + E(o.id) + '" class="px-5 py-3 rounded-full text-sm font-body font-semibold transition-all hover:scale-105" style="border:2px solid #D98A6C;color:#B8633E;background-color:#FDFCFA">' +
+            E(o.label) + '</button>';
+        }).join('') + '</div></div>';
+    }
+
+    return '<div class="col-span-12 rounded-2xl p-8 mb-10" style="background-color:#FDFCFA;border:1px solid #D98A6C">' +
+      '<div class="flex items-center justify-between mb-4">' +
+      '<div class="flex items-center gap-2">' +
+      '<span class="text-xs font-body font-semibold px-3 py-1.5 rounded-full uppercase tracking-widest" style="background-color:#D98A6C;color:white">Living Mystery</span>' +
+      '<span class="text-xs font-body" style="color:#8A7B6B">Chapter</span>' +
+      '<span class="text-sm font-body font-semibold" style="color:#2C2417">' + E(chapter) + '</span></div>' +
+      '<span class="text-xs font-body" style="color:#8A7B6B">Clues ' + clues.unlocked + ' / ' + clues.total + '</span></div>' +
+      '<div class="p-4 rounded-xl mb-5" style="background-color:#2C2417">' +
+      '<div class="flex items-start gap-3">' +
+      '<span class="text-xl flex-shrink-0">🧵</span>' +
+      '<div><div class="text-xs font-body uppercase tracking-widest mb-1" style="color:#EDB99E">KHAYT</div>' +
+      '<p class="text-sm font-body leading-relaxed" style="color:#F9F7F3">' + E(message) + '</p></div></div></div>' +
+      '<div class="grid grid-cols-4 gap-3">' + ledger + '</div>' + choice + '</div>';
+  }
+
+  /* ── Final reveal ───────────────────────────────────────────────────────────
+     Chapter → clue → choice → chapter → connection → final story, in the order
+     the weaver walked it, ending on the text for their branch. */
+  function heroRevealPanel(t) {
+    const story = data.revealStory(data.heroThreadId);
+    if (!story) return '';
+    return '<div class="col-span-12 rounded-2xl p-8 mb-10" style="background:linear-gradient(135deg, #2C2417, #3D3020);border:1px solid #D98A6C">' +
+      '<div class="flex items-center gap-3 mb-2">' +
+      '<span class="text-2xl">' + E(story.badgeIcon) + '</span>' +
+      '<span class="text-xs font-body font-semibold px-3 py-1.5 rounded-full uppercase tracking-widest" style="background-color:#6B8E23;color:white">' +
+      E(story.badge) + ' earned</span></div>' +
+      '<h2 class="font-display text-3xl font-semibold mb-1" style="color:#EDB99E">' + E(story.headline) + '</h2>' +
+      '<p class="text-sm font-body mb-6" style="color:rgba(249,247,243,0.6)">' +
+      E(story.branch) + ' · ' + story.clues + ' clues · +' + story.athar + ' ATHAR</p>' +
+      '<div class="grid grid-cols-12 gap-6">' +
+      '<div class="col-span-7">' + story.steps.map(function (s, i) {
+        return '<div class="flex gap-4 mb-4">' +
+          '<div class="flex flex-col items-center flex-shrink-0">' +
+          '<div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-semibold" style="background-color:' +
+          (i === 2 ? '#D98A6C' : '#6B8E23') + ';color:white">' + (i + 1) + '</div>' +
+          (i < story.steps.length - 1 ? '<div class="w-px flex-1" style="background-color:rgba(249,247,243,0.2)"></div>' : '') +
+          '</div>' +
+          '<div class="pb-2"><div class="text-xs font-body uppercase tracking-widest mb-1" style="color:#EDB99E">' + E(s.label) + '</div>' +
+          '<p class="text-sm font-body leading-relaxed" style="color:rgba(249,247,243,0.75)">' + E(s.text) + '</p></div></div>';
+      }).join('') + '</div>' +
+      '<div class="col-span-5">' +
+      '<div class="p-5 rounded-2xl mb-4" style="background-color:rgba(249,247,243,0.06);border:1px solid rgba(249,247,243,0.12)">' +
+      '<div class="text-xs font-body uppercase tracking-widest mb-2" style="color:#EDB99E">Final Story</div>' +
+      '<p class="text-sm font-body leading-relaxed" style="color:#F9F7F3">' + E(story.story) + '</p></div>' +
+      '<div class="p-5 rounded-2xl" style="background-color:rgba(217,138,108,0.12);border:1px solid rgba(217,138,108,0.35)">' +
+      '<div class="text-xs font-body uppercase tracking-widest mb-2" style="color:#EDB99E">KHAYT</div>' +
+      '<p class="text-sm font-body leading-relaxed" style="color:#F9F7F3">' + E(story.khayt) + '</p></div></div></div></div>';
+  }
+
+  /* ── The validated question on a waypoint ───────────────────────────────────
+     Question, options, Validate, feedback, ATHAR chips, then Next chapter.
+     Nothing here unlocks anything: the answer is checked in data.js, and the
+     button that pays out is not the button that revealed the question. */
+  function heroChallengePanel(t, wp) {
+    const result = NASEEJ.ui.heroResult;
+    const forThis = result && result.waypointId === wp.id;
+    const q = data.heroQuestion(t, wp);
+    const status = wp.status;
+
+    /* The verdict is built first, because it outlives the state it changed:
+       answering correctly completes the waypoint, and a panel that switched to
+       "solved" at that moment would swallow the explanation and the ATHAR the
+       weaver just earned. */
+    const feedback = forThis && result
+      ? '<div class="' + (status === 'locked' || status === 'completed' ? 'mb-4 ' : 'mt-4 ') +
+        'p-4 rounded-xl" style="background-color:' +
+        (result.correct ? 'rgba(107,142,35,0.1)' : 'rgba(139,42,42,0.08)') +
+        ';border:1px solid ' + (result.correct ? '#6B8E23' : '#8B2A2A') + '">' +
+        '<div class="text-sm font-body font-semibold mb-1" style="color:' + (result.correct ? '#4A6318' : '#8B2A2A') + '">' +
+        (result.correct ? (result.reveal ? '✓ The thread is whole' : '✓ Correct') : result.status === 'duplicate' ? '✓ Already solved' : '✕ Not quite') + '</div>' +
+        '<p class="text-xs font-body leading-relaxed" style="color:' + (result.correct ? '#5A7A1A' : '#8B2A2A') + '">' +
+        E(result.message) + '</p>' +
+        (atharChips(result.chips) ? '<div class="flex flex-wrap gap-2 mt-3">' + atharChips(result.chips) + '</div>' : '') +
+        '</div>'
+      : '';
+
+    if (status === 'locked') {
+      return '<div class="rounded-xl p-5 mb-4" style="background-color:#F9F7F3;border:1px solid #E8E0D0">' +
+        '<p class="text-sm font-body" style="color:#8A7B6B">🔒 This waypoint is still shut. ' +
+        (wp.id === 2 ? 'Choose your path on the thread page to open it.' : 'Complete the previous waypoint to open it.') +
+        '</p></div>' + feedback;
+    }
+
+    if (status === 'completed') {
+      return '<div class="rounded-xl p-5 mb-4" style="background-color:rgba(107,142,35,0.08);border:1px solid rgba(107,142,35,0.3)">' +
+        '<p class="text-sm font-body font-semibold mb-1" style="color:#4A6318">✓ ' +
+        (wp.interaction === 'observation' ? 'Observation recorded' : 'Challenge solved') + '</p>' +
+        '<p class="text-xs font-body leading-relaxed" style="color:#5A7A1A">The ATHAR for this waypoint were paid once. KHAYT will not ask again.</p>' +
+        '</div>' + feedback + heroNextChapter(t, wp);
+    }
+
+    if (!q) {
+      return '<div class="rounded-xl p-5 mb-4" style="background-color:#F9F7F3;border:1px solid #E8E0D0">' +
+        '<p class="text-sm font-body" style="color:#8A7B6B">There is nothing to solve here yet.</p></div>' + feedback;
+    }
+
+    const picked = NASEEJ.ui.heroPick;
+
+    const options = q.options.map(function (o) {
+      const on = picked === o.id;
+      return '<button data-act="heroPick" data-v="' + E(o.id) + '" class="w-full text-left px-4 py-3 rounded-xl text-sm font-body transition-all" style="border:2px solid ' +
+        (on ? '#D98A6C' : '#E8E0D0') + ';background-color:' + (on ? 'rgba(217,138,108,0.08)' : '#FDFCFA') +
+        ';color:' + (on ? '#B8633E' : '#2C2417') + '">' + E(o.text) + '</button>';
+    }).join('');
+
+    return '<div class="rounded-xl p-5 mb-4" style="background-color:#FDFCFA;border:1px solid #D98A6C">' +
+      '<div class="flex items-center justify-between mb-2">' +
+      '<div class="text-xs font-body font-semibold uppercase tracking-widest" style="color:#D98A6C">' +
+      (q.kind === 'observation' ? 'Observation' : 'Challenge') + '</div>' +
+      '<span class="text-xs font-body" style="color:#8A7B6B">+' + data.atharRewards.challenge + ' ATHAR</span></div>' +
+      (q.lookPrompt ? '<p class="text-xs font-body italic mb-2" style="color:#B8633E">' + E(q.lookPrompt) + '</p>' : '') +
+      '<p class="text-sm font-body font-semibold mb-4 leading-relaxed" style="color:#2C2417">' + E(q.prompt) + '</p>' +
+      '<div class="flex flex-col gap-2">' + options + '</div>' +
+      '<button data-act="heroValidate" class="w-full py-3 rounded-full font-body font-semibold text-sm transition-all mt-4" style="background-color:' +
+      (picked ? '#6B8E23;color:white' : '#E8E0D0;color:#8A7B6B') + '">' +
+      (picked ? 'Validate Answer' : 'Select an answer to validate') + '</button>' +
+      feedback + '</div>' +
+      (result && result.correct ? heroNextChapter(t, wp) : '');
+  }
+
+  /* "Next chapter" only appears once the interaction is actually solved. */
+  function heroNextChapter(t, wp) {
+    const wps = threadWaypoints(t);
+    const idx = waypointIndexById(wps, wp);
+    const next = wps[idx + 1] || null;
+    const solved = data.revealStory(data.heroThreadId);
+    if (solved) {
+      return '<button ' + N('thread', data.heroThreadId) +
+        ' class="w-full py-3 rounded-full font-body font-semibold text-sm transition-all hover:scale-[1.02]" style="background-color:#D98A6C;color:white">' +
+        'Read the final story →</button>';
+    }
+    if (!next) {
+      return '<button ' + N('thread', data.heroThreadId) +
+        ' class="w-full py-3 rounded-full font-body font-semibold text-sm" style="border:1px solid #E8E0D0;color:#2C2417">Back to the thread →</button>';
+    }
+    const label = next.status === 'locked' ? 'Keep walking — ' + E(next.name) : 'Next chapter: ' + E(next.name) + ' →';
+    return '<button ' + N('place', data.heroThreadId, next.id) +
+      ' class="w-full py-3 rounded-full font-body font-semibold text-sm transition-all hover:scale-[1.02]" style="background-color:#6B8E23;color:white">' +
+      label + '</button>';
   }
 
   /* ═════════════════════ LANDING PAGE ═════════════════════ */
@@ -74,15 +332,18 @@
       '<div class="w-px h-8" style="background:linear-gradient(to bottom, rgba(249,247,243,0.4), transparent)"></div></div>' +
       '</section>' +
 
-      /* Featured threads */
+      /* Featured threads. The living mystery is drawn from its own thread
+         object rather than from the static featured list, so the card can show
+         live clue progress and always lands on the real thread id. */
       '<section class="py-24 px-10 max-w-7xl mx-auto"><div class="grid grid-cols-12 gap-6 mb-14">' +
       '<div class="col-span-6">' +
       NASEEJ.eyebrow({ color: '#D98A6C', width: 'w-5', text: 'Popular Threads' }) +
       '<h2 class="font-display text-4xl font-semibold" style="color:#2C2417">Begin with a Thread</h2></div>' +
       '<div class="col-span-6 flex items-end justify-end">' +
       '<button ' + N('discover') + ' class="text-sm font-body font-medium underline underline-offset-4" style="color:#D98A6C">View all 47 threads →</button></div>' +
-      '</div><div class="grid grid-cols-3 gap-6">' + data.featuredThreads.map(function (t) {
-        return '<div ' + N('thread') + ' class="group rounded-2xl overflow-hidden cursor-pointer transition-all hover:-translate-y-1" style="background-color:#FDFCFA;border:1px solid #E8E0D0;box-shadow:0 2px 12px rgba(44,36,23,0.06)">' +
+      '</div>' + heroFeature() +
+      '<div class="grid grid-cols-3 gap-6">' + data.featuredThreads.map(function (t) {
+        return '<div ' + N('thread', t.id) + ' class="group rounded-2xl overflow-hidden cursor-pointer transition-all hover:-translate-y-1" style="background-color:#FDFCFA;border:1px solid #E8E0D0;box-shadow:0 2px 12px rgba(44,36,23,0.06)">' +
           '<div class="relative overflow-hidden h-48">' +
           '<img src="' + t.image + '" alt="' + E(t.title) + '" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">' +
           '<div class="absolute top-3 left-3"><span class="text-xs font-body font-medium px-2.5 py-1 rounded-full" style="background-color:rgba(249,247,243,0.92);color:#D98A6C">' + t.category + '</span></div>' +
@@ -91,7 +352,7 @@
           '<p class="text-sm font-body mb-4" style="color:#8A7B6B">' + E(t.subtitle) + '</p>' +
           '<div class="flex items-center justify-between text-xs font-body mb-4" style="color:#8A7B6B">' +
           '<span>⊕ ' + t.waypoints + ' waypoints</span><span>⏱ ' + t.duration + '</span><span>◈ ' + t.travelers + ' weavers</span></div>' +
-          '<button class="w-full py-2.5 rounded-full text-sm font-body font-medium transition-all" style="background-color:#F9F7F3;color:#2C2417;border:1px solid #E8E0D0">Begin Thread →</button>' +
+          '<button ' + N('thread', t.id) + ' class="w-full py-2.5 rounded-full text-sm font-body font-medium transition-all" style="background-color:#F9F7F3;color:#2C2417;border:1px solid #E8E0D0">Begin Thread →</button>' +
           '</div></div>';
       }).join('') + '</div></section>' +
 
@@ -170,8 +431,10 @@
     return ['#E8E0D0', '#C9BDA8'];
   }
 
-  function activeNodeButton(wps) {
-    const a = data.getActiveWaypoint({ waypoints: wps });
+  /* The real thread goes in, not a { waypoints } stand-in — see
+     threadWaypoints() above. */
+  function activeNodeButton(t) {
+    const a = data.getActiveWaypoint(t);
     /* original: the button always renders, it only navigates when an
        active waypoint exists */
     return '<button ' + (a ? N('place', st.threadId, a.id) : '') +
@@ -180,24 +443,33 @@
 
   function thread() {
     const t = getThread();
-    const wps = t.waypoints || [];
+    const raw = t.waypoints || [];
 
-    if (wps.length === 0) {
+    if (raw.length === 0) {
       return '<div class="pt-20 px-10" style="border-bottom:1px solid #E8E0D0"><div class="max-w-7xl mx-auto py-6">' +
         '<h1 class="font-display text-3xl font-semibold" style="color:#2C2417">' + E(t.title) + '</h1>' +
         '<p class="font-body text-sm mt-1" style="color:#8A7B6B">This thread has no waypoints yet.</p>' +
         '</div></div>';
     }
 
+    /* Decorated copies: live status and, for the mystery, the branch overlay.
+       Node colours, the selected-node card and the counts all read these, so
+       the map cannot disagree with the progress model. */
+    const wps = threadWaypoints(t);
+
     /* Selection is read, not seeded: until a node is clicked the active
        waypoint is shown, which is what the original's first-render write did. */
     const activeWp = data.getActiveWaypoint(t);
-    const sel = selectWaypoint(wps, NASEEJ.ui.activeNode) || activeWp;
+    const chosenIdx = NASEEJ.ui.activeNode != null ? waypointIndexById(wps, { id: NASEEJ.ui.activeNode }) : -1;
+    const sel = (chosenIdx >= 0 ? wps[chosenIdx] : null) || activeWp || wps[0];
     const done = data.getCompletedCount(t);
     const progress = data.getThreadProgress(t);
+    const hero = isHero(t);
     const n = wps.length;
     const pos = nodePaths[n] || nodePaths[5];
     const ps = svgPaths[n] || svgPaths[5];
+    /* The mystery's stat row is live; every other thread keeps its static one. */
+    const stats = hero ? data.heroStats(t) : (t.stats || []);
 
     const nodes = wps.map(function (wp, i) {
       const p = pos[i] || [60 + i * 100, 130];
@@ -241,14 +513,14 @@
       '<h1 class="font-display text-3xl font-semibold" style="color:#2C2417">' + E(t.title) + '</h1>' +
       '<p class="font-body text-sm mt-1" style="color:#8A7B6B">' + E(t.subtitle) + '</p></div>' +
       '<div class="flex gap-3"><button class="px-4 py-2 rounded-full text-sm font-body font-medium" style="border:1px solid #E8E0D0;color:#2C2417">Share Thread</button>' +
-      activeNodeButton(wps) + '</div></div></div></div>' +
+      activeNodeButton(t) + '</div></div></div></div>' +
 
       '<div class="max-w-7xl mx-auto px-10 py-10">' +
-      '<div class="grid grid-cols-4 gap-4 mb-10">' + (t.stats || []).map(function (a) {
+      '<div class="grid grid-cols-4 gap-4 mb-10">' + stats.map(function (a) {
         return '<div class="flex items-center gap-3 px-5 py-4 rounded-xl" style="background-color:#FDFCFA;border:1px solid #E8E0D0">' +
           '<span class="text-2xl">' + a.icon + '</span><div>' +
-          '<div class="font-display text-xl font-semibold" style="color:#2C2417">' + a.value + '</div>' +
-          '<div class="text-xs font-body" style="color:#8A7B6B">' + a.label + '</div></div></div>';
+          '<div class="font-display text-xl font-semibold" style="color:#2C2417">' + E(a.value) + '</div>' +
+          '<div class="text-xs font-body" style="color:#8A7B6B">' + E(a.label) + '</div></div></div>';
       }).join('') + '</div>' +
 
       '<div class="mb-10"><div class="flex justify-between text-xs font-body mb-2" style="color:#8A7B6B"><span>Thread Progress</span>' +
@@ -256,6 +528,7 @@
       '<div class="h-2 rounded-full" style="background-color:#E8E0D0"><div class="h-full rounded-full" style="width:' + progress + '%;background-color:#6B8E23"></div></div></div>' +
 
       '<div class="grid grid-cols-12 gap-8">' +
+      (hero ? (data.isRevealed(data.heroThreadId) ? heroRevealPanel(t) : heroKhaytPanel(t)) : '') +
       '<div class="col-span-8"><div class="rounded-2xl p-8" style="background-color:#FDFCFA;border:1px solid #E8E0D0;min-height:420px">' +
       '<h2 class="font-body font-semibold text-sm uppercase tracking-wide mb-8" style="color:#8A7B6B">Story Path</h2>' +
       '<div class="relative"><svg viewBox="0 0 640 260" class="w-full" style="overflow:visible">' +
@@ -308,15 +581,19 @@
 
   function place() {
     const t = getThread();
-    const wps = t.waypoints || [];
-    const wp = selectWaypoint(wps, st.waypointId);
+    const wps = threadWaypoints(t);
+    /* data.getWaypoint takes the REAL thread and returns the decorated
+       waypoint: live status, branch overlay, and the original fallback to the
+       active waypoint when the route names one this thread does not have. */
+    const wp = data.getWaypoint(t, st.waypointId);
     if (!wp) {
       return '<div class="pt-20 px-10"><p class="font-body text-sm" style="color:#8A7B6B">This thread has no waypoints yet.</p></div>';
     }
 
-    const idx = wps.indexOf(wp);
+    const idx = waypointIndexById(wps, wp);
     const total = wps.length;
     const next = wps[idx + 1] || null;
+    const hero = isHero(t);
 
     /* Same image, four URL variations, so the gallery strip is usable. */
     const images = [
@@ -327,14 +604,17 @@
     ];
     const ai = Math.min(NASEEJ.ui.activeImage || 0, GALLERY_SIZE - 1);
 
+    /* Explicit thread fields win. The subtitle scrape is the fallback for the
+       threads that still carry difficulty and duration inside that string —
+       the mystery's subtitle is prose and no longer has to fake them. */
     const dm = (t.subtitle || '').match(/Easy|Moderate|Strenuous/i);
-    const diff = dm ? dm[0] : 'Moderate';
+    const diff = t.difficulty || (dm ? dm[0] : 'Moderate');
     const du = (t.subtitle || '').match(/\d[\d–]* days?|\d+ hrs?|\d day/i);
-    const duration = du ? du[0] : '2 hrs';
+    const duration = t.duration || (du ? du[0] : '2 hrs');
 
     const tags = [
       ['Duration', duration, '⏱'],
-      ['Reward', wp.points + ' pts', '⭐'],
+      ['Reward', hero ? '+' + data.atharRewards.challenge + ' ATHAR' : wp.points + ' pts', '⭐'],
       ['Difficulty', diff, '⚡'],
       ['Category', wp.type, wp.icon],
       ['City', t.city, '📍'],
@@ -342,7 +622,19 @@
     ];
 
     let qrCta;
-    if (NASEEJ.ui.challengeOpen) {
+    if (hero) {
+      /* The mystery replaces the QR step: arriving is not the challenge, the
+         validated answer is. KHAYT, the question, the answer, the verdict. The
+         verdict and its chips belong to heroChallengePanel, which prints both
+         states, so they are not repeated here. */
+      qrCta = '<div class="p-4 rounded-2xl mb-4" style="background-color:#2C2417">' +
+        '<div class="flex items-start gap-3">' +
+        '<span class="text-xl flex-shrink-0">🧵</span>' +
+        '<div><div class="text-xs font-body uppercase tracking-widest mb-1" style="color:#EDB99E">KHAYT · ' +
+        E(data.currentChapter(t)) + '</div>' +
+        '<p class="text-sm font-body leading-relaxed" style="color:#F9F7F3">' + E(data.khaytMessage(t, wp)) + '</p>' +
+        '</div></div></div>' + heroChallengePanel(t, wp);
+    } else if (NASEEJ.ui.challengeOpen) {
       let cells = '';
       const matrix = NASEEJ.ui.qr || [];
       for (let r = 0; r < 7; r++) {
@@ -426,7 +718,8 @@
       '<div class="rounded-xl p-5 mb-6" style="background-color:rgba(107,142,35,0.06);border:1px solid rgba(107,142,35,0.2)">' +
       '<div class="flex items-center gap-2 mb-3"><span class="text-base">🎯</span>' +
       '<h3 class="font-body font-semibold text-sm" style="color:#2C2417">Your Challenge</h3>' +
-      '<span class="ml-auto text-xs font-body font-semibold px-2 py-0.5 rounded-full" style="background-color:#6B8E23;color:white">+' + wp.points + ' pts</span></div>' +
+      '<span class="ml-auto text-xs font-body font-semibold px-2 py-0.5 rounded-full" style="background-color:#6B8E23;color:white">+' +
+      (hero ? data.atharRewards.challenge + ' ATHAR' : wp.points + ' pts') + '</span></div>' +
       '<p class="text-sm font-body leading-relaxed" style="color:#2C2417">' + E(wp.challenge) + '</p>' +
       '<div class="mt-3 flex gap-4 text-xs font-body" style="color:#8A7B6B">' +
       '<span>🗺 Evidence required: Photo + Description</span><span>⏱ Estimated: 45 min</span></div></div>' +
@@ -438,7 +731,8 @@
         ? '<div class="flex items-center gap-3 mb-6 p-3 rounded-xl" style="background-color:#FDFCFA;border:1px solid #E8E0D0">' +
           '<div class="text-lg">' + next.icon + '</div><div><p class="text-xs font-body" style="color:#8A7B6B">Up next</p>' +
           '<p class="text-sm font-body font-semibold" style="color:#2C2417">' + E(next.name) + '</p></div>' +
-          '<div class="ml-auto text-xs font-body font-semibold" style="color:#6B8E23">+' + next.points + ' pts</div></div>'
+          '<div class="ml-auto text-xs font-body font-semibold" style="color:#6B8E23">' +
+          (hero ? E(data.waypointStatus(t, next) === 'locked' ? 'sealed' : 'open') : '+' + next.points + ' pts') + '</div></div>'
         : '') +
       '</div>' +
 
@@ -664,13 +958,17 @@
       body = '<div class="py-10">' +
         '<h2 class="font-display text-xl font-semibold mb-4" style="color:#2C2417">In Progress</h2>' +
         '<div class="grid grid-cols-3 gap-5 mb-10">' + session.activeThreads.map(function (t) {
-          return '<div ' + N('thread') + ' class="rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-1 transition-all" style="background-color:#FDFCFA;border:1px solid #E8E0D0">' +
+          return '<div ' + N('thread', t.id) + ' class="rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-1 transition-all" style="background-color:#FDFCFA;border:1px solid #E8E0D0">' +
             '<div class="relative h-36 overflow-hidden"><img src="' + t.image + '" alt="' + E(t.title) + '" class="w-full h-full object-cover">' +
             '<div class="absolute bottom-0 left-0 right-0 h-1" style="background-color:rgba(249,247,243,0.3)">' +
             '<div class="h-full progress-bar" style="width:' + t.progress + '%"></div></div>' +
             '<span class="absolute top-2 left-2 text-xs font-body px-2 py-0.5 rounded-full font-semibold animate-pulse" style="background-color:#D98A6C;color:white">● Active</span></div>' +
             '<div class="p-4"><h3 class="font-display text-sm font-semibold mb-1" style="color:#2C2417">' + E(t.title) + '</h3>' +
             '<p class="text-xs font-body mb-3" style="color:#8A7B6B">Next: ' + E(t.nextWaypoint) + '</p>' +
+            (t.branch
+              ? '<div class="flex items-center gap-1.5 mb-3 px-2.5 py-1.5 rounded-lg" style="background-color:rgba(217,138,108,0.1);border:1px solid rgba(217,138,108,0.25)">' +
+                '<span class="text-xs">🧭</span><span class="text-xs font-body font-medium" style="color:#B8633E">Path: ' + E(t.branch) + '</span></div>'
+              : '') +
             '<div class="flex justify-between text-xs font-body mb-2" style="color:#8A7B6B"><span>Progress</span><span>' + t.progress + '%</span></div>' +
             '<div class="h-1.5 rounded-full" style="background-color:#E8E0D0">' +
             '<div class="h-full rounded-full progress-bar" style="width:' + t.progress + '%"></div></div></div></div>';
@@ -680,14 +978,21 @@
 
         '<h2 class="font-display text-xl font-semibold mb-4" style="color:#2C2417">Completed</h2>' +
         '<div class="grid grid-cols-3 gap-5">' + session.completedThreads.map(function (t) {
-          return '<div class="rounded-2xl overflow-hidden" style="background-color:#FDFCFA;border:1px solid #E8E0D0">' +
+          return '<div ' + N('thread', t.id) + ' class="rounded-2xl overflow-hidden cursor-pointer hover:-translate-y-1 transition-all" style="background-color:#FDFCFA;border:1px solid #E8E0D0">' +
             '<div class="relative h-36 overflow-hidden"><img src="' + t.image + '" alt="' + E(t.title) + '" class="w-full h-full object-cover" style="filter:saturate(0.85)">' +
             '<div class="absolute inset-0 flex items-center justify-center" style="background-color:rgba(107,142,35,0.2)">' +
             '<div class="w-12 h-12 rounded-full flex items-center justify-center text-xl" style="background-color:#6B8E23">✓</div></div></div>' +
             '<div class="p-4"><h3 class="font-display text-sm font-semibold mb-1" style="color:#2C2417">' + E(t.title) + '</h3>' +
+            /* The path a weaver chose is part of what they finished, so it stays
+               on the card after the thread leaves "In Progress". */
+            (t.branch
+              ? '<div class="flex items-center gap-1.5 mb-2 px-2.5 py-1.5 rounded-lg" style="background-color:rgba(217,138,108,0.1);border:1px solid rgba(217,138,108,0.25)">' +
+                '<span class="text-xs">🧭</span><span class="text-xs font-body font-medium" style="color:#B8633E">Path: ' + E(t.branch) + '</span></div>'
+              : '') +
             '<div class="flex items-center justify-between text-xs font-body" style="color:#8A7B6B">' +
             '<span>⊕ ' + t.waypoints + ' waypoints</span>' +
-            '<span class="font-semibold" style="color:#6B8E23">+' + t.pointsEarned + ' pts</span></div>' +
+            '<span class="font-semibold" style="color:#6B8E23">' +
+            (t.branch ? '+' + t.pointsEarned + ' ATHAR' : '+' + t.pointsEarned + ' pts') + '</span></div>' +
             '<div class="text-xs font-body mt-2" style="color:#C9BDA8">Completed ' + t.completedDate + '</div></div></div>';
         }).join('') + '</div></div>';
     } else {
@@ -817,6 +1122,50 @@
       /* Clicking the selected city (or "← All cities") clears the filter. */
       NASEEJ.ui.city = value === '' || NASEEJ.ui.city === value ? null : value;
       updateLibrary();
+    },
+
+    /* ── Living mystery ───────────────────────────────────────────────────────
+       Page-local only: which option is ticked, and what the last validated
+       answer came back as. Nothing durable lives here — the waypoint, the
+       clue, the branch, the reveal and the ATHAR are all in data.js, which is
+       what makes a refresh mid-thread safe. */
+
+    heroPick: function (value) {
+      NASEEJ.ui.heroPick = value;
+      /* A new pick invalidates the previous verdict; keeping a "wrong" banner
+         over a different selection would be a lie about the current answer. */
+      NASEEJ.ui.heroResult = null;
+      NASEEJ.paint();
+    },
+
+    heroValidate: function () {
+      const t = getThread();
+      if (!isHero(t) || NASEEJ.ui.heroPick == null) return;
+      const wp = data.getWaypoint(t, st.waypointId);
+      if (!wp) return;
+      /* data.js owns the question, the answer key, the reward table and the
+         dedup ledger. This action only forwards the choice and repaints. */
+      const result = wp.interaction === 'observation'
+        ? data.observeHeroWaypoint(data.heroThreadId, wp.id, NASEEJ.ui.heroPick)
+        : data.answerHeroChallenge(data.heroThreadId, wp.id, NASEEJ.ui.heroPick);
+      NASEEJ.ui.heroResult = result;
+      if (result.status === 'invalid' || result.status === 'locked') return;
+      if (result.correct) NASEEJ.ui.heroPick = null;
+      NASEEJ.paint();
+    },
+
+    heroBranch: function (value) {
+      const t = getThread();
+      if (!isHero(t)) return;
+      const result = data.setHeroBranch(data.heroThreadId, value);
+      if (result.status === 'ok') {
+        /* The choice pays a clue and a chapter, so its result is kept: the panel
+           prints the reaction and the chips rather than the weaver watching the
+           balance move with no explanation. */
+        NASEEJ.ui.heroResult = result;
+        NASEEJ.ui.activeNode = null;
+      }
+      NASEEJ.paint();
     },
   };
 })(window.NASEEJ || (window.NASEEJ = {}));

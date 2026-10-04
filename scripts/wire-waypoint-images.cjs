@@ -89,7 +89,7 @@ function loadExactPhotos() {
         typeof item.output === "string" ? item.output.replace(/\\.webp$/i, ".jpg") : ""
       ].filter(Boolean);
       const existing = candidates.find((candidate) => fs.existsSync(path.join(ROOT, candidate)));
-      if (existing) out[item.place] = existing.replace(/\\\\/g, "/");
+      if (existing) out[item.place] = existing;
     }
   } catch (err) {
     console.warn("wire-waypoint-images: could not read photo audit manifest:", err.message);

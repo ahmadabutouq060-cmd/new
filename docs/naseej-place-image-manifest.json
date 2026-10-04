@@ -1,0 +1,566 @@
+{
+  "source": "Current NASEEJ js/data.js audit",
+  "count": 112,
+  "places": [
+    {
+      "governorate": "Irbid",
+      "thread": "Bride of the North",
+      "place": "Umm Qais (Gadara)"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "Bride of the North",
+      "place": "Yarmouk River Gorge"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "Bride of the North",
+      "place": "Beit Ras (Capitolias)"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "Bride of the North",
+      "place": "Tell Irbid"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "Bride of the North",
+      "place": "Abila (Quwayliba)"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "Yarmouk Nature Walk",
+      "place": "Yarmouk Trail Head"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "Yarmouk Nature Walk",
+      "place": "Basalt Canyon Viewpoint"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "Yarmouk Nature Walk",
+      "place": "Migratory Bird Watch Station"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "Yarmouk Nature Walk",
+      "place": "Riverside Picnic Meadow"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "City of Scholars & Souk",
+      "place": "Yarmouk University"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "City of Scholars & Souk",
+      "place": "Irbid Central Souk"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "City of Scholars & Souk",
+      "place": "Irbid Archaeological Museum"
+    },
+    {
+      "governorate": "Irbid",
+      "thread": "City of Scholars & Souk",
+      "place": "Old Irbid Houses"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "Castle Among Pines",
+      "place": "Ajloun Forest Reserve Gate"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "Castle Among Pines",
+      "place": "Mar Elias Byzantine Church"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "Castle Among Pines",
+      "place": "Ajloun Castle (Qal'at ar-Rabad)"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "Castle Among Pines",
+      "place": "Ancient Olive Grove"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "Castle Among Pines",
+      "place": "Orjan Village & Local Feast"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "The Olive Oil Journey",
+      "place": "Olive Grove Harvest"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "The Olive Oil Journey",
+      "place": "Traditional Oil Press (Mu'sara)"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "The Olive Oil Journey",
+      "place": "Soap House Workshop"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "The Olive Oil Journey",
+      "place": "Guesthouse Lunch with Fresh Oil"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "Forest Soul Trail",
+      "place": "Ajloun Forest Main Trail"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "Forest Soul Trail",
+      "place": "Al-Ayal Women's Cooperative"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "Forest Soul Trail",
+      "place": "Eagle Viewpoint"
+    },
+    {
+      "governorate": "Ajloun",
+      "thread": "Forest Soul Trail",
+      "place": "Woodland Lodge Night"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Hadrian's City",
+      "place": "Hadrian's Arch"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Hadrian's City",
+      "place": "Oval Plaza (Forum)"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Hadrian's City",
+      "place": "Temple of Artemis"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Hadrian's City",
+      "place": "Cardo Maximus"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Hadrian's City",
+      "place": "South Theatre"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Hadrian's City",
+      "place": "Hippodrome"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Living Jerash",
+      "place": "Old City Souk"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Living Jerash",
+      "place": "Birketein Ancient Reservoir"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Living Jerash",
+      "place": "Beit Jerash Heritage House"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Living Jerash",
+      "place": "Craft Workshops Quarter"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Temples & Gods of Gerasa",
+      "place": "Temple of Zeus"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Temples & Gods of Gerasa",
+      "place": "Nymphaeum Fountain"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Temples & Gods of Gerasa",
+      "place": "Cathedral and Fountain Court"
+    },
+    {
+      "governorate": "Jerash",
+      "thread": "Temples & Gods of Gerasa",
+      "place": "Church of St. John the Baptist"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "The Capital's Layers",
+      "place": "Amman Citadel (Jabal al-Qal'a)"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "The Capital's Layers",
+      "place": "Temple of Hercules"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "The Capital's Layers",
+      "place": "Umayyad Palace"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "The Capital's Layers",
+      "place": "Roman Theatre of Philadelphia"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "The Capital's Layers",
+      "place": "Jordan Museum"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "Downtown Flavors",
+      "place": "Al-Balad Old City Market"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "Downtown Flavors",
+      "place": "Hashem Restaurant"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "Downtown Flavors",
+      "place": "Abu Jbara — Kanafeh"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "Downtown Flavors",
+      "place": "King Faisal Street & Sweet Shops"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "Modern Soul of Amman",
+      "place": "Rainbow Street"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "Modern Soul of Amman",
+      "place": "Darat al Funun Art Centre"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "Modern Soul of Amman",
+      "place": "Wild Jordan Center"
+    },
+    {
+      "governorate": "Amman",
+      "thread": "Modern Soul of Amman",
+      "place": "Jabal Weibdeh Gallery Walk"
+    },
+    {
+      "governorate": "Dead Sea",
+      "thread": "Lowest Place on Earth",
+      "place": "Dead Sea Shore Float"
+    },
+    {
+      "governorate": "Dead Sea",
+      "thread": "Lowest Place on Earth",
+      "place": "Salt Crystal Formations"
+    },
+    {
+      "governorate": "Dead Sea",
+      "thread": "Lowest Place on Earth",
+      "place": "Wadi Mujib Siq Trail"
+    },
+    {
+      "governorate": "Dead Sea",
+      "thread": "Lowest Place on Earth",
+      "place": "Lot's Pillar Viewpoint"
+    },
+    {
+      "governorate": "Dead Sea",
+      "thread": "Mud & Minerals",
+      "place": "Dead Sea Mud Spa"
+    },
+    {
+      "governorate": "Dead Sea",
+      "thread": "Mud & Minerals",
+      "place": "Mineral Water Float"
+    },
+    {
+      "governorate": "Dead Sea",
+      "thread": "Mud & Minerals",
+      "place": "Sunset at Amman Beach"
+    },
+    {
+      "governorate": "Dead Sea",
+      "thread": "Sacred Valley",
+      "place": "Bethany Beyond the Jordan"
+    },
+    {
+      "governorate": "Dead Sea",
+      "thread": "Sacred Valley",
+      "place": "John the Baptist Churches"
+    },
+    {
+      "governorate": "Dead Sea",
+      "thread": "Sacred Valley",
+      "place": "Lot's Cave & Sanctuary"
+    },
+    {
+      "governorate": "Dead Sea",
+      "thread": "Sacred Valley",
+      "place": "Deir Ain Abata Monastery"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "City of Mosaics",
+      "place": "St. George's Church — Mosaic Map"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "City of Mosaics",
+      "place": "Madaba Archaeological Museum"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "City of Mosaics",
+      "place": "Church of the Apostles"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "City of Mosaics",
+      "place": "Madaba Arts & Crafts Village"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "City of Mosaics",
+      "place": "Mosaic Making Workshop"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "Holy Mountain Trail",
+      "place": "Mount Nebo — Moses Viewpoint"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "Holy Mountain Trail",
+      "place": "Memorial Church of Moses"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "Holy Mountain Trail",
+      "place": "Serpentine Cross (Brazen Serpent)"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "Holy Mountain Trail",
+      "place": "Mukawir (Machaerus)"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "Springs & Hot Waters",
+      "place": "Ma'in Hot Springs Resort"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "Springs & Hot Waters",
+      "place": "Wadi Zarqa Ma'in Waterfall"
+    },
+    {
+      "governorate": "Madaba",
+      "thread": "Springs & Hot Waters",
+      "place": "Hammamat Ma'in Natural Pools"
+    },
+    {
+      "governorate": "Karak",
+      "thread": "Crusader Stronghold",
+      "place": "Karak Castle (Crac des Moabites)"
+    },
+    {
+      "governorate": "Karak",
+      "thread": "Crusader Stronghold",
+      "place": "Karak Archaeological Museum"
+    },
+    {
+      "governorate": "Karak",
+      "thread": "Crusader Stronghold",
+      "place": "Umm al-Rasas (Kastron Mefa'a)"
+    },
+    {
+      "governorate": "Karak",
+      "thread": "Crusader Stronghold",
+      "place": "Karak Plateau Viewpoint"
+    },
+    {
+      "governorate": "Karak",
+      "thread": "Mansaf & Moab Flavors",
+      "place": "Karak Central Market"
+    },
+    {
+      "governorate": "Karak",
+      "thread": "Mansaf & Moab Flavors",
+      "place": "Mansaf at a Family Home"
+    },
+    {
+      "governorate": "Karak",
+      "thread": "Mansaf & Moab Flavors",
+      "place": "Karak Honey Farm"
+    },
+    {
+      "governorate": "Karak",
+      "thread": "Mansaf & Moab Flavors",
+      "place": "Dhiban (Dibon) — Moabite Capital"
+    },
+    {
+      "governorate": "Karak",
+      "thread": "Wadi Canyon Adventure",
+      "place": "Wadi Ibn Hammad Canyon"
+    },
+    {
+      "governorate": "Karak",
+      "thread": "Wadi Canyon Adventure",
+      "place": "Lajjun Roman Fort"
+    },
+    {
+      "governorate": "Karak",
+      "thread": "Wadi Canyon Adventure",
+      "place": "Dana Biosphere Reserve (North Edge)"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "The Seven World Wonder",
+      "place": "The Siq"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "The Seven World Wonder",
+      "place": "Al-Khazneh (The Treasury)"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "The Seven World Wonder",
+      "place": "Street of Facades & Royal Tombs"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "The Seven World Wonder",
+      "place": "High Place of Sacrifice"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "The Seven World Wonder",
+      "place": "Ad-Deir (The Monastery)"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "Wadi Rum Adventure",
+      "place": "Wadi Rum Visitor Gate"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "Wadi Rum Adventure",
+      "place": "Lawrence Spring"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "Wadi Rum Adventure",
+      "place": "Khazali Canyon Inscriptions"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "Wadi Rum Adventure",
+      "place": "Burdah Rock Bridge"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "Wadi Rum Adventure",
+      "place": "Bedouin Camp Under Stars"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "Little Petra & Bedouin Life",
+      "place": "Little Petra (Siq al-Barid)"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "Little Petra & Bedouin Life",
+      "place": "Al-Beidha Neolithic Village"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "Little Petra & Bedouin Life",
+      "place": "Bedouin Heritage Village"
+    },
+    {
+      "governorate": "Ma'an",
+      "thread": "Little Petra & Bedouin Life",
+      "place": "Camel Ride through Wadi Araba"
+    },
+    {
+      "governorate": "Al-Aqaba",
+      "thread": "Bride of the Red Sea",
+      "place": "Aqaba Marine Park"
+    },
+    {
+      "governorate": "Al-Aqaba",
+      "thread": "Bride of the Red Sea",
+      "place": "Cedar Pride Wreck"
+    },
+    {
+      "governorate": "Al-Aqaba",
+      "thread": "Bride of the Red Sea",
+      "place": "Japanese Garden Reef"
+    },
+    {
+      "governorate": "Al-Aqaba",
+      "thread": "Bride of the Red Sea",
+      "place": "Saudi Border Coral Gardens"
+    },
+    {
+      "governorate": "Al-Aqaba",
+      "thread": "Port of History",
+      "place": "Aqaba Fort (Mamluk Castle)"
+    },
+    {
+      "governorate": "Al-Aqaba",
+      "thread": "Port of History",
+      "place": "Ayla — Early Islamic City"
+    },
+    {
+      "governorate": "Al-Aqaba",
+      "thread": "Port of History",
+      "place": "Aqaba Museum (Al-Hammamat)"
+    },
+    {
+      "governorate": "Al-Aqaba",
+      "thread": "Port of History",
+      "place": "Aqaba Fish Market & Port"
+    },
+    {
+      "governorate": "Al-Aqaba",
+      "thread": "Desert to Sea",
+      "place": "Wadi Rum Desert Departure"
+    },
+    {
+      "governorate": "Al-Aqaba",
+      "thread": "Desert to Sea",
+      "place": "Gulf of Aqaba Sunset Cruise"
+    },
+    {
+      "governorate": "Al-Aqaba",
+      "thread": "Desert to Sea",
+      "place": "South Beach Camping & Snorkeling"
+    }
+  ]
+}

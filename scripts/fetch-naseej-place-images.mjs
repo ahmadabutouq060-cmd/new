@@ -69,7 +69,7 @@ async function resolveCommons(item){
       const pages=await commonsSearch(q);
       for(const p of pages){
         const i=p.imageinfo?.[0],md=i?.extmetadata||{};
-        if(!i?.thumburl||!/^image\\/(jpeg|png|webp)$/i.test(i.mime||''))continue;
+        if(!i?.thumburl||!['image/jpeg','image/png','image/webp'].includes(i.mime||''))continue;
         if((i.width||0)<900||(i.height||0)<500||BAD.test(p.title||''))continue;
         const lic=clean(md.LicenseShortName?.value||md.UsageTerms?.value);
         if(!licenseOK(lic))continue;

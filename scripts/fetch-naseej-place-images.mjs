@@ -92,7 +92,7 @@ async function saveImage(url,abs){
 }
 
 const source=JSON.parse(await fs.readFile(SOURCE,'utf8'));
-await fs.mkdir(ROOT_OUT,{recursive:true});
+await fs.mkdir(OUT_ROOT,{recursive:true});
 
 const results=new Array(source.places.length);
 let downloaded=0;

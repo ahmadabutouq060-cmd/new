@@ -1,0 +1,30 @@
+name: NASEEJ place photos
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docs/naseej-place-image-manifest.json'
+      - 'scripts/fetch-naseej-place-images.mjs'
+      - '.github/workflows/naseej-place-images.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - name: Fetch Wikimedia Commons photos
+        run: node scripts/fetch-naseej-place-images.mjs
+      - name: Commit photos and manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/places
+          if git diff --cached --quiet; then
+            echo "No image changes to commit."
+          else
+            git commit -m "Add NASEEJ place photos and attribution manifest [skip ci]"
+            git push
+          fi

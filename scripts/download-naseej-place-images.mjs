@@ -4,146 +4,135 @@ import path from "node:path";
 const ROOT=process.cwd();
 const MF=path.join(ROOT,"docs","naseej-place-image-manifest.json");
 const OUT=path.join(ROOT,"assets","places","photo-manifest.json");
-const UA="NASEEJ/1.1 place-photo collector";
+const UA="NASEEJ/1.2 place-photo collector";
 const COMMONS_FILE="https://commons.wikimedia.org/wiki/File:";
 const RASTER=new Set(["image/jpeg","image/png","image/webp"]);
 const BAD=/(logo|icon|flag|map|locator|diagram|scheme|coat of arms|symbol|illustration)/i;
-const LICENSES=[
-  "CC0 1.0","CC BY 4.0","CC BY-SA 4.0","CC BY 3.0","CC BY-SA 3.0",
-  "CC BY 2.0","CC BY-SA 2.0","Public domain","public domain"
-];
+const LICENSES=["CC0 1.0","CC BY 4.0","CC BY-SA 4.0","CC BY 3.0","CC BY-SA 3.0","CC BY 2.0","CC BY-SA 2.0","Public domain","public domain"];
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
-const sleep=(ms)=>new Promise(r=>setTimeout(r,ms));
-const safeName=(s)=>s.replace(/^File:/i,"").replaceAll("_"," ").trim();
-
+async function request(url,opts={},attempts=4){
+  let last;
+  for(let i=0;i<attempts;i++){
+    try{
+      const r=await fetch(url,{...opts,headers:{"User-Agent":UA,...(opts.headers||{})}});
+      if(r.ok)return r;
+      last=new Error("HTTP "+r.status);
+      if(![429,500,502,503,504].includes(r.status))break;
+    }catch(e){last=e}
+    await sleep(2000*(i+1));
+  }
+  throw last||new Error("request failed");
+}
 async function getJson(url){
-  const r=await fetch(url,{headers:{"User-Agent":UA,"Accept":"application/json"}});
-  if(!r.ok) throw new Error("HTTP "+r.status);
+  const r=await request(url,{headers:{"Accept":"application/json"}},4);
   return r.json();
 }
-async function getText(url){
-  const r=await fetch(url,{headers:{"User-Agent":UA}});
-  if(!r.ok) throw new Error("HTTP "+r.status);
-  return r.text();
-}
+async function getText(url){return (await request(url,{},4)).text()}
+
 function wikiCandidates(item){
   const p=item.place;
-  const stripped=p
-    .replace(/\([^)]*\)/g,"")
-    .replace(/\s*[—-]\s*.*$/,"")
-    .replace(/\s*&\s*.*$/,"")
-    .trim();
-  const variants=[p,stripped,
+  const stripped=p.replace(/\([^)]*\)/g,"").replace(/\s*[—-]\s*.*$/,"").replace(/\s*&\s*.*$/,"").trim();
+  return [...new Set([
+    p,stripped,
     stripped+" Jordan",
-    item.place.replace(/\([^)]*\)/g,"").replace(/\b(the|a|an)\b/gi,"").trim()
-  ];
-  return [...new Set(variants.filter(Boolean))];
+    p.replace(/\([^)]*\)/g,"").trim()
+  ].filter(Boolean))];
 }
 function imageFromSummary(j){
-  const u=j?.originalimage?.source || j?.thumbnail?.source;
-  if(!u || !u.includes("upload.wikimedia.org") || BAD.test(u)) return null;
-  return {url:u,width:j?.originalimage?.width||j?.thumbnail?.width||0,height:j?.originalimage?.height||j?.thumbnail?.height||0};
+  const t=j?.thumbnail;
+  const o=j?.originalimage;
+  const u=t?.source || o?.source;
+  if(!u || !u.includes("upload.wikimedia.org") || BAD.test(u))return null;
+  return {url:u,width:t?.width||o?.width||0,height:t?.height||o?.height||0,original:o?.source||u};
 }
 async function licenseForImage(imageUrl){
   try{
-    const file=decodeURIComponent(imageUrl.split("/").pop().split("?")[0]);
+    const file=decodeURIComponent(new URL(imageUrl).pathname.split("/").pop());
     const html=await getText(COMMONS_FILE+encodeURIComponent(file));
     const lower=html.toLowerCase();
     for(const lic of LICENSES){
-      if(lower.includes(lic.toLowerCase()))
-        return {license:lic,source_url:COMMONS_FILE+encodeURIComponent(file),commons_title:"File:"+file};
+      if(lower.includes(lic.toLowerCase()))return {
+        license:lic,
+        source_url:COMMONS_FILE+encodeURIComponent(file),
+        commons_title:"File:"+file
+      };
     }
   }catch{}
   return null;
 }
 function contextualCandidates(item){
-  const p=item.place.toLowerCase();
-  const g=item.governorate;
-  const t=item.thread;
-  const c=[];
-  const add=(x)=>{if(x && !c.includes(x)) c.push(x)};
-  add(item.place+" "+g+" Jordan");
-  add(t+" "+g+" Jordan");
-  const generic=[
-    "trail","trail head","viewpoint","station","picnic","meadow","grove","harvest",
-    "oil press","soap","workshop","guesthouse","lunch","main trail","eagle","woodland",
-    "lodge","old city souk","heritage house","craft workshops","restaurant","kanafeh",
-    "market","sunset","float","spa","natural pools","visitor gate","camp","cruise",
-    "camping","snorkeling","departure","under stars","family home","honey farm"
-  ];
-  let simplified=p;
-  for(const w of generic) simplified=simplified.replace(new RegExp("\\b"+w.replace(/[.*+?^{}()|[\\]\\]/g,"\\$&")+"\\b","gi")," ");
-  simplified=simplified.replace(/\s+/g," ").trim();
-  add(simplified+" "+g+" Jordan");
-  add(g+" Jordan "+t);
-  return c.filter(x=>x.trim().length>4);
+  const p=item.place.toLowerCase(),g=item.governorate,t=item.thread,c=[];
+  const add=x=>{if(x&&x.length>4&&!c.includes(x))c.push(x)};
+  add(p+" "+g+" Jordan"); add(t+" "+g+" Jordan");
+  let s=p.replace(/\([^)]*\)/g,"")
+    .replace(/\b(trail|trail head|viewpoint|station|picnic|meadow|grove|harvest|oil press|soap|workshop|guesthouse|lunch|main trail|eagle|woodland|lodge|heritage|craft|restaurant|market|sunset|float|spa|natural pools|visitor gate|camp|cruise|camping|snorkeling|departure|under stars|family home|honey farm)\b/gi," ")
+    .replace(/\s+/g," ").trim();
+  add(s+" "+g+" Jordan"); add(g+" Jordan "+t);
+  return c;
 }
 async function commonsSearch(q){
-  const api="https://commons.wikimedia.org/w/api.php?"+new URLSearchParams({
-    action:"query",generator:"search",gsrnamespace:"6",gsrsearch:q,gsrlimit:"6",
-    prop:"imageinfo",iiprop:"url|mime|size|extmetadata",iiurlwidth:"1600",format:"json"
-  });
   try{
-    const j=await getJson(api);
-    return Object.values(j?.query?.pages??{});
+    const url="https://commons.wikimedia.org/w/api.php?"+new URLSearchParams({
+      action:"query",generator:"search",gsrnamespace:"6",gsrsearch:q,gsrlimit:"5",
+      prop:"imageinfo",iiprop:"url|mime|size|extmetadata",iiurlwidth:"1200",format:"json"
+    });
+    const j=await getJson(url); return Object.values(j?.query?.pages??{});
   }catch{return []}
 }
 function scorePage(item,p){
   const title=(p?.title??"").toLowerCase();
   const desc=String(p?.imageinfo?.[0]?.extmetadata?.ImageDescription?.value??"").replace(/<[^>]+>/g,"").toLowerCase();
-  const all=title+" "+desc;
-  let s=0;
-  const words=item.place.toLowerCase().replace(/\([^)]*\)/g,"").split(/\s+/).filter(x=>x.length>3);
-  for(const w of words) if(all.includes(w)) s+=w.length>=6?3:1;
-  if(all.includes(item.governorate.toLowerCase())) s+=1;
-  if(BAD.test(title)) s-=20;
+  const all=title+" "+desc; let s=0;
+  for(const w of item.place.toLowerCase().replace(/\([^)]*\)/g,"").split(/\s+/).filter(x=>x.length>3))
+    if(all.includes(w))s+=w.length>=6?3:1;
+  if(all.includes(item.governorate.toLowerCase()))s++;
+  if(BAD.test(title))s-=20;
   return s;
+}
+async function saveImage(url,out){
+  const r=await request(url,{headers:{"Accept":"image/avif,image/webp,image/apng,image/*,*/*;q=0.8"}},5);
+  const b=Buffer.from(await r.arrayBuffer());
+  if(b.length<20000)throw new Error("image payload too small");
+  await fs.writeFile(out,b);
+  return {mime:r.headers.get("content-type")||"image/jpeg",bytes:b.length};
 }
 async function collectOne(item){
   const out=path.join(ROOT,item.output);
   await fs.mkdir(path.dirname(out),{recursive:true});
 
-  // 1) Exact/near-exact Wikipedia article, then verify the file as a Commons image.
   for(const title of wikiCandidates(item)){
     try{
       const j=await getJson("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(title));
       const img=imageFromSummary(j);
-      if(!img || img.width<900 || img.height<500) continue;
+      if(!img||img.width<300||img.height<200)continue;
       const lic=await licenseForImage(img.url);
-      if(!lic) continue;
-      const r=await fetch(img.url,{headers:{"User-Agent":UA}});
-      if(!r.ok) continue;
-      const bytes=Buffer.from(await r.arrayBuffer());
-      if(bytes.length<50000) continue;
-      await fs.writeFile(out,bytes);
+      if(!lic)continue;
+      const useUrl=img.url;
+      const saved=await saveImage(useUrl,out);
       return {
         ...item,status:"downloaded",match_level:"wiki_exact_or_strong",
-        review_required:false,license:lic.license,source_url:lic.source_url,
-        commons_title:lic.commons_title,direct_url:img.url,mime:r.headers.get("content-type")||"image/jpeg",
-        width:img.width,height:img.height,source_page:"https://en.wikipedia.org/wiki/"+encodeURIComponent(title.replaceAll(" ","_"))
+        review_required:false,...lic,direct_url:useUrl,mime:saved.mime,
+        width:img.width,height:img.height,
+        source_page:"https://en.wikipedia.org/wiki/"+encodeURIComponent(title.replaceAll(" ","_"))
       };
     }catch{}
   }
 
-  // 2) Commons search with stronger contextual queries. Only save if the match is meaningful.
   for(const q of contextualCandidates(item)){
-    const pages=await commonsSearch(q);
-    const usable=pages.filter(p=>{
+    const pages=(await commonsSearch(q)).filter(p=>{
       const i=p?.imageinfo?.[0];
-      return i&&RASTER.has(i.mime)&&!BAD.test(p.title??"")&&(i.width??0)>=1000&&(i.height??0)>=600;
+      return i&&RASTER.has(i.mime)&&!BAD.test(p.title??"")&&(i.width??0)>=900&&(i.height??0)>=500;
     }).sort((a,b)=>scorePage(item,b)-scorePage(item,a));
-    if(!usable.length) continue;
-    const best=usable[0];
-    const sc=scorePage(item,best);
-    if(sc<3) continue;
-    const mi=best.imageinfo[0], lic=await licenseForImage(mi.url);
-    if(!lic) continue;
-    const r=await fetch(mi.url,{headers:{"User-Agent":UA}});
-    if(!r.ok) continue;
-    const bytes=Buffer.from(await r.arrayBuffer());
-    if(bytes.length<50000) continue;
-    await fs.writeFile(out,bytes);
-    return {...item,status:"downloaded",match_level:sc>=7?"commons_exact_or_strong":"commons_representative",review_required:sc<7,score:sc,...lic,direct_url:mi.url,mime:mi.mime,width:mi.width,height:mi.height};
+    if(!pages.length)continue;
+    const best=pages[0],sc=scorePage(item,best),lic=await licenseForImage(best.imageinfo[0].url);
+    if(!lic||sc<3)continue;
+    try{
+      const saved=await saveImage(best.imageinfo[0].url,out);
+      return {...item,status:"downloaded",match_level:sc>=7?"commons_exact_or_strong":"commons_representative",
+        review_required:sc<7,score:sc,...lic,direct_url:best.imageinfo[0].url,
+        mime:saved.mime,width:best.imageinfo[0].width,height:best.imageinfo[0].height};
+    }catch{}
   }
   return {...item,status:"no_safe_image_found",match_level:"none",review_required:true};
 }
@@ -151,10 +140,10 @@ async function collectOne(item){
 const source=JSON.parse(await fs.readFile(MF,"utf8"));
 const results=[];
 for(const item of source.places){
-  try{results.push(await collectOne(item))}
-  catch(e){results.push({...item,status:"error",match_level:"none",review_required:true,error:String(e?.message||e)})}
-  await sleep(900);
-  console.log(item.governorate+" / "+item.place);
+  const r=await collectOne(item).catch(e=>({...item,status:"error",match_level:"none",review_required:true,error:String(e?.message||e)}));
+  results.push(r);
+  console.log(r.governorate+" / "+r.place+" -> "+r.status);
+  await sleep(1500);
 }
 await fs.mkdir(path.dirname(OUT),{recursive:true});
 await fs.writeFile(OUT,JSON.stringify({

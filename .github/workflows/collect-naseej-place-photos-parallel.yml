@@ -9,6 +9,10 @@ on:
       - ".github/workflows/collect-naseej-place-photos-parallel.yml"
   workflow_dispatch:
 
+concurrency:
+  group: naseej-photo-collector
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -17,14 +21,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0,1,2,3,4,5,6,7]
+        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Collect shard
         env:
           NASEEJ_SHARD: ${{ matrix.shard }}
-          NASEEJ_SHARDS: 8
+          NASEEJ_SHARDS: 16
           NASEEJ_OUTPUT_ROOT: shard-output
         run: node scripts/download-naseej-place-images.mjs
       - name: Upload shard

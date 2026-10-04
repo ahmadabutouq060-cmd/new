@@ -5,8 +5,8 @@ const ROOT=process.cwd();
 const MF=path.join(ROOT,"docs","naseej-place-image-manifest.json");
 const API="https://api.openverse.org/v1/images/";
 const UA="NASEEJ/2.1 place-photo collector";
-const LICENSES=new Set(["cc0","by","by-sa","publicdomain"]);
-const LICENSE_LABEL={cc0:"CC0",by:"CC BY","by-sa":"CC BY-SA",publicdomain:"Public Domain"};
+const LICENSES=new Set(["cc0","by","by-sa","by-nc","by-nc-sa","publicdomain","pdm"]);
+const LICENSE_LABEL={cc0:"CC0",by:"CC BY","by-sa":"CC BY-SA","by-nc":"CC BY-NC","by-nc-sa":"CC BY-NC-SA",publicdomain:"Public Domain",pdm:"Public Domain Mark"};
 const BAD=/(logo|icon|flag|map|locator|diagram|scheme|coat of arms|symbol|illustration|watermark)/i;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
@@ -38,14 +38,14 @@ function score(item,r){
   if(BAD.test(all)||r.watermarked===true)s-=20;
   return s;
 }
-function queries(item){
+const GENERIC=/\b(the|a|an|among|trail|trail head|viewpoint|station|picnic|meadow|grove|harvest|traditional|oil press|soap|house|workshop|guesthouse|lunch|fresh|main trail|eagle|woodland|lodge|night|old city|souk|heritage|quarter|market|street|sweet shops|walk|flavors|journey|adventure|shore|float|formations|spa|minerals|sunset|churches|sanctuary|monastery|village|visit(or)? gate|departure|cruise|camping|snorkeling|under stars|family home|farm|ride|through|reef|gardens|port|sea)\b/gi;\nfunction queries(item){
   const p=item.place,g=item.governorate,t=item.thread;
   const stripped=p.replace(/\([^)]*\)/g,"").replace(/\s*[—-]\s*.*$/,"").replace(/\s*&\s*.*$/,"").trim();
-  const qs=[p+" "+g+" Jordan",stripped+" "+g+" Jordan",t+" "+g+" Jordan",g+" Jordan "+stripped];
+  const cleaned=stripped.replace(GENERIC," ").replace(/\s+/g," ").trim();\n  const qs=[p+" "+g+" Jordan",stripped+" "+g+" Jordan",cleaned+" "+g+" Jordan",t+" "+g+" Jordan",g+" Jordan "+cleaned];
   return [...new Set(qs.filter(x=>x.trim().length>4))];
 }
-async function search(q){
-  const u=API+"?"+new URLSearchParams({q,page_size:"20",mature:"false",format:"json",order_by:"relevance"});
+async function search(q,source){
+  const params={q,page_size:"20",mature:"false",format:"json",order_by:"relevance"};\n  if(source)params.source=source;\n  const u=API+"?"+new URLSearchParams(params);
   const j=await (await request(u,{headers:{"Accept":"application/json"}})).json();
   return j?.results??[];
 }
@@ -64,7 +64,7 @@ async function collectOne(item){
   await fs.mkdir(path.dirname(output),{recursive:true});
   const candidates=[];
   for(const q of queries(item)){
-    const rs=await search(q);
+    const rs=[];\n    for(const source of ["wikimedia","flickr",null]){\n      try{rs.push(...await search(q,source))}catch{}\n      if(rs.length>=20)break;\n      await sleep(150);\n    }
     for(const r of rs){
       if(!licenseOkay(r))continue;
       if((r.width??0)<600||(r.height??0)<350)continue;
@@ -76,17 +76,17 @@ async function collectOne(item){
     await sleep(250);
   }
   candidates.sort((a,b)=>b._score-a._score);
-  for(const r of candidates.slice(0,10)){
+  for(const r of candidates.slice(0,12)){
     try{
       const u=candidateUrl(r);
-      const saved=await save(u,output);
+      const preferred=u||r.url||r.thumbnail;\n      const saved=await save(preferred,output);
       const sc=r._score;
       const code=String(r.license||"").toLowerCase();
       return {
         ...item,status:"downloaded",
         match_level:sc>=7?"exact_or_strong":sc>=4?"representative":"weak_representative",
         review_required:sc<7,match_score:sc,title:r.title||"",
-        license:r.license==="publicdomain"?"Public Domain":(LICENSE_LABEL[r.license]||r.license),
+        license:r.license==="publicdomain"?"Public Domain":(LICENSE_LABEL[r.license]||r.license),\n        license_url:r.license_url||"",
         license_code:code,license_version:r.license_version||"N/A",creator:r.creator||"Unknown",
         source:r.source||r.provider||"Openverse",provider:r.provider||"",
         source_url:r.foreign_landing_url||r.source_url||"",direct_url:r.url||"",thumbnail_url:r.thumbnail||"",

@@ -100,7 +100,7 @@ let nextIndex=0;
 
 async function runOne(i){
   const item=source.places[i];
-  const r=await resolve(item);
+  const r=await resolveCommons(item);
   const rel=`assets/places/${slug(item.governorate)}/${slug(item.place)}.jpg`;
   const abs=path.join(ROOT,rel);
 
@@ -110,20 +110,20 @@ async function runOne(i){
     return;
   }
 
-  const info=r.p.imageinfo[0],md=info.extmetadata||{};
-  const sourceUrl=`https://commons.wikimedia.org/wiki/${encodeURIComponent(r.p.title.replace(/ /g,'_'))}`;
+  const info=r.page.imageinfo[0],md=info.extmetadata||{};
+  const sourceUrl=`https://commons.wikimedia.org/wiki/${encodeURIComponent(r.page.title.replace(/ /g,'_'))}`;
   const author=clean(md.Artist?.value||md.Credit?.value);
   const license=clean(md.LicenseShortName?.value||md.UsageTerms?.value);
 
   await fs.mkdir(path.dirname(abs),{recursive:true});
   const img=await fetch(info.thumburl,{headers:{'User-Agent':'NASEEJ-place-photo-loader/2.0'}});
   if(!img.ok){
-    results[i]={governorate:item.governorate,thread:item.thread,place:item.place,status:'DOWNLOAD_ERROR',match_type:r.exact?'exact':'contextual',photo_path:null,source_url:sourceUrl,license,author,commons_file:r.p.title};
+    results[i]={governorate:item.governorate,thread:item.thread,place:item.place,status:'DOWNLOAD_ERROR',match_type:r.score>=12?'exact':'contextual',photo_path:null,source_url:sourceUrl,license,author,commons_file:r.page.title};
     return;
   }
 
   await fs.writeFile(abs,Buffer.from(await img.arrayBuffer()));
-  results[i]={governorate:item.governorate,thread:item.thread,place:item.place,status:'DOWNLOADED',match_type:r.exact?'exact':'contextual',photo_path:rel,source_url:sourceUrl,license,author,commons_file:r.p.title,search_query:r.q};
+  results[i]={governorate:item.governorate,thread:item.thread,place:item.place,status:'DOWNLOADED',match_type:r.score>=12?'exact':'contextual',photo_path:rel,source_url:sourceUrl,license,author,commons_file:r.page.title,search_query:r.query};
   downloaded++;
   console.log(`[${i+1}/${source.places.length}] ${r.exact?'EXACT':'CONTEXTUAL'} — ${item.place}`);
   await sleep(100);

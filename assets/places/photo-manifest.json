@@ -1,7 +1,11 @@
 {
-  "source": "Current NASEEJ js/data.js audit; Wikimedia Commons collection workflow",
+  "generated_at": "2026-10-04T11:55:32.298Z",
+  "source": "Wikimedia Commons",
+  "policy": "Exact/strong preferred; representative images are explicitly marked for human review.",
   "count": 112,
-  "places": [
+  "downloaded": 5,
+  "no_image": 107,
+  "results": [
     {
       "governorate": "Irbid",
       "thread": "Bride of the North",
@@ -1277,6 +1281,5 @@
       "review_required": true,
       "error": "Commons API HTTP 429"
     }
-  ],
-  "match_policy": "Prefer exact/strong landmark matches. Representative matches are explicitly marked for human review."
+  ]
 }

@@ -1,566 +1,903 @@
 {
-  "source": "Current NASEEJ js/data.js audit",
+  "source": "Current NASEEJ js/data.js audit; Wikimedia Commons collection workflow",
   "count": 112,
   "places": [
     {
       "governorate": "Irbid",
       "thread": "Bride of the North",
-      "place": "Umm Qais (Gadara)"
+      "place": "Umm Qais (Gadara)",
+      "output": "assets/places/irbid/umm-qais-gadara.jpg",
+      "search_query": "\"Umm Qais (Gadara)\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "Bride of the North",
-      "place": "Yarmouk River Gorge"
+      "place": "Yarmouk River Gorge",
+      "output": "assets/places/irbid/yarmouk-river-gorge.jpg",
+      "search_query": "\"Yarmouk River Gorge\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "Bride of the North",
-      "place": "Beit Ras (Capitolias)"
+      "place": "Beit Ras (Capitolias)",
+      "output": "assets/places/irbid/beit-ras-capitolias.jpg",
+      "search_query": "\"Beit Ras (Capitolias)\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "Bride of the North",
-      "place": "Tell Irbid"
+      "place": "Tell Irbid",
+      "output": "assets/places/irbid/tell-irbid.jpg",
+      "search_query": "\"Tell Irbid\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "Bride of the North",
-      "place": "Abila (Quwayliba)"
+      "place": "Abila (Quwayliba)",
+      "output": "assets/places/irbid/abila-quwayliba.jpg",
+      "search_query": "\"Abila (Quwayliba)\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "Yarmouk Nature Walk",
-      "place": "Yarmouk Trail Head"
+      "place": "Yarmouk Trail Head",
+      "output": "assets/places/irbid/yarmouk-trail-head.jpg",
+      "search_query": "\"Yarmouk Trail Head\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "Yarmouk Nature Walk",
-      "place": "Basalt Canyon Viewpoint"
+      "place": "Basalt Canyon Viewpoint",
+      "output": "assets/places/irbid/basalt-canyon-viewpoint.jpg",
+      "search_query": "\"Basalt Canyon Viewpoint\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "Yarmouk Nature Walk",
-      "place": "Migratory Bird Watch Station"
+      "place": "Migratory Bird Watch Station",
+      "output": "assets/places/irbid/migratory-bird-watch-station.jpg",
+      "search_query": "\"Migratory Bird Watch Station\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "Yarmouk Nature Walk",
-      "place": "Riverside Picnic Meadow"
+      "place": "Riverside Picnic Meadow",
+      "output": "assets/places/irbid/riverside-picnic-meadow.jpg",
+      "search_query": "\"Riverside Picnic Meadow\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "City of Scholars & Souk",
-      "place": "Yarmouk University"
+      "place": "Yarmouk University",
+      "output": "assets/places/irbid/yarmouk-university.jpg",
+      "search_query": "\"Yarmouk University\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "City of Scholars & Souk",
-      "place": "Irbid Central Souk"
+      "place": "Irbid Central Souk",
+      "output": "assets/places/irbid/irbid-central-souk.jpg",
+      "search_query": "\"Irbid Central Souk\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "City of Scholars & Souk",
-      "place": "Irbid Archaeological Museum"
+      "place": "Irbid Archaeological Museum",
+      "output": "assets/places/irbid/irbid-archaeological-museum.jpg",
+      "search_query": "\"Irbid Archaeological Museum\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Irbid",
       "thread": "City of Scholars & Souk",
-      "place": "Old Irbid Houses"
+      "place": "Old Irbid Houses",
+      "output": "assets/places/irbid/old-irbid-houses.jpg",
+      "search_query": "\"Old Irbid Houses\" Irbid Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "Castle Among Pines",
-      "place": "Ajloun Forest Reserve Gate"
+      "place": "Ajloun Forest Reserve Gate",
+      "output": "assets/places/ajloun/ajloun-forest-reserve-gate.jpg",
+      "search_query": "\"Ajloun Forest Reserve Gate\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "Castle Among Pines",
-      "place": "Mar Elias Byzantine Church"
+      "place": "Mar Elias Byzantine Church",
+      "output": "assets/places/ajloun/mar-elias-byzantine-church.jpg",
+      "search_query": "\"Mar Elias Byzantine Church\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "Castle Among Pines",
-      "place": "Ajloun Castle (Qal'at ar-Rabad)"
+      "place": "Ajloun Castle (Qal'at ar-Rabad)",
+      "output": "assets/places/ajloun/ajloun-castle-qalat-ar-rabad.jpg",
+      "search_query": "\"Ajloun Castle (Qal'at ar-Rabad)\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "Castle Among Pines",
-      "place": "Ancient Olive Grove"
+      "place": "Ancient Olive Grove",
+      "output": "assets/places/ajloun/ancient-olive-grove.jpg",
+      "search_query": "\"Ancient Olive Grove\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "Castle Among Pines",
-      "place": "Orjan Village & Local Feast"
+      "place": "Orjan Village & Local Feast",
+      "output": "assets/places/ajloun/orjan-village-local-feast.jpg",
+      "search_query": "\"Orjan Village & Local Feast\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "The Olive Oil Journey",
-      "place": "Olive Grove Harvest"
+      "place": "Olive Grove Harvest",
+      "output": "assets/places/ajloun/olive-grove-harvest.jpg",
+      "search_query": "\"Olive Grove Harvest\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "The Olive Oil Journey",
-      "place": "Traditional Oil Press (Mu'sara)"
+      "place": "Traditional Oil Press (Mu'sara)",
+      "output": "assets/places/ajloun/traditional-oil-press-musara.jpg",
+      "search_query": "\"Traditional Oil Press (Mu'sara)\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "The Olive Oil Journey",
-      "place": "Soap House Workshop"
+      "place": "Soap House Workshop",
+      "output": "assets/places/ajloun/soap-house-workshop.jpg",
+      "search_query": "\"Soap House Workshop\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "The Olive Oil Journey",
-      "place": "Guesthouse Lunch with Fresh Oil"
+      "place": "Guesthouse Lunch with Fresh Oil",
+      "output": "assets/places/ajloun/guesthouse-lunch-with-fresh-oil.jpg",
+      "search_query": "\"Guesthouse Lunch with Fresh Oil\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "Forest Soul Trail",
-      "place": "Ajloun Forest Main Trail"
+      "place": "Ajloun Forest Main Trail",
+      "output": "assets/places/ajloun/ajloun-forest-main-trail.jpg",
+      "search_query": "\"Ajloun Forest Main Trail\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "Forest Soul Trail",
-      "place": "Al-Ayal Women's Cooperative"
+      "place": "Al-Ayal Women's Cooperative",
+      "output": "assets/places/ajloun/al-ayal-womens-cooperative.jpg",
+      "search_query": "\"Al-Ayal Women's Cooperative\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "Forest Soul Trail",
-      "place": "Eagle Viewpoint"
+      "place": "Eagle Viewpoint",
+      "output": "assets/places/ajloun/eagle-viewpoint.jpg",
+      "search_query": "\"Eagle Viewpoint\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ajloun",
       "thread": "Forest Soul Trail",
-      "place": "Woodland Lodge Night"
+      "place": "Woodland Lodge Night",
+      "output": "assets/places/ajloun/woodland-lodge-night.jpg",
+      "search_query": "\"Woodland Lodge Night\" Ajloun Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Hadrian's City",
-      "place": "Hadrian's Arch"
+      "place": "Hadrian's Arch",
+      "output": "assets/places/jerash/hadrians-arch.jpg",
+      "search_query": "\"Hadrian's Arch\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Hadrian's City",
-      "place": "Oval Plaza (Forum)"
+      "place": "Oval Plaza (Forum)",
+      "output": "assets/places/jerash/oval-plaza-forum.jpg",
+      "search_query": "\"Oval Plaza (Forum)\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Hadrian's City",
-      "place": "Temple of Artemis"
+      "place": "Temple of Artemis",
+      "output": "assets/places/jerash/temple-of-artemis.jpg",
+      "search_query": "\"Temple of Artemis\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Hadrian's City",
-      "place": "Cardo Maximus"
+      "place": "Cardo Maximus",
+      "output": "assets/places/jerash/cardo-maximus.jpg",
+      "search_query": "\"Cardo Maximus\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Hadrian's City",
-      "place": "South Theatre"
+      "place": "South Theatre",
+      "output": "assets/places/jerash/south-theatre.jpg",
+      "search_query": "\"South Theatre\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Hadrian's City",
-      "place": "Hippodrome"
+      "place": "Hippodrome",
+      "output": "assets/places/jerash/hippodrome.jpg",
+      "search_query": "\"Hippodrome\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Living Jerash",
-      "place": "Old City Souk"
+      "place": "Old City Souk",
+      "output": "assets/places/jerash/old-city-souk.jpg",
+      "search_query": "\"Old City Souk\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Living Jerash",
-      "place": "Birketein Ancient Reservoir"
+      "place": "Birketein Ancient Reservoir",
+      "output": "assets/places/jerash/birketein-ancient-reservoir.jpg",
+      "search_query": "\"Birketein Ancient Reservoir\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Living Jerash",
-      "place": "Beit Jerash Heritage House"
+      "place": "Beit Jerash Heritage House",
+      "output": "assets/places/jerash/beit-jerash-heritage-house.jpg",
+      "search_query": "\"Beit Jerash Heritage House\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Living Jerash",
-      "place": "Craft Workshops Quarter"
+      "place": "Craft Workshops Quarter",
+      "output": "assets/places/jerash/craft-workshops-quarter.jpg",
+      "search_query": "\"Craft Workshops Quarter\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Temples & Gods of Gerasa",
-      "place": "Temple of Zeus"
+      "place": "Temple of Zeus",
+      "output": "assets/places/jerash/temple-of-zeus.jpg",
+      "search_query": "\"Temple of Zeus\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Temples & Gods of Gerasa",
-      "place": "Nymphaeum Fountain"
+      "place": "Nymphaeum Fountain",
+      "output": "assets/places/jerash/nymphaeum-fountain.jpg",
+      "search_query": "\"Nymphaeum Fountain\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Temples & Gods of Gerasa",
-      "place": "Cathedral and Fountain Court"
+      "place": "Cathedral and Fountain Court",
+      "output": "assets/places/jerash/cathedral-and-fountain-court.jpg",
+      "search_query": "\"Cathedral and Fountain Court\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Jerash",
       "thread": "Temples & Gods of Gerasa",
-      "place": "Church of St. John the Baptist"
+      "place": "Church of St. John the Baptist",
+      "output": "assets/places/jerash/church-of-st-john-the-baptist.jpg",
+      "search_query": "\"Church of St. John the Baptist\" Jerash Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "The Capital's Layers",
-      "place": "Amman Citadel (Jabal al-Qal'a)"
+      "place": "Amman Citadel (Jabal al-Qal'a)",
+      "output": "assets/places/amman/amman-citadel-jabal-al-qala.jpg",
+      "search_query": "\"Amman Citadel (Jabal al-Qal'a)\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "The Capital's Layers",
-      "place": "Temple of Hercules"
+      "place": "Temple of Hercules",
+      "output": "assets/places/amman/temple-of-hercules.jpg",
+      "search_query": "\"Temple of Hercules\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "The Capital's Layers",
-      "place": "Umayyad Palace"
+      "place": "Umayyad Palace",
+      "output": "assets/places/amman/umayyad-palace.jpg",
+      "search_query": "\"Umayyad Palace\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "The Capital's Layers",
-      "place": "Roman Theatre of Philadelphia"
+      "place": "Roman Theatre of Philadelphia",
+      "output": "assets/places/amman/roman-theatre-of-philadelphia.jpg",
+      "search_query": "\"Roman Theatre of Philadelphia\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "The Capital's Layers",
-      "place": "Jordan Museum"
+      "place": "Jordan Museum",
+      "output": "assets/places/amman/jordan-museum.jpg",
+      "search_query": "\"Jordan Museum\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "Downtown Flavors",
-      "place": "Al-Balad Old City Market"
+      "place": "Al-Balad Old City Market",
+      "output": "assets/places/amman/al-balad-old-city-market.jpg",
+      "search_query": "\"Al-Balad Old City Market\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "Downtown Flavors",
-      "place": "Hashem Restaurant"
+      "place": "Hashem Restaurant",
+      "output": "assets/places/amman/hashem-restaurant.jpg",
+      "search_query": "\"Hashem Restaurant\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "Downtown Flavors",
-      "place": "Abu Jbara — Kanafeh"
+      "place": "Abu Jbara — Kanafeh",
+      "output": "assets/places/amman/abu-jbara-kanafeh.jpg",
+      "search_query": "\"Abu Jbara — Kanafeh\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "Downtown Flavors",
-      "place": "King Faisal Street & Sweet Shops"
+      "place": "King Faisal Street & Sweet Shops",
+      "output": "assets/places/amman/king-faisal-street-sweet-shops.jpg",
+      "search_query": "\"King Faisal Street & Sweet Shops\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "Modern Soul of Amman",
-      "place": "Rainbow Street"
+      "place": "Rainbow Street",
+      "output": "assets/places/amman/rainbow-street.jpg",
+      "search_query": "\"Rainbow Street\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "Modern Soul of Amman",
-      "place": "Darat al Funun Art Centre"
+      "place": "Darat al Funun Art Centre",
+      "output": "assets/places/amman/darat-al-funun-art-centre.jpg",
+      "search_query": "\"Darat al Funun Art Centre\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "Modern Soul of Amman",
-      "place": "Wild Jordan Center"
+      "place": "Wild Jordan Center",
+      "output": "assets/places/amman/wild-jordan-center.jpg",
+      "search_query": "\"Wild Jordan Center\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Amman",
       "thread": "Modern Soul of Amman",
-      "place": "Jabal Weibdeh Gallery Walk"
+      "place": "Jabal Weibdeh Gallery Walk",
+      "output": "assets/places/amman/jabal-weibdeh-gallery-walk.jpg",
+      "search_query": "\"Jabal Weibdeh Gallery Walk\" Amman Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Dead Sea",
       "thread": "Lowest Place on Earth",
-      "place": "Dead Sea Shore Float"
+      "place": "Dead Sea Shore Float",
+      "output": "assets/places/dead-sea/dead-sea-shore-float.jpg",
+      "search_query": "\"Dead Sea Shore Float\" Dead Sea Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Dead Sea",
       "thread": "Lowest Place on Earth",
-      "place": "Salt Crystal Formations"
+      "place": "Salt Crystal Formations",
+      "output": "assets/places/dead-sea/salt-crystal-formations.jpg",
+      "search_query": "\"Salt Crystal Formations\" Dead Sea Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Dead Sea",
       "thread": "Lowest Place on Earth",
-      "place": "Wadi Mujib Siq Trail"
+      "place": "Wadi Mujib Siq Trail",
+      "output": "assets/places/dead-sea/wadi-mujib-siq-trail.jpg",
+      "search_query": "\"Wadi Mujib Siq Trail\" Dead Sea Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Dead Sea",
       "thread": "Lowest Place on Earth",
-      "place": "Lot's Pillar Viewpoint"
+      "place": "Lot's Pillar Viewpoint",
+      "output": "assets/places/dead-sea/lots-pillar-viewpoint.jpg",
+      "search_query": "\"Lot's Pillar Viewpoint\" Dead Sea Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Dead Sea",
       "thread": "Mud & Minerals",
-      "place": "Dead Sea Mud Spa"
+      "place": "Dead Sea Mud Spa",
+      "output": "assets/places/dead-sea/dead-sea-mud-spa.jpg",
+      "search_query": "\"Dead Sea Mud Spa\" Dead Sea Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Dead Sea",
       "thread": "Mud & Minerals",
-      "place": "Mineral Water Float"
+      "place": "Mineral Water Float",
+      "output": "assets/places/dead-sea/mineral-water-float.jpg",
+      "search_query": "\"Mineral Water Float\" Dead Sea Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Dead Sea",
       "thread": "Mud & Minerals",
-      "place": "Sunset at Amman Beach"
+      "place": "Sunset at Amman Beach",
+      "output": "assets/places/dead-sea/sunset-at-amman-beach.jpg",
+      "search_query": "\"Sunset at Amman Beach\" Dead Sea Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Dead Sea",
       "thread": "Sacred Valley",
-      "place": "Bethany Beyond the Jordan"
+      "place": "Bethany Beyond the Jordan",
+      "output": "assets/places/dead-sea/bethany-beyond-the-jordan.jpg",
+      "search_query": "\"Bethany Beyond the Jordan\" Dead Sea Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Dead Sea",
       "thread": "Sacred Valley",
-      "place": "John the Baptist Churches"
+      "place": "John the Baptist Churches",
+      "output": "assets/places/dead-sea/john-the-baptist-churches.jpg",
+      "search_query": "\"John the Baptist Churches\" Dead Sea Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Dead Sea",
       "thread": "Sacred Valley",
-      "place": "Lot's Cave & Sanctuary"
+      "place": "Lot's Cave & Sanctuary",
+      "output": "assets/places/dead-sea/lots-cave-sanctuary.jpg",
+      "search_query": "\"Lot's Cave & Sanctuary\" Dead Sea Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Dead Sea",
       "thread": "Sacred Valley",
-      "place": "Deir Ain Abata Monastery"
+      "place": "Deir Ain Abata Monastery",
+      "output": "assets/places/dead-sea/deir-ain-abata-monastery.jpg",
+      "search_query": "\"Deir Ain Abata Monastery\" Dead Sea Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "City of Mosaics",
-      "place": "St. George's Church — Mosaic Map"
+      "place": "St. George's Church — Mosaic Map",
+      "output": "assets/places/madaba/st-georges-church-mosaic-map.jpg",
+      "search_query": "\"St. George's Church — Mosaic Map\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "City of Mosaics",
-      "place": "Madaba Archaeological Museum"
+      "place": "Madaba Archaeological Museum",
+      "output": "assets/places/madaba/madaba-archaeological-museum.jpg",
+      "search_query": "\"Madaba Archaeological Museum\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "City of Mosaics",
-      "place": "Church of the Apostles"
+      "place": "Church of the Apostles",
+      "output": "assets/places/madaba/church-of-the-apostles.jpg",
+      "search_query": "\"Church of the Apostles\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "City of Mosaics",
-      "place": "Madaba Arts & Crafts Village"
+      "place": "Madaba Arts & Crafts Village",
+      "output": "assets/places/madaba/madaba-arts-crafts-village.jpg",
+      "search_query": "\"Madaba Arts & Crafts Village\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "City of Mosaics",
-      "place": "Mosaic Making Workshop"
+      "place": "Mosaic Making Workshop",
+      "output": "assets/places/madaba/mosaic-making-workshop.jpg",
+      "search_query": "\"Mosaic Making Workshop\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "Holy Mountain Trail",
-      "place": "Mount Nebo — Moses Viewpoint"
+      "place": "Mount Nebo — Moses Viewpoint",
+      "output": "assets/places/madaba/mount-nebo-moses-viewpoint.jpg",
+      "search_query": "\"Mount Nebo — Moses Viewpoint\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "Holy Mountain Trail",
-      "place": "Memorial Church of Moses"
+      "place": "Memorial Church of Moses",
+      "output": "assets/places/madaba/memorial-church-of-moses.jpg",
+      "search_query": "\"Memorial Church of Moses\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "Holy Mountain Trail",
-      "place": "Serpentine Cross (Brazen Serpent)"
+      "place": "Serpentine Cross (Brazen Serpent)",
+      "output": "assets/places/madaba/serpentine-cross-brazen-serpent.jpg",
+      "search_query": "\"Serpentine Cross (Brazen Serpent)\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "Holy Mountain Trail",
-      "place": "Mukawir (Machaerus)"
+      "place": "Mukawir (Machaerus)",
+      "output": "assets/places/madaba/mukawir-machaerus.jpg",
+      "search_query": "\"Mukawir (Machaerus)\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "Springs & Hot Waters",
-      "place": "Ma'in Hot Springs Resort"
+      "place": "Ma'in Hot Springs Resort",
+      "output": "assets/places/madaba/main-hot-springs-resort.jpg",
+      "search_query": "\"Ma'in Hot Springs Resort\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "Springs & Hot Waters",
-      "place": "Wadi Zarqa Ma'in Waterfall"
+      "place": "Wadi Zarqa Ma'in Waterfall",
+      "output": "assets/places/madaba/wadi-zarqa-main-waterfall.jpg",
+      "search_query": "\"Wadi Zarqa Ma'in Waterfall\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Madaba",
       "thread": "Springs & Hot Waters",
-      "place": "Hammamat Ma'in Natural Pools"
+      "place": "Hammamat Ma'in Natural Pools",
+      "output": "assets/places/madaba/hammamat-main-natural-pools.jpg",
+      "search_query": "\"Hammamat Ma'in Natural Pools\" Madaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Karak",
       "thread": "Crusader Stronghold",
-      "place": "Karak Castle (Crac des Moabites)"
+      "place": "Karak Castle (Crac des Moabites)",
+      "output": "assets/places/karak/karak-castle-crac-des-moabites.jpg",
+      "search_query": "\"Karak Castle (Crac des Moabites)\" Karak Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Karak",
       "thread": "Crusader Stronghold",
-      "place": "Karak Archaeological Museum"
+      "place": "Karak Archaeological Museum",
+      "output": "assets/places/karak/karak-archaeological-museum.jpg",
+      "search_query": "\"Karak Archaeological Museum\" Karak Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Karak",
       "thread": "Crusader Stronghold",
-      "place": "Umm al-Rasas (Kastron Mefa'a)"
+      "place": "Umm al-Rasas (Kastron Mefa'a)",
+      "output": "assets/places/karak/umm-al-rasas-kastron-mefaa.jpg",
+      "search_query": "\"Umm al-Rasas (Kastron Mefa'a)\" Karak Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Karak",
       "thread": "Crusader Stronghold",
-      "place": "Karak Plateau Viewpoint"
+      "place": "Karak Plateau Viewpoint",
+      "output": "assets/places/karak/karak-plateau-viewpoint.jpg",
+      "search_query": "\"Karak Plateau Viewpoint\" Karak Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Karak",
       "thread": "Mansaf & Moab Flavors",
-      "place": "Karak Central Market"
+      "place": "Karak Central Market",
+      "output": "assets/places/karak/karak-central-market.jpg",
+      "search_query": "\"Karak Central Market\" Karak Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Karak",
       "thread": "Mansaf & Moab Flavors",
-      "place": "Mansaf at a Family Home"
+      "place": "Mansaf at a Family Home",
+      "output": "assets/places/karak/mansaf-at-a-family-home.jpg",
+      "search_query": "\"Mansaf at a Family Home\" Karak Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Karak",
       "thread": "Mansaf & Moab Flavors",
-      "place": "Karak Honey Farm"
+      "place": "Karak Honey Farm",
+      "output": "assets/places/karak/karak-honey-farm.jpg",
+      "search_query": "\"Karak Honey Farm\" Karak Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Karak",
       "thread": "Mansaf & Moab Flavors",
-      "place": "Dhiban (Dibon) — Moabite Capital"
+      "place": "Dhiban (Dibon) — Moabite Capital",
+      "output": "assets/places/karak/dhiban-dibon-moabite-capital.jpg",
+      "search_query": "\"Dhiban (Dibon) — Moabite Capital\" Karak Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Karak",
       "thread": "Wadi Canyon Adventure",
-      "place": "Wadi Ibn Hammad Canyon"
+      "place": "Wadi Ibn Hammad Canyon",
+      "output": "assets/places/karak/wadi-ibn-hammad-canyon.jpg",
+      "search_query": "\"Wadi Ibn Hammad Canyon\" Karak Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Karak",
       "thread": "Wadi Canyon Adventure",
-      "place": "Lajjun Roman Fort"
+      "place": "Lajjun Roman Fort",
+      "output": "assets/places/karak/lajjun-roman-fort.jpg",
+      "search_query": "\"Lajjun Roman Fort\" Karak Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Karak",
       "thread": "Wadi Canyon Adventure",
-      "place": "Dana Biosphere Reserve (North Edge)"
+      "place": "Dana Biosphere Reserve (North Edge)",
+      "output": "assets/places/karak/dana-biosphere-reserve-north-edge.jpg",
+      "search_query": "\"Dana Biosphere Reserve (North Edge)\" Karak Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "The Seven World Wonder",
-      "place": "The Siq"
+      "place": "The Siq",
+      "output": "assets/places/maan/the-siq.jpg",
+      "search_query": "\"The Siq\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "The Seven World Wonder",
-      "place": "Al-Khazneh (The Treasury)"
+      "place": "Al-Khazneh (The Treasury)",
+      "output": "assets/places/maan/al-khazneh-the-treasury.jpg",
+      "search_query": "\"Al-Khazneh (The Treasury)\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "The Seven World Wonder",
-      "place": "Street of Facades & Royal Tombs"
+      "place": "Street of Facades & Royal Tombs",
+      "output": "assets/places/maan/street-of-facades-royal-tombs.jpg",
+      "search_query": "\"Street of Facades & Royal Tombs\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "The Seven World Wonder",
-      "place": "High Place of Sacrifice"
+      "place": "High Place of Sacrifice",
+      "output": "assets/places/maan/high-place-of-sacrifice.jpg",
+      "search_query": "\"High Place of Sacrifice\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "The Seven World Wonder",
-      "place": "Ad-Deir (The Monastery)"
+      "place": "Ad-Deir (The Monastery)",
+      "output": "assets/places/maan/ad-deir-the-monastery.jpg",
+      "search_query": "\"Ad-Deir (The Monastery)\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "Wadi Rum Adventure",
-      "place": "Wadi Rum Visitor Gate"
+      "place": "Wadi Rum Visitor Gate",
+      "output": "assets/places/maan/wadi-rum-visitor-gate.jpg",
+      "search_query": "\"Wadi Rum Visitor Gate\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "Wadi Rum Adventure",
-      "place": "Lawrence Spring"
+      "place": "Lawrence Spring",
+      "output": "assets/places/maan/lawrence-spring.jpg",
+      "search_query": "\"Lawrence Spring\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "Wadi Rum Adventure",
-      "place": "Khazali Canyon Inscriptions"
+      "place": "Khazali Canyon Inscriptions",
+      "output": "assets/places/maan/khazali-canyon-inscriptions.jpg",
+      "search_query": "\"Khazali Canyon Inscriptions\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "Wadi Rum Adventure",
-      "place": "Burdah Rock Bridge"
+      "place": "Burdah Rock Bridge",
+      "output": "assets/places/maan/burdah-rock-bridge.jpg",
+      "search_query": "\"Burdah Rock Bridge\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "Wadi Rum Adventure",
-      "place": "Bedouin Camp Under Stars"
+      "place": "Bedouin Camp Under Stars",
+      "output": "assets/places/maan/bedouin-camp-under-stars.jpg",
+      "search_query": "\"Bedouin Camp Under Stars\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "Little Petra & Bedouin Life",
-      "place": "Little Petra (Siq al-Barid)"
+      "place": "Little Petra (Siq al-Barid)",
+      "output": "assets/places/maan/little-petra-siq-al-barid.jpg",
+      "search_query": "\"Little Petra (Siq al-Barid)\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "Little Petra & Bedouin Life",
-      "place": "Al-Beidha Neolithic Village"
+      "place": "Al-Beidha Neolithic Village",
+      "output": "assets/places/maan/al-beidha-neolithic-village.jpg",
+      "search_query": "\"Al-Beidha Neolithic Village\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "Little Petra & Bedouin Life",
-      "place": "Bedouin Heritage Village"
+      "place": "Bedouin Heritage Village",
+      "output": "assets/places/maan/bedouin-heritage-village.jpg",
+      "search_query": "\"Bedouin Heritage Village\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Ma'an",
       "thread": "Little Petra & Bedouin Life",
-      "place": "Camel Ride through Wadi Araba"
+      "place": "Camel Ride through Wadi Araba",
+      "output": "assets/places/maan/camel-ride-through-wadi-araba.jpg",
+      "search_query": "\"Camel Ride through Wadi Araba\" Ma'an Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Al-Aqaba",
       "thread": "Bride of the Red Sea",
-      "place": "Aqaba Marine Park"
+      "place": "Aqaba Marine Park",
+      "output": "assets/places/al-aqaba/aqaba-marine-park.jpg",
+      "search_query": "\"Aqaba Marine Park\" Al-Aqaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Al-Aqaba",
       "thread": "Bride of the Red Sea",
-      "place": "Cedar Pride Wreck"
+      "place": "Cedar Pride Wreck",
+      "output": "assets/places/al-aqaba/cedar-pride-wreck.jpg",
+      "search_query": "\"Cedar Pride Wreck\" Al-Aqaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Al-Aqaba",
       "thread": "Bride of the Red Sea",
-      "place": "Japanese Garden Reef"
+      "place": "Japanese Garden Reef",
+      "output": "assets/places/al-aqaba/japanese-garden-reef.jpg",
+      "search_query": "\"Japanese Garden Reef\" Al-Aqaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Al-Aqaba",
       "thread": "Bride of the Red Sea",
-      "place": "Saudi Border Coral Gardens"
+      "place": "Saudi Border Coral Gardens",
+      "output": "assets/places/al-aqaba/saudi-border-coral-gardens.jpg",
+      "search_query": "\"Saudi Border Coral Gardens\" Al-Aqaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Al-Aqaba",
       "thread": "Port of History",
-      "place": "Aqaba Fort (Mamluk Castle)"
+      "place": "Aqaba Fort (Mamluk Castle)",
+      "output": "assets/places/al-aqaba/aqaba-fort-mamluk-castle.jpg",
+      "search_query": "\"Aqaba Fort (Mamluk Castle)\" Al-Aqaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Al-Aqaba",
       "thread": "Port of History",
-      "place": "Ayla — Early Islamic City"
+      "place": "Ayla — Early Islamic City",
+      "output": "assets/places/al-aqaba/ayla-early-islamic-city.jpg",
+      "search_query": "\"Ayla — Early Islamic City\" Al-Aqaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Al-Aqaba",
       "thread": "Port of History",
-      "place": "Aqaba Museum (Al-Hammamat)"
+      "place": "Aqaba Museum (Al-Hammamat)",
+      "output": "assets/places/al-aqaba/aqaba-museum-al-hammamat.jpg",
+      "search_query": "\"Aqaba Museum (Al-Hammamat)\" Al-Aqaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Al-Aqaba",
       "thread": "Port of History",
-      "place": "Aqaba Fish Market & Port"
+      "place": "Aqaba Fish Market & Port",
+      "output": "assets/places/al-aqaba/aqaba-fish-market-port.jpg",
+      "search_query": "\"Aqaba Fish Market & Port\" Al-Aqaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Al-Aqaba",
       "thread": "Desert to Sea",
-      "place": "Wadi Rum Desert Departure"
+      "place": "Wadi Rum Desert Departure",
+      "output": "assets/places/al-aqaba/wadi-rum-desert-departure.jpg",
+      "search_query": "\"Wadi Rum Desert Departure\" Al-Aqaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Al-Aqaba",
       "thread": "Desert to Sea",
-      "place": "Gulf of Aqaba Sunset Cruise"
+      "place": "Gulf of Aqaba Sunset Cruise",
+      "output": "assets/places/al-aqaba/gulf-of-aqaba-sunset-cruise.jpg",
+      "search_query": "\"Gulf of Aqaba Sunset Cruise\" Al-Aqaba Jordan",
+      "status": "pending"
     },
     {
       "governorate": "Al-Aqaba",
       "thread": "Desert to Sea",
-      "place": "South Beach Camping & Snorkeling"
+      "place": "South Beach Camping & Snorkeling",
+      "output": "assets/places/al-aqaba/south-beach-camping-snorkeling.jpg",
+      "search_query": "\"South Beach Camping & Snorkeling\" Al-Aqaba Jordan",
+      "status": "pending"
     }
-  ]
+  ],
+  "match_policy": "Prefer exact/strong landmark matches. Representative matches are explicitly marked for human review."
 }

@@ -4,8 +4,9 @@ import path from "node:path";
 const ROOT=process.cwd();
 const MF=path.join(ROOT,"docs","naseej-place-image-manifest.json");
 const API="https://api.openverse.org/v1/images/";
+const COMMONS_API="https://commons.wikimedia.org/w/api.php";
 const UA="NASEEJ/2.1 place-photo collector";
-const LICENSES=new Set(["cc0","by","by-sa","by-nc","by-nc-sa","publicdomain","pdm"]);
+const LICENSES=new Set(["cc0","by","by-sa","publicdomain","pdm","cc by","cc by-sa","public domain"]);
 const LICENSE_LABEL={cc0:"CC0",by:"CC BY","by-sa":"CC BY-SA","by-nc":"CC BY-NC","by-nc-sa":"CC BY-NC-SA",publicdomain:"Public Domain",pdm:"Public Domain Mark"};
 const BAD=/(logo|icon|flag|map|locator|diagram|scheme|coat of arms|symbol|illustration|watermark)/i;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -44,6 +45,28 @@ const GENERIC=/\b(the|a|an|among|trail|trail head|viewpoint|station|picnic|meado
   const cleaned=stripped.replace(GENERIC," ").replace(/\s+/g," ").trim();\n  const qs=[p+" "+g+" Jordan",stripped+" "+g+" Jordan",cleaned+" "+g+" Jordan",t+" "+g+" Jordan",g+" Jordan "+cleaned];
   return [...new Set(qs.filter(x=>x.trim().length>4))];
 }
+async function commonsSearch(q){
+  const u=COMMONS_API+"?"+new URLSearchParams({action:"query",list:"search",srnamespace:"6",srlimit:"12",srsearch:q,format:"json",origin:"*"});
+  const j=await (await request(u,{headers:{"Accept":"application/json"}})).json();
+  const hits=j?.query?.search||[];
+  if(!hits.length)return [];
+  const p=COMMONS_API+"?"+new URLSearchParams({
+    action:"query",pageids:hits.map(x=>x.pageid).join("|"),prop:"imageinfo",
+    iiprop:"url|mime|size|extmetadata",iiurlwidth:"1200",format:"json",origin:"*"
+  });
+  const d=await (await request(p,{headers:{"Accept":"application/json"}})).json();
+  return Object.values(d?.query?.pages||{}).map(x=>{
+    const i=x.imageinfo?.[0]||{},m=i.extmetadata||{};
+    const license=clean(m.LicenseShortName?.value||m.UsageTerms?.value).toLowerCase();
+    return {
+      id:String(x.pageid),title:x.title||"",description:clean(m.ImageDescription?.value||""),
+      alt_text:clean(m.ObjectName?.value||""),creator:clean(m.Artist?.value||m.Credit?.value||"Unknown"),
+      license,license_url:clean(m.LicenseUrl?.value||""),url:i.url||"",thumbnail:i.thumburl||"",
+      foreign_landing_url:"https://commons.wikimedia.org/wiki/"+encodeURIComponent((x.title||"").replace(/ /g,"_")),
+      provider:"wikimedia-commons",source:"Wikimedia Commons",width:i.width||0,height:i.height||0
+    };
+  });
+}
 async function search(q,source){
   const params={q,page_size:"20",mature:"false",format:"json",order_by:"relevance"};\n  if(source)params.source=source;\n  const u=API+"?"+new URLSearchParams(params);
   const j=await (await request(u,{headers:{"Accept":"application/json"}})).json();
@@ -67,13 +90,29 @@ async function collectOne(item){
     const rs=[];\n    for(const source of ["wikimedia","flickr",null]){\n      try{rs.push(...await search(q,source))}catch{}\n      if(rs.length>=20)break;\n      await sleep(150);\n    }
     for(const r of rs){
       if(!licenseOkay(r))continue;
-      if((r.width??0)<600||(r.height??0)<350)continue;
+      if((r.width??0)<400||(r.height??0)<250)continue;
       const u=candidateUrl(r);
       if(!u||BAD.test((r.title||"")+" "+(r.description||"")))continue;
       candidates.push({...r,_score:score(item,r)});
     }
     if(candidates.some(x=>x._score>=7))break;
     await sleep(250);
+  }
+  if(!candidates.length){
+    for(const q of queries(item).slice(0,3)){
+      try{
+        const rs=await commonsSearch(q);
+        for(const r of rs){
+          const lic=String(r.license||"").toLowerCase();
+          if(!licenseOkay(r))continue;
+          if((r.width||0)<400||(r.height||0)<250)continue;
+          if(BAD.test((r.title||"")+" "+(r.description||"")))continue;
+          candidates.push({...r,_score:score(item,r)});
+        }
+      }catch{}
+      if(candidates.length)break;
+      await sleep(150);
+    }
   }
   candidates.sort((a,b)=>b._score-a._score);
   for(const r of candidates.slice(0,12)){

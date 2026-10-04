@@ -8,7 +8,19 @@
       "place": "Umm Qais (Gadara)",
       "output": "assets/places/irbid/umm-qais-gadara.jpg",
       "search_query": "\"Umm Qais (Gadara)\" Irbid Jordan",
-      "status": "pending"
+      "status": "downloaded",
+      "match_level": "weak_representative",
+      "score": 3,
+      "review_required": true,
+      "commons_title": "File:2026 Gadara 01.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File%3A2026_Gadara_01.jpg",
+      "direct_url": "https://upload.wikimedia.org/wikipedia/commons/b/be/2026_Gadara_01.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "mime": "image/jpeg",
+      "width": 16320,
+      "height": 12240,
+      "license": "CC BY-SA 4.0",
+      "artist": "Mohammad hajeer",
+      "credit": "Own work"
     },
     {
       "governorate": "Irbid",
@@ -16,7 +28,19 @@
       "place": "Yarmouk River Gorge",
       "output": "assets/places/irbid/yarmouk-river-gorge.jpg",
       "search_query": "\"Yarmouk River Gorge\" Irbid Jordan",
-      "status": "pending"
+      "status": "downloaded",
+      "match_level": "weak_representative",
+      "score": 1,
+      "review_required": true,
+      "commons_title": "File:267-A5 08 Deraa 20000913.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File%3A267-A5_08_Deraa_20000913.jpg",
+      "direct_url": "https://upload.wikimedia.org/wikipedia/commons/2/25/267-A5_08_Deraa_20000913.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "mime": "image/jpeg",
+      "width": 3193,
+      "height": 1982,
+      "license": "CC BY-SA 4.0",
+      "artist": "MaltaGC (Nigel Tout)",
+      "credit": "Nigel Tout’s Website: Charter train between Daraa and the Yarmuk Gorge, Syria, 13/9/2000."
     },
     {
       "governorate": "Irbid",
@@ -24,7 +48,10 @@
       "place": "Beit Ras (Capitolias)",
       "output": "assets/places/irbid/beit-ras-capitolias.jpg",
       "search_query": "\"Beit Ras (Capitolias)\" Irbid Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "image HTTP 429"
     },
     {
       "governorate": "Irbid",
@@ -32,7 +59,19 @@
       "place": "Tell Irbid",
       "output": "assets/places/irbid/tell-irbid.jpg",
       "search_query": "\"Tell Irbid\" Irbid Jordan",
-      "status": "pending"
+      "status": "downloaded",
+      "match_level": "weak_representative",
+      "score": 1,
+      "review_required": true,
+      "commons_title": "File:An Iron Age II (1000 - 586 BCE) ceramic figurine of a seated pregnant female found at Tell es-Saidiyeh in the Jordan Valley Jordan Archaeological Museum.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File%3AAn_Iron_Age_II_(1000_-_586_BCE)_ceramic_figurine_of_a_seated_pregnant_female_found_at_Tell_es-Saidiyeh_in_the_Jordan_Valley_Jordan_Archaeological_Museum.jpg",
+      "direct_url": "https://upload.wikimedia.org/wikipedia/commons/7/75/An_Iron_Age_II_%281000_-_586_BCE%29_ceramic_figurine_of_a_seated_pregnant_female_found_at_Tell_es-Saidiyeh_in_the_Jordan_Valley_Jordan_Archaeological_Museum.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "mime": "image/jpeg",
+      "width": 1812,
+      "height": 2424,
+      "license": "CC BY 4.0",
+      "artist": "Allan Gluck",
+      "credit": "Allan Gluck"
     },
     {
       "governorate": "Irbid",
@@ -40,7 +79,10 @@
       "place": "Abila (Quwayliba)",
       "output": "assets/places/irbid/abila-quwayliba.jpg",
       "search_query": "\"Abila (Quwayliba)\" Irbid Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "image HTTP 429"
     },
     {
       "governorate": "Irbid",
@@ -48,7 +90,10 @@
       "place": "Yarmouk Trail Head",
       "output": "assets/places/irbid/yarmouk-trail-head.jpg",
       "search_query": "\"Yarmouk Trail Head\" Irbid Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Irbid",
@@ -56,7 +101,10 @@
       "place": "Basalt Canyon Viewpoint",
       "output": "assets/places/irbid/basalt-canyon-viewpoint.jpg",
       "search_query": "\"Basalt Canyon Viewpoint\" Irbid Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Irbid",
@@ -64,7 +112,10 @@
       "place": "Migratory Bird Watch Station",
       "output": "assets/places/irbid/migratory-bird-watch-station.jpg",
       "search_query": "\"Migratory Bird Watch Station\" Irbid Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Irbid",
@@ -72,7 +123,10 @@
       "place": "Riverside Picnic Meadow",
       "output": "assets/places/irbid/riverside-picnic-meadow.jpg",
       "search_query": "\"Riverside Picnic Meadow\" Irbid Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Irbid",
@@ -80,7 +134,10 @@
       "place": "Yarmouk University",
       "output": "assets/places/irbid/yarmouk-university.jpg",
       "search_query": "\"Yarmouk University\" Irbid Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Irbid",
@@ -88,7 +145,10 @@
       "place": "Irbid Central Souk",
       "output": "assets/places/irbid/irbid-central-souk.jpg",
       "search_query": "\"Irbid Central Souk\" Irbid Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Irbid",
@@ -96,7 +156,10 @@
       "place": "Irbid Archaeological Museum",
       "output": "assets/places/irbid/irbid-archaeological-museum.jpg",
       "search_query": "\"Irbid Archaeological Museum\" Irbid Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Irbid",
@@ -104,7 +167,10 @@
       "place": "Old Irbid Houses",
       "output": "assets/places/irbid/old-irbid-houses.jpg",
       "search_query": "\"Old Irbid Houses\" Irbid Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -112,7 +178,10 @@
       "place": "Ajloun Forest Reserve Gate",
       "output": "assets/places/ajloun/ajloun-forest-reserve-gate.jpg",
       "search_query": "\"Ajloun Forest Reserve Gate\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -120,7 +189,10 @@
       "place": "Mar Elias Byzantine Church",
       "output": "assets/places/ajloun/mar-elias-byzantine-church.jpg",
       "search_query": "\"Mar Elias Byzantine Church\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -128,7 +200,10 @@
       "place": "Ajloun Castle (Qal'at ar-Rabad)",
       "output": "assets/places/ajloun/ajloun-castle-qalat-ar-rabad.jpg",
       "search_query": "\"Ajloun Castle (Qal'at ar-Rabad)\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -136,7 +211,10 @@
       "place": "Ancient Olive Grove",
       "output": "assets/places/ajloun/ancient-olive-grove.jpg",
       "search_query": "\"Ancient Olive Grove\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -144,7 +222,10 @@
       "place": "Orjan Village & Local Feast",
       "output": "assets/places/ajloun/orjan-village-local-feast.jpg",
       "search_query": "\"Orjan Village & Local Feast\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -152,7 +233,10 @@
       "place": "Olive Grove Harvest",
       "output": "assets/places/ajloun/olive-grove-harvest.jpg",
       "search_query": "\"Olive Grove Harvest\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -160,7 +244,10 @@
       "place": "Traditional Oil Press (Mu'sara)",
       "output": "assets/places/ajloun/traditional-oil-press-musara.jpg",
       "search_query": "\"Traditional Oil Press (Mu'sara)\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -168,7 +255,10 @@
       "place": "Soap House Workshop",
       "output": "assets/places/ajloun/soap-house-workshop.jpg",
       "search_query": "\"Soap House Workshop\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -176,7 +266,10 @@
       "place": "Guesthouse Lunch with Fresh Oil",
       "output": "assets/places/ajloun/guesthouse-lunch-with-fresh-oil.jpg",
       "search_query": "\"Guesthouse Lunch with Fresh Oil\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -184,7 +277,10 @@
       "place": "Ajloun Forest Main Trail",
       "output": "assets/places/ajloun/ajloun-forest-main-trail.jpg",
       "search_query": "\"Ajloun Forest Main Trail\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -192,7 +288,10 @@
       "place": "Al-Ayal Women's Cooperative",
       "output": "assets/places/ajloun/al-ayal-womens-cooperative.jpg",
       "search_query": "\"Al-Ayal Women's Cooperative\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -200,7 +299,10 @@
       "place": "Eagle Viewpoint",
       "output": "assets/places/ajloun/eagle-viewpoint.jpg",
       "search_query": "\"Eagle Viewpoint\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ajloun",
@@ -208,7 +310,10 @@
       "place": "Woodland Lodge Night",
       "output": "assets/places/ajloun/woodland-lodge-night.jpg",
       "search_query": "\"Woodland Lodge Night\" Ajloun Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -216,7 +321,10 @@
       "place": "Hadrian's Arch",
       "output": "assets/places/jerash/hadrians-arch.jpg",
       "search_query": "\"Hadrian's Arch\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -224,7 +332,10 @@
       "place": "Oval Plaza (Forum)",
       "output": "assets/places/jerash/oval-plaza-forum.jpg",
       "search_query": "\"Oval Plaza (Forum)\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -232,7 +343,10 @@
       "place": "Temple of Artemis",
       "output": "assets/places/jerash/temple-of-artemis.jpg",
       "search_query": "\"Temple of Artemis\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -240,7 +354,10 @@
       "place": "Cardo Maximus",
       "output": "assets/places/jerash/cardo-maximus.jpg",
       "search_query": "\"Cardo Maximus\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -248,7 +365,10 @@
       "place": "South Theatre",
       "output": "assets/places/jerash/south-theatre.jpg",
       "search_query": "\"South Theatre\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -256,7 +376,10 @@
       "place": "Hippodrome",
       "output": "assets/places/jerash/hippodrome.jpg",
       "search_query": "\"Hippodrome\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -264,7 +387,10 @@
       "place": "Old City Souk",
       "output": "assets/places/jerash/old-city-souk.jpg",
       "search_query": "\"Old City Souk\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -272,7 +398,10 @@
       "place": "Birketein Ancient Reservoir",
       "output": "assets/places/jerash/birketein-ancient-reservoir.jpg",
       "search_query": "\"Birketein Ancient Reservoir\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -280,7 +409,10 @@
       "place": "Beit Jerash Heritage House",
       "output": "assets/places/jerash/beit-jerash-heritage-house.jpg",
       "search_query": "\"Beit Jerash Heritage House\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -288,7 +420,10 @@
       "place": "Craft Workshops Quarter",
       "output": "assets/places/jerash/craft-workshops-quarter.jpg",
       "search_query": "\"Craft Workshops Quarter\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -296,7 +431,10 @@
       "place": "Temple of Zeus",
       "output": "assets/places/jerash/temple-of-zeus.jpg",
       "search_query": "\"Temple of Zeus\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -304,7 +442,10 @@
       "place": "Nymphaeum Fountain",
       "output": "assets/places/jerash/nymphaeum-fountain.jpg",
       "search_query": "\"Nymphaeum Fountain\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -312,7 +453,10 @@
       "place": "Cathedral and Fountain Court",
       "output": "assets/places/jerash/cathedral-and-fountain-court.jpg",
       "search_query": "\"Cathedral and Fountain Court\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Jerash",
@@ -320,7 +464,10 @@
       "place": "Church of St. John the Baptist",
       "output": "assets/places/jerash/church-of-st-john-the-baptist.jpg",
       "search_query": "\"Church of St. John the Baptist\" Jerash Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -328,7 +475,10 @@
       "place": "Amman Citadel (Jabal al-Qal'a)",
       "output": "assets/places/amman/amman-citadel-jabal-al-qala.jpg",
       "search_query": "\"Amman Citadel (Jabal al-Qal'a)\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -336,7 +486,10 @@
       "place": "Temple of Hercules",
       "output": "assets/places/amman/temple-of-hercules.jpg",
       "search_query": "\"Temple of Hercules\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -344,7 +497,10 @@
       "place": "Umayyad Palace",
       "output": "assets/places/amman/umayyad-palace.jpg",
       "search_query": "\"Umayyad Palace\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -352,7 +508,10 @@
       "place": "Roman Theatre of Philadelphia",
       "output": "assets/places/amman/roman-theatre-of-philadelphia.jpg",
       "search_query": "\"Roman Theatre of Philadelphia\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -360,7 +519,10 @@
       "place": "Jordan Museum",
       "output": "assets/places/amman/jordan-museum.jpg",
       "search_query": "\"Jordan Museum\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -368,7 +530,10 @@
       "place": "Al-Balad Old City Market",
       "output": "assets/places/amman/al-balad-old-city-market.jpg",
       "search_query": "\"Al-Balad Old City Market\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -376,7 +541,10 @@
       "place": "Hashem Restaurant",
       "output": "assets/places/amman/hashem-restaurant.jpg",
       "search_query": "\"Hashem Restaurant\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -384,7 +552,10 @@
       "place": "Abu Jbara — Kanafeh",
       "output": "assets/places/amman/abu-jbara-kanafeh.jpg",
       "search_query": "\"Abu Jbara — Kanafeh\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -392,7 +563,10 @@
       "place": "King Faisal Street & Sweet Shops",
       "output": "assets/places/amman/king-faisal-street-sweet-shops.jpg",
       "search_query": "\"King Faisal Street & Sweet Shops\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -400,7 +574,10 @@
       "place": "Rainbow Street",
       "output": "assets/places/amman/rainbow-street.jpg",
       "search_query": "\"Rainbow Street\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -408,7 +585,10 @@
       "place": "Darat al Funun Art Centre",
       "output": "assets/places/amman/darat-al-funun-art-centre.jpg",
       "search_query": "\"Darat al Funun Art Centre\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -416,7 +596,10 @@
       "place": "Wild Jordan Center",
       "output": "assets/places/amman/wild-jordan-center.jpg",
       "search_query": "\"Wild Jordan Center\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Amman",
@@ -424,7 +607,10 @@
       "place": "Jabal Weibdeh Gallery Walk",
       "output": "assets/places/amman/jabal-weibdeh-gallery-walk.jpg",
       "search_query": "\"Jabal Weibdeh Gallery Walk\" Amman Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Dead Sea",
@@ -432,7 +618,10 @@
       "place": "Dead Sea Shore Float",
       "output": "assets/places/dead-sea/dead-sea-shore-float.jpg",
       "search_query": "\"Dead Sea Shore Float\" Dead Sea Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Dead Sea",
@@ -440,7 +629,19 @@
       "place": "Salt Crystal Formations",
       "output": "assets/places/dead-sea/salt-crystal-formations.jpg",
       "search_query": "\"Salt Crystal Formations\" Dead Sea Jordan",
-      "status": "pending"
+      "status": "downloaded",
+      "match_level": "exact_or_strong",
+      "score": 8,
+      "review_required": false,
+      "commons_title": "File:2010-06-17 14-39-03 Israel Dead Sea JH (52794201023).jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File%3A2010-06-17_14-39-03_Israel_Dead_Sea_JH_(52794201023).jpg",
+      "direct_url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/2010-06-17_14-39-03_Israel_Dead_Sea_JH_%2852794201023%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "mime": "image/jpeg",
+      "width": 4288,
+      "height": 2848,
+      "license": "CC0",
+      "artist": "Jan Helebrant",
+      "credit": "2010-06-17_14-39-03_Israel_Dead_Sea_JH"
     },
     {
       "governorate": "Dead Sea",
@@ -448,7 +649,19 @@
       "place": "Wadi Mujib Siq Trail",
       "output": "assets/places/dead-sea/wadi-mujib-siq-trail.jpg",
       "search_query": "\"Wadi Mujib Siq Trail\" Dead Sea Jordan",
-      "status": "pending"
+      "status": "downloaded",
+      "match_level": "representative",
+      "score": 5,
+      "review_required": true,
+      "commons_title": "File:20 Wadi Mujib Siq Trail - Water Flowing from the Wadi into the Dead Sea During a Flash Flood - panoramio.jpg",
+      "source_url": "https://commons.wikimedia.org/wiki/File%3A20_Wadi_Mujib_Siq_Trail_-_Water_Flowing_from_the_Wadi_into_the_Dead_Sea_During_a_Flash_Flood_-_panoramio.jpg",
+      "direct_url": "https://upload.wikimedia.org/wikipedia/commons/9/9a/20_Wadi_Mujib_Siq_Trail_-_Water_Flowing_from_the_Wadi_into_the_Dead_Sea_During_a_Flash_Flood_-_panoramio.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "mime": "image/jpeg",
+      "width": 2048,
+      "height": 799,
+      "license": "CC BY-SA 3.0",
+      "artist": "hikinginjordan",
+      "credit": "https://web.archive.org/web/20161028233517/http://www.panoramio.com/photo/94360469"
     },
     {
       "governorate": "Dead Sea",
@@ -456,7 +669,9 @@
       "place": "Lot's Pillar Viewpoint",
       "output": "assets/places/dead-sea/lots-pillar-viewpoint.jpg",
       "search_query": "\"Lot's Pillar Viewpoint\" Dead Sea Jordan",
-      "status": "pending"
+      "status": "no_image_found",
+      "match_level": "none",
+      "review_required": true
     },
     {
       "governorate": "Dead Sea",
@@ -464,7 +679,9 @@
       "place": "Dead Sea Mud Spa",
       "output": "assets/places/dead-sea/dead-sea-mud-spa.jpg",
       "search_query": "\"Dead Sea Mud Spa\" Dead Sea Jordan",
-      "status": "pending"
+      "status": "no_image_found",
+      "match_level": "none",
+      "review_required": true
     },
     {
       "governorate": "Dead Sea",
@@ -472,7 +689,10 @@
       "place": "Mineral Water Float",
       "output": "assets/places/dead-sea/mineral-water-float.jpg",
       "search_query": "\"Mineral Water Float\" Dead Sea Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Dead Sea",
@@ -480,7 +700,10 @@
       "place": "Sunset at Amman Beach",
       "output": "assets/places/dead-sea/sunset-at-amman-beach.jpg",
       "search_query": "\"Sunset at Amman Beach\" Dead Sea Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Dead Sea",
@@ -488,7 +711,10 @@
       "place": "Bethany Beyond the Jordan",
       "output": "assets/places/dead-sea/bethany-beyond-the-jordan.jpg",
       "search_query": "\"Bethany Beyond the Jordan\" Dead Sea Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Dead Sea",
@@ -496,7 +722,10 @@
       "place": "John the Baptist Churches",
       "output": "assets/places/dead-sea/john-the-baptist-churches.jpg",
       "search_query": "\"John the Baptist Churches\" Dead Sea Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Dead Sea",
@@ -504,7 +733,10 @@
       "place": "Lot's Cave & Sanctuary",
       "output": "assets/places/dead-sea/lots-cave-sanctuary.jpg",
       "search_query": "\"Lot's Cave & Sanctuary\" Dead Sea Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Dead Sea",
@@ -512,7 +744,10 @@
       "place": "Deir Ain Abata Monastery",
       "output": "assets/places/dead-sea/deir-ain-abata-monastery.jpg",
       "search_query": "\"Deir Ain Abata Monastery\" Dead Sea Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -520,7 +755,10 @@
       "place": "St. George's Church — Mosaic Map",
       "output": "assets/places/madaba/st-georges-church-mosaic-map.jpg",
       "search_query": "\"St. George's Church — Mosaic Map\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -528,7 +766,10 @@
       "place": "Madaba Archaeological Museum",
       "output": "assets/places/madaba/madaba-archaeological-museum.jpg",
       "search_query": "\"Madaba Archaeological Museum\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -536,7 +777,10 @@
       "place": "Church of the Apostles",
       "output": "assets/places/madaba/church-of-the-apostles.jpg",
       "search_query": "\"Church of the Apostles\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -544,7 +788,10 @@
       "place": "Madaba Arts & Crafts Village",
       "output": "assets/places/madaba/madaba-arts-crafts-village.jpg",
       "search_query": "\"Madaba Arts & Crafts Village\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -552,7 +799,10 @@
       "place": "Mosaic Making Workshop",
       "output": "assets/places/madaba/mosaic-making-workshop.jpg",
       "search_query": "\"Mosaic Making Workshop\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -560,7 +810,10 @@
       "place": "Mount Nebo — Moses Viewpoint",
       "output": "assets/places/madaba/mount-nebo-moses-viewpoint.jpg",
       "search_query": "\"Mount Nebo — Moses Viewpoint\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -568,7 +821,10 @@
       "place": "Memorial Church of Moses",
       "output": "assets/places/madaba/memorial-church-of-moses.jpg",
       "search_query": "\"Memorial Church of Moses\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -576,7 +832,10 @@
       "place": "Serpentine Cross (Brazen Serpent)",
       "output": "assets/places/madaba/serpentine-cross-brazen-serpent.jpg",
       "search_query": "\"Serpentine Cross (Brazen Serpent)\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -584,7 +843,10 @@
       "place": "Mukawir (Machaerus)",
       "output": "assets/places/madaba/mukawir-machaerus.jpg",
       "search_query": "\"Mukawir (Machaerus)\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -592,7 +854,10 @@
       "place": "Ma'in Hot Springs Resort",
       "output": "assets/places/madaba/main-hot-springs-resort.jpg",
       "search_query": "\"Ma'in Hot Springs Resort\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -600,7 +865,10 @@
       "place": "Wadi Zarqa Ma'in Waterfall",
       "output": "assets/places/madaba/wadi-zarqa-main-waterfall.jpg",
       "search_query": "\"Wadi Zarqa Ma'in Waterfall\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Madaba",
@@ -608,7 +876,10 @@
       "place": "Hammamat Ma'in Natural Pools",
       "output": "assets/places/madaba/hammamat-main-natural-pools.jpg",
       "search_query": "\"Hammamat Ma'in Natural Pools\" Madaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Karak",
@@ -616,7 +887,10 @@
       "place": "Karak Castle (Crac des Moabites)",
       "output": "assets/places/karak/karak-castle-crac-des-moabites.jpg",
       "search_query": "\"Karak Castle (Crac des Moabites)\" Karak Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Karak",
@@ -624,7 +898,10 @@
       "place": "Karak Archaeological Museum",
       "output": "assets/places/karak/karak-archaeological-museum.jpg",
       "search_query": "\"Karak Archaeological Museum\" Karak Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Karak",
@@ -632,7 +909,10 @@
       "place": "Umm al-Rasas (Kastron Mefa'a)",
       "output": "assets/places/karak/umm-al-rasas-kastron-mefaa.jpg",
       "search_query": "\"Umm al-Rasas (Kastron Mefa'a)\" Karak Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Karak",
@@ -640,7 +920,10 @@
       "place": "Karak Plateau Viewpoint",
       "output": "assets/places/karak/karak-plateau-viewpoint.jpg",
       "search_query": "\"Karak Plateau Viewpoint\" Karak Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Karak",
@@ -648,7 +931,10 @@
       "place": "Karak Central Market",
       "output": "assets/places/karak/karak-central-market.jpg",
       "search_query": "\"Karak Central Market\" Karak Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Karak",
@@ -656,7 +942,10 @@
       "place": "Mansaf at a Family Home",
       "output": "assets/places/karak/mansaf-at-a-family-home.jpg",
       "search_query": "\"Mansaf at a Family Home\" Karak Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Karak",
@@ -664,7 +953,10 @@
       "place": "Karak Honey Farm",
       "output": "assets/places/karak/karak-honey-farm.jpg",
       "search_query": "\"Karak Honey Farm\" Karak Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Karak",
@@ -672,7 +964,10 @@
       "place": "Dhiban (Dibon) — Moabite Capital",
       "output": "assets/places/karak/dhiban-dibon-moabite-capital.jpg",
       "search_query": "\"Dhiban (Dibon) — Moabite Capital\" Karak Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Karak",
@@ -680,7 +975,10 @@
       "place": "Wadi Ibn Hammad Canyon",
       "output": "assets/places/karak/wadi-ibn-hammad-canyon.jpg",
       "search_query": "\"Wadi Ibn Hammad Canyon\" Karak Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Karak",
@@ -688,7 +986,10 @@
       "place": "Lajjun Roman Fort",
       "output": "assets/places/karak/lajjun-roman-fort.jpg",
       "search_query": "\"Lajjun Roman Fort\" Karak Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Karak",
@@ -696,7 +997,10 @@
       "place": "Dana Biosphere Reserve (North Edge)",
       "output": "assets/places/karak/dana-biosphere-reserve-north-edge.jpg",
       "search_query": "\"Dana Biosphere Reserve (North Edge)\" Karak Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -704,7 +1008,10 @@
       "place": "The Siq",
       "output": "assets/places/maan/the-siq.jpg",
       "search_query": "\"The Siq\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -712,7 +1019,10 @@
       "place": "Al-Khazneh (The Treasury)",
       "output": "assets/places/maan/al-khazneh-the-treasury.jpg",
       "search_query": "\"Al-Khazneh (The Treasury)\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -720,7 +1030,10 @@
       "place": "Street of Facades & Royal Tombs",
       "output": "assets/places/maan/street-of-facades-royal-tombs.jpg",
       "search_query": "\"Street of Facades & Royal Tombs\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -728,7 +1041,10 @@
       "place": "High Place of Sacrifice",
       "output": "assets/places/maan/high-place-of-sacrifice.jpg",
       "search_query": "\"High Place of Sacrifice\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -736,7 +1052,10 @@
       "place": "Ad-Deir (The Monastery)",
       "output": "assets/places/maan/ad-deir-the-monastery.jpg",
       "search_query": "\"Ad-Deir (The Monastery)\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -744,7 +1063,10 @@
       "place": "Wadi Rum Visitor Gate",
       "output": "assets/places/maan/wadi-rum-visitor-gate.jpg",
       "search_query": "\"Wadi Rum Visitor Gate\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -752,7 +1074,10 @@
       "place": "Lawrence Spring",
       "output": "assets/places/maan/lawrence-spring.jpg",
       "search_query": "\"Lawrence Spring\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -760,7 +1085,10 @@
       "place": "Khazali Canyon Inscriptions",
       "output": "assets/places/maan/khazali-canyon-inscriptions.jpg",
       "search_query": "\"Khazali Canyon Inscriptions\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -768,7 +1096,10 @@
       "place": "Burdah Rock Bridge",
       "output": "assets/places/maan/burdah-rock-bridge.jpg",
       "search_query": "\"Burdah Rock Bridge\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -776,7 +1107,10 @@
       "place": "Bedouin Camp Under Stars",
       "output": "assets/places/maan/bedouin-camp-under-stars.jpg",
       "search_query": "\"Bedouin Camp Under Stars\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -784,7 +1118,10 @@
       "place": "Little Petra (Siq al-Barid)",
       "output": "assets/places/maan/little-petra-siq-al-barid.jpg",
       "search_query": "\"Little Petra (Siq al-Barid)\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -792,7 +1129,10 @@
       "place": "Al-Beidha Neolithic Village",
       "output": "assets/places/maan/al-beidha-neolithic-village.jpg",
       "search_query": "\"Al-Beidha Neolithic Village\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -800,7 +1140,10 @@
       "place": "Bedouin Heritage Village",
       "output": "assets/places/maan/bedouin-heritage-village.jpg",
       "search_query": "\"Bedouin Heritage Village\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Ma'an",
@@ -808,7 +1151,10 @@
       "place": "Camel Ride through Wadi Araba",
       "output": "assets/places/maan/camel-ride-through-wadi-araba.jpg",
       "search_query": "\"Camel Ride through Wadi Araba\" Ma'an Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Al-Aqaba",
@@ -816,7 +1162,10 @@
       "place": "Aqaba Marine Park",
       "output": "assets/places/al-aqaba/aqaba-marine-park.jpg",
       "search_query": "\"Aqaba Marine Park\" Al-Aqaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Al-Aqaba",
@@ -824,7 +1173,10 @@
       "place": "Cedar Pride Wreck",
       "output": "assets/places/al-aqaba/cedar-pride-wreck.jpg",
       "search_query": "\"Cedar Pride Wreck\" Al-Aqaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Al-Aqaba",
@@ -832,7 +1184,10 @@
       "place": "Japanese Garden Reef",
       "output": "assets/places/al-aqaba/japanese-garden-reef.jpg",
       "search_query": "\"Japanese Garden Reef\" Al-Aqaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Al-Aqaba",
@@ -840,7 +1195,10 @@
       "place": "Saudi Border Coral Gardens",
       "output": "assets/places/al-aqaba/saudi-border-coral-gardens.jpg",
       "search_query": "\"Saudi Border Coral Gardens\" Al-Aqaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Al-Aqaba",
@@ -848,7 +1206,10 @@
       "place": "Aqaba Fort (Mamluk Castle)",
       "output": "assets/places/al-aqaba/aqaba-fort-mamluk-castle.jpg",
       "search_query": "\"Aqaba Fort (Mamluk Castle)\" Al-Aqaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Al-Aqaba",
@@ -856,7 +1217,10 @@
       "place": "Ayla — Early Islamic City",
       "output": "assets/places/al-aqaba/ayla-early-islamic-city.jpg",
       "search_query": "\"Ayla — Early Islamic City\" Al-Aqaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Al-Aqaba",
@@ -864,7 +1228,10 @@
       "place": "Aqaba Museum (Al-Hammamat)",
       "output": "assets/places/al-aqaba/aqaba-museum-al-hammamat.jpg",
       "search_query": "\"Aqaba Museum (Al-Hammamat)\" Al-Aqaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Al-Aqaba",
@@ -872,7 +1239,10 @@
       "place": "Aqaba Fish Market & Port",
       "output": "assets/places/al-aqaba/aqaba-fish-market-port.jpg",
       "search_query": "\"Aqaba Fish Market & Port\" Al-Aqaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Al-Aqaba",
@@ -880,7 +1250,10 @@
       "place": "Wadi Rum Desert Departure",
       "output": "assets/places/al-aqaba/wadi-rum-desert-departure.jpg",
       "search_query": "\"Wadi Rum Desert Departure\" Al-Aqaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Al-Aqaba",
@@ -888,7 +1261,10 @@
       "place": "Gulf of Aqaba Sunset Cruise",
       "output": "assets/places/al-aqaba/gulf-of-aqaba-sunset-cruise.jpg",
       "search_query": "\"Gulf of Aqaba Sunset Cruise\" Al-Aqaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     },
     {
       "governorate": "Al-Aqaba",
@@ -896,7 +1272,10 @@
       "place": "South Beach Camping & Snorkeling",
       "output": "assets/places/al-aqaba/south-beach-camping-snorkeling.jpg",
       "search_query": "\"South Beach Camping & Snorkeling\" Al-Aqaba Jordan",
-      "status": "pending"
+      "status": "error",
+      "match_level": "none",
+      "review_required": true,
+      "error": "Commons API HTTP 429"
     }
   ],
   "match_policy": "Prefer exact/strong landmark matches. Representative matches are explicitly marked for human review."

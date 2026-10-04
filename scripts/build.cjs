@@ -139,6 +139,39 @@ function checkColorTokens() {
   return registered.size;
 }
 
+/* Recursive: assets/places/<destination>/ holds one file per waypoint, so a
+   checker that only listed the top level reported all 112 of those references
+   as missing and failed a build whose data was already correct. Paths come back
+   document-relative with forward slashes, the form data.js writes them in. */
+function walkFiles(dir) {
+  const out = [];
+  for (const name of fs.readdirSync(dir)) {
+    const file = path.join(dir, name);
+    if (fs.statSync(file).isDirectory()) out.push(...walkFiles(file));
+    else out.push(path.relative(ROOT, file).split(path.sep).join('/'));
+  }
+  return out;
+}
+
+/* Files that are on disk but must not be referenced: one file cannot be a unique
+   photograph of two places, so the duplicate-byte copies are kept for the record
+   and photo-manifest.json lists them by name. Everything non-image (the README,
+   the manifests, the incoming-photo checklist) is documentation rather than an
+   orphan, and warning about it would bury a real orphan in noise. */
+function intentionallyUnreferenced() {
+  const out = new Set();
+  const manifest = 'assets/places/photo-manifest.json';
+  if (!exists(manifest)) return out;
+  let parsed;
+  try {
+    parsed = JSON.parse(read(manifest));
+  } catch {
+    return out;
+  }
+  for (const rel of parsed.skipped_duplicate_byte_files || []) out.add(rel);
+  return out;
+}
+
 /* Asset paths live in data.js and in the renderers, so collect every
    "assets/..." string and confirm the file is on disk. */
 function checkAssets() {
@@ -147,19 +180,24 @@ function checkAssets() {
     errors.push('missing assets/ directory');
     return;
   }
-  const onDisk = new Set(fs.readdirSync(dir).map((f) => 'assets/' + f));
+  const onDisk = walkFiles(dir);
+  const present = new Set(onDisk);
   const seen = new Set();
   for (const rel of ['index.html', ...SCRIPTS]) {
     if (!exists(rel)) continue;
     for (const m of read(rel).matchAll(/["'](assets\/[^"']+)["']/g)) {
       const ref = m[1];
       seen.add(ref);
-      if (!onDisk.has(ref)) errors.push(rel + ' references a missing asset: ' + ref);
+      if (!present.has(ref)) errors.push(rel + ' references a missing asset: ' + ref);
     }
   }
-  const unused = [...onDisk].filter((f) => !seen.has(f));
-  for (const f of unused) warnings.push('unused asset (not referenced by any script): ' + f);
-  checkAssetTypes(dir);
+  const exempt = intentionallyUnreferenced();
+  for (const f of onDisk) {
+    if (seen.has(f) || exempt.has(f)) continue;
+    if (!IMAGE_EXT.test(path.extname(f))) continue;
+    warnings.push('unused asset (not referenced by any script): ' + f);
+  }
+  checkAssetTypes(onDisk);
 }
 
 /* Extension/content agreement.
@@ -183,24 +221,24 @@ const SIGNATURES = [
   { ext: '.svg', test: (b) => /<svg[\s>]/i.test(b.slice(0, 200).toString('utf8')) },
 ];
 
-function checkAssetTypes(dir) {
-  for (const name of fs.readdirSync(dir)) {
-    const file = path.join(dir, name);
-    if (!fs.statSync(file).isFile()) continue;
-    const ext = path.extname(name).toLowerCase();
+const IMAGE_EXT = /\.(png|jpg|jpeg|gif|webp|svg)$/i;
+
+function checkAssetTypes(relFiles) {
+  for (const rel of relFiles) {
+    const ext = path.extname(rel).toLowerCase();
     const known = SIGNATURES.find((s) => s.ext === ext);
     if (!known) continue; /* not an image type we can verify */
 
-    const buf = fs.readFileSync(file);
+    const buf = fs.readFileSync(path.join(ROOT, rel));
     const head = buf.slice(0, 120).toString('utf8');
     if (/^version https?:\/\/git-lfs\.github\.com\/spec\/v1/.test(head)) {
-      errors.push('assets/' + name + ' is an unresolved Git LFS pointer, not image data');
+      errors.push(rel + ' is an unresolved Git LFS pointer, not image data');
       continue;
     }
     if (!known.test(buf)) {
       const actual = SIGNATURES.find((s) => s.test(buf));
       errors.push(
-        'assets/' + name + ' does not contain ' + ext + ' data' + (actual ? ' — it looks like ' + actual.ext : '')
+        rel + ' does not contain ' + ext + ' data' + (actual ? ' — it looks like ' + actual.ext : '')
       );
     }
   }

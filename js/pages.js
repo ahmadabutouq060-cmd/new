@@ -21,13 +21,14 @@
      Unsplash stock presented as the waypoint, some showed the same photo
      through four URL parameters as if it were four shots.
 
-     photo is either { src, subject, scope } from data.photoFor — a genuine
-     local file — or null. Null never falls back to stock. It renders the
+     photo is either { src, subject, scope, kind } from data.photoFor /
+     data.waypointPhoto — a genuine local file, which may be a photograph or an
+     illustration — or null. Null never falls back to stock. It renders the
      placeholder, which states plainly that no verified photograph exists, and
-     the caption under a real photo says what the photo is of. Alt text
-     describes the subject rather than repeating the heading, and a decorative
-     duplicate is marked aria-hidden instead of being given a second identical
-     label for a screen reader to announce twice. */
+     the caption under a real image says what it is of and what kind it is. Alt
+     text describes the subject rather than repeating the heading, and a
+     decorative duplicate is marked aria-hidden instead of being given a second
+     identical label for a screen reader to announce twice. */
   function placeholder(kind, subject) {
     return '<div class="w-full h-full flex flex-col items-center justify-center gap-2 text-center p-6" ' +
       'style="background-color:#F4EFE6;border:1px dashed #C9BDA8" role="img" ' +
@@ -39,9 +40,27 @@
 
   function photoCaption(photo) {
     if (!photo) return '';
+    /* An illustration drawn for a place is not a photograph of it, and the
+       distinction is the whole point of this layer: the file itself says
+       "PLACE ILLUSTRATION · NOT A PHOTOGRAPH", so a caption that said
+       "Photograph of" would contradict the picture above it. */
+    if (photo.kind === 'placeholder') return 'Illustration of ' + E(photo.subject) + ' — not a photograph';
     return photo.scope === 'city'
       ? 'Photograph of ' + E(photo.subject) + ', Jordan'
       : 'Photograph of ' + E(photo.subject);
+  }
+
+  /* The honest label for a stop whose image is not a verified photograph of
+     that stop: an illustration made for it, a photograph of somewhere else on
+     the route, or nothing at all. Empty string when the stop really does have
+     its own photograph and needs no caveat. */
+  function stopMediaNote(stop, thread) {
+    const shot = data.waypointPhoto(stop);
+    if (shot) return shot.kind === 'placeholder' ? 'Illustration of ' + E(shot.subject) + ' — not a photograph' : '';
+    const elsewhere = data.photoFor(thread);
+    return elsewhere
+      ? 'Photograph of ' + E(elsewhere.subject) + ' — not this stop'
+      : 'No verified photograph of this stop yet';
   }
 
   /* The hero image of a card or a page. Falls back to the placeholder. */
@@ -729,6 +748,10 @@
     const progress = data.getThreadProgress(t);
     const hero = isHero(t);
     const n = wps.length;
+    /* Whether the selected stop's own image is a photograph of it, and the
+       label saying so when it is not. Read once: the badge and its condition
+       must not be able to disagree. */
+    const stopNote = stopMediaNote(sel, t);
     const pos = nodePaths[n] || nodePaths[5];
     const ps = svgPaths[n] || svgPaths[5];
     /* The mystery's stat row is live; every other thread keeps its static one. */
@@ -807,23 +830,21 @@
       '<div class="flex items-center gap-5 mt-2">' + legend + '</div></div></div></div>' +
 
       '<div class="col-span-4"><div class="rounded-2xl overflow-hidden" style="border:1px solid #E8E0D0">' +
-      /* Same validated path as the place page: a waypoint has no photo of its
-         own, so this is either a real local city file or the honest
-         placeholder. It used to hand-build {src: sel.image}, and since
-         waypoints carry no image field that rendered <img src="null"> — a torn
-         image icon on the thread page. photoCaption() labels the fallback as a
-         photograph of the city, not of the stop. */
+      /* Same validated path as the place page: a photograph of this stop, an
+         illustration drawn for it, a photograph of somewhere else on the route,
+         or the honest placeholder — and the badge says which. It used to
+         hand-build {src: sel.image}, which rendered <img src="null"> — a torn
+         image icon on the thread page — and then photoCaption() called
+         whatever it was handed a photograph. */
       '<div class="relative h-44">' + media(data.waypointPhoto(sel) || data.photoFor(t), sel.name) +
       '<div class="absolute inset-0" style="background:linear-gradient(to top, rgba(18,33,30,0.65), transparent)"></div>' +
       '<div class="absolute bottom-3 left-3"><span class="text-xs font-body px-2 py-0.5 rounded-full font-medium" style="background-color:rgba(249,247,243,0.9);color:#8C3211">' + E(sel.type) + '</span></div>' +
       (sel.status === 'active'
         ? '<div class="absolute top-3 right-3"><span class="text-xs font-body px-2 py-0.5 rounded-full font-semibold animate-pulse" style="background-color:#A23B17;color:white">● Active</span></div>'
         : '') +
-      (!data.waypointPhoto(sel)
+      (stopNote
         ? '<div class="absolute top-3 left-3 right-16"><span class="text-xs font-body px-2 py-0.5 rounded-full" style="background-color:rgba(18,33,30,0.82);color:#EDB99E">' +
-          (data.photoFor(t)
-            ? 'Photograph of ' + E(data.photoFor(t).subject) + ' — not this stop'
-            : 'No verified photograph of this stop yet') +
+          stopNote +
           '</span></div>'
         : '') +
       '</div>' +
@@ -882,17 +903,18 @@
        The gallery was four crops, saturations and brightness tweaks of the same
        file: same subject, same composition, four slots in the strip. It read as
        four views of the place and let the visitor step between them finding no
-       difference. With no verified waypoint photograph there is nothing to
-       page through, so the strip is gone and the single image carries the
-       caption. If a real set is ever added, the strip comes back — as distinct
+       difference. Every waypoint has at most one verified file, so there is
+       nothing to page through and the single image carries the caption. If a
+       real set is ever added, the strip comes back — as distinct
        photographs, which is the only version of it that was ever worth having. */
     const photo = data.waypointPhoto(wp) || data.photoFor(t);
-    const photoNote = data.waypointPhoto(wp)
-      ? ''
-      : '<div class="absolute bottom-4 left-4 right-4"><span class="text-xs font-body px-2.5 py-1 rounded-full" ' +
+    const note = stopMediaNote(wp, t);
+    const photoNote = note
+      ? '<div class="absolute bottom-4 left-4 right-4"><span class="text-xs font-body px-2.5 py-1 rounded-full" ' +
         'style="background-color:rgba(18,33,30,0.82);color:#EDB99E">' +
-        (photo ? 'Photograph of ' + E(photo.subject) + ' — no verified photo of this stop yet' : 'No verified photograph of this stop yet') +
-        '</span></div>';
+        note +
+        '</span></div>'
+      : '';
     /* Real coordinates or no map button. Never a guessed pin. */
     const coords = data.waypointCoords(wp);
     const mapsBtn = coords

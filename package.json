@@ -6,9 +6,11 @@
     "dev": "node scripts/serve.cjs",
     "build": "node scripts/build.cjs",
     "preview": "node scripts/serve.cjs",
-    "format": "oxfmt"
+    "format": "oxfmt",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-naseej \"node scripts/test-firestore-rules.mjs\""
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
     "oxfmt": "^0.2.0"
   }
 }

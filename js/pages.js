@@ -96,6 +96,7 @@
       el.className = 'flash flash-hidden';
     }, 3200);
   }
+  NASEEJ.toast = flash;
 
   /* Clipboard with a fallback for the browsers that refuse the async API
      outside a secure context, which includes a plain http:// LAN preview. */
@@ -747,11 +748,11 @@
     const done = data.getCompletedCount(t);
     const progress = data.getThreadProgress(t);
     const hero = isHero(t);
-    const n = wps.length;
     /* Whether the selected stop's own image is a photograph of it, and the
        label saying so when it is not. Read once: the badge and its condition
        must not be able to disagree. */
     const stopNote = stopMediaNote(sel, t);
+    const n = wps.length;
     const pos = nodePaths[n] || nodePaths[5];
     const ps = svgPaths[n] || svgPaths[5];
     /* The mystery's stat row is live; every other thread keeps its static one. */

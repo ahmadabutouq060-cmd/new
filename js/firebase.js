@@ -187,7 +187,10 @@
       .then(function (res) {
         return res.json().then(
           function (data) {
-            return data && data.error ? data.error.message || '' : '';
+            if (data && data.error) return data.error.message || '';
+            /* The legacy endpoint can report a healthy project without exposing
+               enabled providers. Let the Auth SDK make the final determination. */
+            return '';
           },
           function () {
             return '';

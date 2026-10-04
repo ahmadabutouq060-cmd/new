@@ -28,13 +28,11 @@ jobs:
           path: collected
           merge-multiple: true
 
-      - name: Restore downloaded images
-        run: |
-          rm -rf assets/places
-          mkdir -p assets/places
-          if [ -d collected/assets/places ]; then
-            cp -R collected/assets/places/. assets/places/
-          fi
+      - name: Merge shard manifests and images
+        run: node scripts/merge-naseej-place-image-shards.mjs
+
+      - name: Wire verified photos into the site
+        run: node scripts/wire-waypoint-images.cjs
 
       - name: Make standalone zip bundle
         run: |
@@ -47,7 +45,7 @@ jobs:
         run: |
           git config user.name "NASEEJ Photo Importer"
           git config user.email "actions@users.noreply.github.com"
-          git add assets/places downloads/NASEEJ-place-images.zip
+          git add assets/places docs/naseej-place-image-manifest.json downloads/NASEEJ-place-images.zip js/data.js
           if git diff --cached --quiet; then
             echo "No downloaded images to import."
             exit 0

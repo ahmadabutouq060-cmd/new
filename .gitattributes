@@ -113,6 +113,8 @@
 *.stl                filter=lfs diff=lfs merge=lfs -text
 *.nc                 filter=lfs diff=lfs merge=lfs -text
 *.mat                filter=lfs diff=lfs merge=lfs -text
+# NASEEJ place photos are committed as normal Git blobs so Firebase Hosting receives the actual image bytes.
+assets/places/** -filter -diff -merge -text
 assets/places/irbid/umm-qais-gadara.jpg !text !filter !merge !diff
 assets/places/dead-sea/salt-crystal-formations.jpg !text !filter !merge !diff
 assets/places/irbid/yarmouk-river-gorge.jpg !text !filter !merge !diff

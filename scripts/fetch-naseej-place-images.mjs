@@ -101,17 +101,17 @@ let nextIndex=0;
 async function runOne(i){
   const item=source.places[i];
   const r=await resolve(item);
-  const rel=\`assets/places/\${slug(item.governorate)}/\${slug(item.place)}.jpg\`;
+  const rel=`assets/places/${slug(item.governorate)}/${slug(item.place)}.jpg`;
   const abs=path.join(ROOT,rel);
 
   if(!r){
     results[i]={governorate:item.governorate,thread:item.thread,place:item.place,status:'NO_MATCH',match_type:'missing',photo_path:null,source_url:null,license:null,author:null};
-    console.log(\`[\${i+1}/\${source.places.length}] NO MATCH — \${item.place}\`);
+    console.log(`[${i+1}/${source.places.length}] NO MATCH — ${item.place}`);
     return;
   }
 
   const info=r.p.imageinfo[0],md=info.extmetadata||{};
-  const sourceUrl=\`https://commons.wikimedia.org/wiki/\${encodeURIComponent(r.p.title.replace(/ /g,'_'))}\`;
+  const sourceUrl=`https://commons.wikimedia.org/wiki/${encodeURIComponent(r.p.title.replace(/ /g,'_'))}`;
   const author=clean(md.Artist?.value||md.Credit?.value);
   const license=clean(md.LicenseShortName?.value||md.UsageTerms?.value);
 
@@ -125,7 +125,7 @@ async function runOne(i){
   await fs.writeFile(abs,Buffer.from(await img.arrayBuffer()));
   results[i]={governorate:item.governorate,thread:item.thread,place:item.place,status:'DOWNLOADED',match_type:r.exact?'exact':'contextual',photo_path:rel,source_url:sourceUrl,license,author,commons_file:r.p.title,search_query:r.q};
   downloaded++;
-  console.log(\`[\${i+1}/\${source.places.length}] \${r.exact?'EXACT':'CONTEXTUAL'} — \${item.place}\`);
+  console.log(`[${i+1}/${source.places.length}] ${r.exact?'EXACT':'CONTEXTUAL'} — ${item.place}`);
   await sleep(100);
 }
 
@@ -135,7 +135,7 @@ async function worker(){
     if(i>=source.places.length)return;
     try{await runOne(i);}catch(e){
       results[i]={governorate:source.places[i].governorate,thread:source.places[i].thread,place:source.places[i].place,status:'ERROR',match_type:'missing',photo_path:null,source_url:null,license:null,author:null,error:String(e?.message||e)};
-      console.log(\`[\${i+1}/\${source.places.length}] ERROR — \${source.places[i].place}\`);
+      console.log(`[${i+1}/${source.places.length}] ERROR — ${source.places[i].place}`);
     }
   }
 }
@@ -152,4 +152,4 @@ await fs.writeFile(OUT_MANIFEST,JSON.stringify({
   missing:finalResults.filter(x=>x.status!=='DOWNLOADED').length,
   results:finalResults
 },null,2));
-console.log(\`Done: \${downloaded}/\${source.places.length} downloaded.\`);
+console.log(`Done: ${downloaded}/${source.places.length} downloaded.`);

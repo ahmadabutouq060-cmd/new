@@ -347,11 +347,21 @@
   });
 
   /* ── Account document ──────────────────────────────────────────────────────
-     Firebase Auth is the identity. The weaver document is the progress. Guest
-     play stays on the local snapshot until a Google session exists. */
+     Firebase Auth is the identity. The weaver's documents under users/{uid} are
+     the progress. Guest play stays on the local snapshot until a Google session
+     exists — see syncUser(), which is the only writer of session.profile's
+     identity fields.
+
+     Persistence is one debounced writer rather than a write per interaction, and
+     it is a *push* of whatever data.js currently holds: syncAccount() merges and
+     de-duplicates every part of itself, so calling it again costs nothing and no
+     caller has to track what has already reached Firestore. Reads happen exactly
+     once per sign-in, because applyAccountBundle() also unions rather than
+     replaces — which is what makes the migration safe to run on every visit. */
   let accountUid = null;
   let accountGen = 0;
   let saveTimer = null;
+  let syncInFlight = null;
   const SAVE_WAIT = 400;
 
   function memberSinceLabel(user) {
@@ -364,31 +374,67 @@
     return months[d.getMonth()] + ' ' + d.getFullYear();
   }
 
-  function weaverFields(user, bag) {
-    const payload = bag || (NASEEJ.data && NASEEJ.data.accountPayload && NASEEJ.data.accountPayload());
+  function identityFields(user) {
     const me = NASEEJ.session.profile;
     return {
-      email: (user && user.email) || '',
       displayName: (user && user.displayName) || me.displayName || '',
+      email: (user && user.email) || '',
       photoURL: (user && user.photoURL) || me.avatarUrl || '',
       memberSince: me.memberSince || memberSinceLabel(user),
-      createdAt: user && user.metadata && user.metadata.creationTime
-        ? Date.parse(user.metadata.creationTime) || Date.now()
-        : Date.now(),
-      progress: payload.progress,
-      wishlist: payload.wishlist || {},
-      redemptions: payload.redemptions || {},
+      verified: !!me.verified,
     };
   }
 
-  function queueCloudSave(bag) {
-    if (!accountUid || !services || typeof services.saveWeaver !== 'function') return;
+  /* Identity comes from the Google session, never from the document, so an old
+     name in the cloud cannot outlive the account that had it. */
+  function withIdentity(bundle, user) {
+    const identity = identityFields(user);
+    bundle.profile = Object.assign({}, bundle.profile, identity);
+    bundle.email = identity.email;
+    return bundle;
+  }
+
+  function queueCloudSave() {
+    if (!accountUid || !services || typeof services.syncAccount !== 'function') return;
     const uid = accountUid;
     const user = auth.user;
     window.clearTimeout(saveTimer);
     saveTimer = window.setTimeout(function () {
-      services.saveWeaver(uid, weaverFields(user, bag));
+      runSync(uid, user);
     }, SAVE_WAIT);
+  }
+
+  /* One sync at a time. Progress changes arrive faster than Firestore answers —
+     a challenge can pay three rewards in one tap — and stacking runs would put
+     the same reward through several transactions for no benefit. So a save
+     requested while one is in flight is coalesced into a single follow-up. */
+  function runSync(uid, user) {
+    if (!uid || uid !== accountUid) return Promise.resolve({ status: 'skipped' });
+    if (syncInFlight) {
+      syncInFlight.coalesced = true;
+      return syncInFlight.promise;
+    }
+    const data = NASEEJ.data;
+    if (!data || typeof data.accountBundle !== 'function') return Promise.resolve({ status: 'skipped' });
+
+    const task = { coalesced: false, promise: null };
+    const send = function () {
+      return services.syncAccount(uid, withIdentity(data.accountBundle(), user));
+    };
+    task.promise = Promise.resolve()
+      .then(send)
+      .then(function (result) {
+        syncInFlight = null;
+        if (task.coalesced) return runSync(uid, user);
+        return result;
+      })
+      .catch(function (err) {
+        syncInFlight = null;
+        console.warn('Naseej: account sync failed (' + (err && err.message) + ').');
+        return { status: 'error', message: services.describeError(err) };
+      });
+    syncInFlight = task;
+    return task.promise;
   }
 
   function detachAccount() {
@@ -396,6 +442,7 @@
     accountUid = null;
     window.clearTimeout(saveTimer);
     saveTimer = null;
+    syncInFlight = null;
     if (NASEEJ.data && typeof NASEEJ.data.setCloudWriter === 'function') {
       NASEEJ.data.setCloudWriter(null);
     }
@@ -404,6 +451,10 @@
     }
   }
 
+  /* Sign-in reads the account, merges it into the session, and then pushes the
+     merged result back. The push is what migrates: local progress is uploaded
+     exactly once because every part of the sync is idempotent, and a reward that
+     is already in the ledger is not written again. */
   function attachAccount(user) {
     accountGen += 1;
     const gen = accountGen;
@@ -412,29 +463,65 @@
       NASEEJ.data.setCloudWriter(queueCloudSave);
     }
 
-    return services.loadWeaver(user.uid).then(function (remote) {
-      if (gen !== accountGen) return;
-      const hasCloud = !!(remote && remote.progress);
-      const localAt = (NASEEJ.data && NASEEJ.data.lastSavedAt) ? NASEEJ.data.lastSavedAt() : 0;
-      const cloudAt = (remote && (remote.updatedAt || (remote.progress && remote.progress.savedAt))) || 0;
-      /* Cloud wins across devices. Local wins only when this browser has a
-         newer snapshot (refresh before a debounced write landed). */
-      if (hasCloud && cloudAt >= localAt && NASEEJ.data && typeof NASEEJ.data.applyAccountState === 'function') {
-        NASEEJ.data.applyAccountState(remote);
+    return services.loadUserProgress(user.uid).then(function (loaded) {
+      if (gen !== accountGen) return null;
+      const cloud = loaded && loaded.status === 'success' ? loaded.bundle : null;
+      if (!cloud) {
+        /* Unreachable Firestore is not a broken sign-in: the session keeps the
+           progress this browser already had and the writer will push it when the
+           connection returns. */
+        return null;
       }
-      if (NASEEJ.session && NASEEJ.session.profile) {
-        const me = NASEEJ.session.profile;
-        if (remote && remote.memberSince) me.memberSince = remote.memberSince;
-        else if (!me.memberSince) me.memberSince = memberSinceLabel(user);
+      const data = NASEEJ.data;
+
+      /* An account created by the earlier build has one weavers/{uid} document
+         and nothing under users/{uid}. Read it once, on the way in, and let the
+         normal merge carry it across — the alternative is a weaver who already
+         uploaded progress arriving on the new model with an empty account. */
+      if (!cloud.exists) {
+        return services.loadWeaver(user.uid).then(function (legacy) {
+          if (gen !== accountGen) return null;
+          if (legacy) applyLegacy(legacy);
+          return finishLoad(gen, user, cloud);
+        });
       }
-      /* First visit creates the document from this browser's session; later
-         visits refresh identity fields and keep progress in sync. */
-      return services.saveWeaver(user.uid, weaverFields(user));
+      return finishLoad(gen, user, cloud);
     }).then(function () {
       if (gen !== accountGen) return;
       if (typeof NASEEJ.paint === 'function') NASEEJ.paint();
       if (auth.open) render();
     });
+  }
+
+  function finishLoad(gen, user, cloud) {
+    if (gen !== accountGen) return null;
+    const data = NASEEJ.data;
+    if (data && typeof data.applyAccountBundle === 'function') {
+      data.applyAccountBundle(cloud, {});
+    }
+    if (NASEEJ.session && NASEEJ.session.profile) {
+      const me = NASEEJ.session.profile;
+      if (cloud.profile && cloud.profile.memberSince) me.memberSince = cloud.profile.memberSince;
+      else if (!me.memberSince) me.memberSince = memberSinceLabel(user);
+    }
+    /* Push the merged result, which both creates the document for a first
+       visitor and uploads whatever this browser had that the cloud was missing. */
+    return runSync(user.uid, user);
+  }
+
+  /* The legacy shape was one document holding the whole local snapshot. Feeding
+     it through the normal merge is what makes this a migration rather than a
+     second code path: the same validation, the same reward de-duplication, the
+     same "never lower a real total" rule. */
+  function applyLegacy(legacy) {
+    const data = NASEEJ.data;
+    if (!data) return;
+    if (legacy.progress) {
+      data.applyAccountState({ progress: legacy.progress, wishlist: legacy.wishlist, redemptions: legacy.redemptions });
+    }
+    if (legacy.displayName && !NASEEJ.session.profile.memberSince) {
+      NASEEJ.session.profile.memberSince = legacy.memberSince || null;
+    }
   }
 
   /* ── Auth state ──────────────────────────────────────────────────────────────

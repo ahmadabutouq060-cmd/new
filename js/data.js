@@ -1635,6 +1635,26 @@
     secret: 250,
   };
 
+  /* What paid a reward. `type` is the kind the product pays; `source` is the
+     interaction that caused it. Both are closed sets, so the security rules can
+     validate them against a literal list instead of trusting a free string —
+     which is the difference between "a reward row" and "whatever was posted". */
+  const REWARD_SOURCES = {
+    challenge: 'challenge_answer',
+    clue: 'clue_unlock',
+    chapter: 'chapter_reached',
+    reveal: 'thread_reveal',
+    secret: 'secret_challenge',
+  };
+
+  /* Firestore document ids may not contain '/', nor be '.' or '..'. Every part
+     of a reward key is an integer, a declared chapter key or a declared secret
+     id, so the key is already safe — sanitising here means a future non-numeric
+     key cannot produce a write that silently lands in a parent document. */
+  function docSafe(value) {
+    return String(value == null ? '' : value).replace(/[^A-Za-z0-9_-]/g, '_');
+  }
+
   /* ── Levels ───────────────────────────────────────────────────────────────
      The profile used to carry a hard-coded levelName / levelProgress /
      pointsToNextLevel, so earning the mystery's 500-point reveal left the level
@@ -3068,6 +3088,18 @@
     saveProgress: saveProgress,
     hydrateProgress: hydrateProgress,
     accountPayload: accountPayload,
+    /* The normalised cloud model. Read by js/firebase.js's writer, written by
+       its reader — data.js keeps the transport out of this file entirely. */
+    accountBundle: accountBundle,
+    applyAccountBundle: applyAccountBundle,
+    rewardRows: rewardRows,
+    rewardTotal: rewardLedgerTotal,
+    progressRows: progressRows,
+    mysteryRows: mysteryRows,
+    secretRows: secretRows,
+    redeemedTotal: redeemedTotal,
+    rewardSources: REWARD_SOURCES,
+    docSafe: docSafe,
     setCloudWriter: setCloudWriter,
     applyAccountState: applyAccountState,
     restoreGuestSession: restoreGuestSession,
@@ -3435,11 +3467,506 @@
     }
   }
 
+  /* ── Normalised cloud model ─────────────────────────────────────────────────
+     The snapshot above is one document, which is the right shape for one
+     browser. Firestore wants the same facts as documents a query can address,
+     because the reward ledger only works if a reward is a *row keyed by a
+     deterministic id*: a second grant for the same (thread, waypoint, kind)
+     becomes literally the same document rather than a second row to reconcile
+     afterwards.
+
+     Export is derived entirely from state that already exists — `awarded` is
+     the authority for what has been paid, and the amounts come out of the ATHAR
+     table — so exporting cannot invent a payout. Import is the only place a
+     remote value can enter, and it merges rather than replaces: progress
+     unions, ATHAR only ever grows, and a row that does not name something the
+     product actually has is discarded rather than believed.
+
+     This section reads and writes NASEEJ.session and nothing else. It has no
+     network access, which is what keeps it testable in Node and keeps data.js
+     a pure domain layer; js/firebase.js owns the transport and js/auth.js
+     decides when to call either side. */
+
+  /* t{threadId}_{kind}_{key} — the whole point of the model. Waypoint ids are
+     numbered 1..n per thread, so the thread id has to be in the key: 'challenge
+     waypoint 2' in two threads is two different rewards, and without the thread
+     one of them would be silently swallowed. */
+  function rewardUniqueKey(threadId, kind, key) {
+    return 't' + threadId + '_' + kind + '_' + docSafe(key);
+  }
+
+  /* The clue a reward was earned by. Clues declare the interaction that opens
+     them and only that interaction can, so this is declared data rather than a
+     guess. Chapter awards name the waypoint that carries the chapter. */
+  function clueSourceWaypoint(thread, clueId) {
+    const clues = (thread && thread.clues) || [];
+    for (let i = 0; i < clues.length; i++) {
+      if (clues[i].id !== clueId) continue;
+      const unlock = clues[i].unlock || {};
+      return unlock.waypoint != null ? unlock.waypoint : null;
+    }
+    return null;
+  }
+
+  function chapterSourceWaypoint(thread, chapterKey) {
+    const waypoints = (thread && thread.waypoints) || [];
+    for (let i = 0; i < waypoints.length; i++) {
+      if (waypoints[i].chapterKey === chapterKey) return waypoints[i].id;
+    }
+    return null;
+  }
+
+  /* One ledger entry -> one reward row, or null when the entry does not
+     describe a reward the product pays. `amount` is read from the ATHAR table
+     and never from the map: what `awarded` stores is a marker that this was
+     granted, not a price. */
+  function buildRewardRow(threadId, entryKey) {
+    const parts = String(entryKey).split(':');
+    const kind = parts[0];
+    const key = parts.slice(1).join(':');
+    if (!ATHAR[kind] || !REWARD_SOURCES[kind]) return null;
+    if (!threadsById[threadId]) return null;
+
+    const row = {
+      uniqueKey: rewardUniqueKey(threadId, kind, key),
+      entryKey: kind + ':' + key,
+      type: kind,
+      source: REWARD_SOURCES[kind],
+      threadId: threadId,
+      waypointId: null,
+      challengeId: null,
+      clueId: null,
+      chapterKey: null,
+      secretId: null,
+      amount: ATHAR[kind],
+    };
+
+    if (kind === 'challenge') {
+      if (!isFiniteNumber(+key)) return null;
+      const wp = findWaypoint(threadsById[threadId].waypoints || [], +key);
+      if (!wp) return null;
+      row.waypointId = wp.id;
+      row.challengeId = 't' + threadId + '_w' + wp.id;
+    } else if (kind === 'clue') {
+      if (!clueById(threadsById[threadId], +key)) return null;
+      row.clueId = +key;
+      row.waypointId = clueSourceWaypoint(threadsById[threadId], +key);
+    } else if (kind === 'chapter') {
+      if (!chapterSourceWaypoint(threadsById[threadId], key)) return null;
+      row.chapterKey = key;
+      row.waypointId = chapterSourceWaypoint(threadsById[threadId], key);
+    } else if (kind === 'reveal') {
+      row.challengeId = 't' + threadId + '_final';
+    } else if (kind === 'secret') {
+      const secret = heroSecret(threadsById[threadId]);
+      if (!secret || secret.id !== key) return null;
+      row.secretId = secret.id;
+    }
+    return row;
+  }
+
+  /* Every reward this weaver holds, as rows ready to write. Sorted so two
+     exports of the same state are byte-identical, which is what lets a caller
+     diff a local bundle against a cloud one instead of guessing. */
+  function rewardRows() {
+    const rows = [];
+    const seen = {};
+    for (const tid in NASEEJ.session.mystery) {
+      const record = NASEEJ.session.mystery[tid];
+      if (!record || !record.awarded) continue;
+      for (const entryKey in record.awarded) {
+        const row = buildRewardRow(+tid, entryKey);
+        if (!row || seen[row.uniqueKey]) continue;
+        seen[row.uniqueKey] = true;
+        rows.push(row);
+      }
+    }
+    rows.sort(function (a, b) {
+      return a.uniqueKey < b.uniqueKey ? -1 : a.uniqueKey > b.uniqueKey ? 1 : 0;
+    });
+    return rows;
+  }
+
+  function rewardLedgerTotal(rows) {
+    const list = rows || rewardRows();
+    let total = 0;
+    for (let i = 0; i < list.length; i++) total += list[i].amount;
+    return total;
+  }
+
+  function redeemedTotal() {
+    const log = NASEEJ.session.redemptions || {};
+    let spent = 0;
+    for (const id in log) {
+      /* Only a claim whose cost matches the reward's current price counts, the
+         same check cleanRedemptions applies on the way in. */
+      const reward = rewardById(id);
+      const entry = log[id];
+      if (!reward || !entry || entry.cost !== reward.points) continue;
+      spent += reward.points;
+    }
+    return spent;
+  }
+
+  /* ── Progress rows ─────────────────────────────────────────────────────────
+     One row per completed waypoint plus one per thread, because "which stop did
+     I finish" and "how far through the thread am I" are different questions and
+     the profile renders both. */
+  function progressRows() {
+    const rows = [];
+    const seen = {};
+
+    const push = function (threadId, waypointId, metadata) {
+      if (!threadsById[threadId]) return;
+      const id = waypointId == null
+        ? 't' + threadId + '_progress'
+        : 't' + threadId + '_w' + docSafe(waypointId);
+      if (seen[id]) return;
+      seen[id] = true;
+      rows.push({
+        id: id,
+        threadId: threadId,
+        waypointId: waypointId == null ? null : waypointId,
+        completed: true,
+        completedAt: Date.now(),
+        metadata: metadata || {},
+      });
+    };
+
+    const keys = NASEEJ.session.completedWaypointKeys || {};
+    for (const tid in keys) {
+      const list = keys[tid] || [];
+      for (let i = 0; i < list.length; i++) {
+        const wp = findWaypoint(threadsById[tid] ? threadsById[tid].waypoints || [] : [], list[i]);
+        /* A key naming a waypoint that is not in its thread would let a remote
+           document invent progress on content the product does not have. */
+        if (!wp) continue;
+        push(+tid, wp.id, {
+          chapter: wp.chapterKey || null,
+          name: wp.name || null,
+        });
+      }
+      push(+tid, null, { progressPercent: NASEEJ.session.threadProgress[tid] || 0 });
+    }
+
+    /* Bare ids are not thread-scoped — they match a waypoint id in any thread.
+       Attaching one to every thread that has a waypoint with that id is the
+       only honest reading, and it is why this set is normally empty: only the
+       living-mystery thread writes completed progress. */
+    const bare = NASEEJ.session.completedWaypointIds || [];
+    for (let i = 0; i < bare.length; i++) {
+      for (const tid in threadsById) {
+        const wp = findWaypoint(threadsById[tid].waypoints || [], bare[i]);
+        if (!wp) continue;
+        push(+tid, wp.id, { name: wp.name || null });
+      }
+    }
+    return rows;
+  }
+
+  function mysteryRows() {
+    const rows = [];
+    for (const tid in NASEEJ.session.mystery) {
+      const record = NASEEJ.session.mystery[tid];
+      const thread = threadsById[tid];
+      if (!record || !thread || !isHeroThread(thread)) continue;
+      /* Only solved interactions are exported. A wrong answer is deliberately
+         kept in memory and never persisted, so there is nothing to carry. */
+      const answers = {};
+      for (const wpId in record.answers) {
+        if (record.answers[wpId] && record.answers[wpId].correct) {
+          answers[wpId] = record.answers[wpId].optionId;
+        }
+      }
+      const observations = {};
+      for (const wpId in record.observations) {
+        if (record.observations[wpId]) observations[wpId] = record.observations[wpId];
+      }
+      rows.push({
+        id: String(threadIdOf(thread)),
+        threadId: threadIdOf(thread),
+        choices: {
+          branch: record.branch || null,
+          answers: answers,
+          observations: observations,
+        },
+        currentChapter: currentChapter(thread),
+        clues: (record.clues || []).slice(),
+        completed: (record.completed || []).slice(),
+        reveal: !!record.reveal,
+        progressPercent: NASEEJ.session.threadProgress[tid] || 0,
+        athar: earnedAthar(threadIdOf(thread)),
+        updatedAt: Date.now(),
+      });
+    }
+    return rows;
+  }
+
+  function secretRows() {
+    const rows = [];
+    for (const tid in NASEEJ.session.mystery) {
+      const record = NASEEJ.session.mystery[tid];
+      const secret = heroSecret(threadsById[tid]);
+      if (!record || !secret) continue;
+      rows.push({
+        id: String(tid) + '_' + docSafe(secret.id),
+        threadId: +tid,
+        completed: !!record.secret,
+        rewardGranted: !!record.secret,
+        optionId: record.secret || null,
+        completedAt: record.secret ? Date.now() : null,
+      });
+    }
+    return rows;
+  }
+
+  /* The whole cloud model for the current weaver. `athar` is the total ever
+     earned (a ledger sum), never the held balance: the balance can fall when a
+     reward is redeemed, and the security rules require this figure to be
+     monotonic. `atharBase` is the balance a weaver already held before this
+     build existed — the demo weaver starts with one — and it is written once,
+     at migration, which is the only reason it exists at all. */
+  function accountBundle() {
+    const rewards = rewardRows();
+    const ledger = rewardLedgerTotal(rewards);
+    const spent = redeemedTotal();
+    /* What the weaver held before this build paid anything: the balance, plus
+       whatever has since been spent back out of it, minus the ledger. Spending
+       has to be added back here, or redeeming a reward would quietly shrink the
+       base and the balance would not come back to where it started. */
+    const base = Math.max(0, NASEEJ.session.points + spent - ledger);
+    const earned = base + ledger;
+    const badges = [];
+    for (let i = 0; i < profileBadges.length; i++) {
+      if (profileBadges[i].earned) badges.push(profileBadges[i].id);
+    }
+    return {
+      schema: 1,
+      savedAt: Date.now(),
+      athar: earned,
+      ledgerAthar: ledger,
+      spentAthar: spent,
+      atharBase: base,
+      points: NASEEJ.session.points,
+      atharPeak: Math.max(NASEEJ.session.atharPeak || 0, earned),
+      profile: {
+        displayName: NASEEJ.session.profile.displayName,
+        email: '',
+        photoURL: NASEEJ.session.profile.avatarUrl,
+        memberSince: NASEEJ.session.profile.memberSince,
+        verified: !!NASEEJ.session.profile.verified,
+      },
+      badges: badges,
+      wishlist: cloneJson(NASEEJ.session.wishlist),
+      redemptions: cloneJson(NASEEJ.session.redemptions),
+      progress: progressRows(),
+      rewards: rewards,
+      mysteries: mysteryRows(),
+      secrets: secretRows(),
+    };
+  }
+
+  /* ── Import ─────────────────────────────────────────────────────────────────
+     Merges a cloud bundle into the session. Nothing here replaces local state
+     with remote state: completion unions, a mystery takes the union of its
+     solved interactions, and the balance comes from the ledger so a stale
+     `points` field can never lower a real total.
+
+     Every incoming reward is rebuilt through buildRewardRow, which checks the
+     kind, the amount and the thread/waypoint/clue against the product data.
+     That is what stops a hand-written document from becoming ATHAR: the shape
+     has to name a reward this build actually pays. */
+  function mergeRewards(remoteRows) {
+    const merged = {};
+    const local = rewardRows();
+    for (let i = 0; i < local.length; i++) merged[local[i].uniqueKey] = local[i];
+
+    const added = [];
+    for (let i = 0; i < (remoteRows || []).length; i++) {
+      const doc = remoteRows[i];
+      if (!doc || typeof doc !== 'object') continue;
+      /* The document id is the uniqueKey, so a document that disagrees with its
+         own path is not one this client wrote. */
+      if (doc.id && doc.uniqueKey && doc.id !== doc.uniqueKey) continue;
+      const row = buildRewardRow(doc.threadId, doc.entryKey);
+      if (!row || merged[row.uniqueKey]) continue;
+      merged[row.uniqueKey] = row;
+      added.push(row);
+    }
+    return { merged: merged, added: added };
+  }
+
+  /* Writing a ledger back into session.mystery, one entry per reward, through
+     the same map awardAthar() uses — so a remote award and a local one are the
+     same state, not two shapes of the same thing. */
+  function applyRewardLedger(merged) {
+    for (const tid in NASEEJ.session.mystery) {
+      const record = NASEEJ.session.mystery[tid];
+      if (record && record.awarded) record.awarded = {};
+    }
+    for (const key in merged) {
+      const row = merged[key];
+      mysteryRecord(row.threadId).awarded[row.entryKey] = row.amount;
+    }
+  }
+
+  function mergeProgress(remoteRows) {
+    let touched = [];
+    for (let i = 0; i < (remoteRows || []).length; i++) {
+      const row = remoteRows[i];
+      if (!row || !row.completed) continue;
+      const tid = row.threadId;
+      if (!threadsById[tid]) continue;
+      if (row.waypointId != null) {
+        const wp = findWaypoint(threadsById[tid].waypoints || [], row.waypointId);
+        /* A completed waypoint must exist in the thread it claims to belong to.
+           Without this a single document could complete anything. */
+        if (!wp) continue;
+        const keys = heroKeys(tid);
+        if (keys.indexOf(wp.id) < 0) keys.push(wp.id);
+        const record = mysteryRecord(tid);
+        if (record.completed.indexOf(wp.id) < 0) record.completed.push(wp.id);
+        touched.push(tid);
+        continue;
+      }
+      const pct = row.metadata && row.metadata.progressPercent;
+      if (isFiniteNumber(pct) && pct >= 0 && pct <= 100) {
+        const current = NASEEJ.session.threadProgress[tid];
+        if (typeof current !== 'number' || pct > current) {
+          NASEEJ.session.threadProgress[tid] = Math.round(pct);
+        }
+      }
+    }
+    return touched;
+  }
+
+  function mergeMysteries(remoteRows) {
+    for (let i = 0; i < (remoteRows || []).length; i++) {
+      const doc = remoteRows[i];
+      if (!doc || !threadsById[doc.threadId]) continue;
+      if (!isHeroThread(threadsById[doc.threadId])) continue;
+      const record = mysteryRecord(doc.threadId);
+      const choices = doc.choices || {};
+
+      if (typeof choices.branch === 'string' && branchOption(threadsById[doc.threadId], choices.branch)) {
+        /* A path is chosen once. A document cannot switch it. */
+        if (!record.branch) record.branch = choices.branch;
+      }
+      const answers = choices.answers || {};
+      for (const wpId in answers) {
+        const wp = findWaypoint(threadsById[doc.threadId].waypoints || [], +wpId);
+        if (!wp || record.answers[wp.id]) continue;
+        record.answers[wp.id] = { optionId: String(answers[wpId]), correct: true };
+      }
+      const observations = choices.observations || {};
+      for (const wpId in observations) {
+        const wp = findWaypoint(threadsById[doc.threadId].waypoints || [], +wpId);
+        if (!wp || record.observations[wp.id]) continue;
+        record.observations[wp.id] = String(observations[wp.id]);
+      }
+      if (Array.isArray(doc.clues)) {
+        for (let c = 0; c < doc.clues.length; c++) {
+          const clueId = +doc.clues[c];
+          if (clueById(threadsById[doc.threadId], clueId) && record.clues.indexOf(clueId) < 0) {
+            record.clues.push(clueId);
+          }
+        }
+      }
+      /* reveal is never taken from a document: it is recomputed by maybeReveal()
+         from the state above, which is the only thing that can open it. That is
+         what stops a single hand-written document from reading the ending, and
+         it is also what reopens it on a second device — the ledger already
+         carries the reveal reward, so the recomputation pays nothing twice. */
+      syncHeroProgress(doc.threadId);
+      maybeReveal(doc.threadId);
+    }
+  }
+
+  function mergeSecrets(remoteRows) {
+    for (let i = 0; i < (remoteRows || []).length; i++) {
+      const doc = remoteRows[i];
+      if (!doc || !doc.completed || !threadsById[doc.threadId]) continue;
+      const secret = heroSecret(threadsById[doc.threadId]);
+      if (!secret || doc.id !== String(doc.threadId) + '_' + docSafe(secret.id)) continue;
+      const record = mysteryRecord(doc.threadId);
+      if (!record.secret) record.secret = String(doc.optionId || secret.quiz.correct);
+      earnSecretBadge();
+    }
+  }
+
+  /* Apply a cloud bundle. Returns what the merge added, so the caller can push
+     the new rows back rather than guessing which ones Firestore was missing.
+     Never lowers a balance: the merged ledger plus what has been spent is a
+     floor, and any locally-held excess is kept on top. */
+  function applyAccountBundle(remote, opts) {
+    if (!remote) return null;
+    const options = opts || {};
+    suppressCloud = true;
+    try {
+      restoreGuestSeed({ keepProfile: true });
+
+      const rewards = mergeRewards(remote.rewards);
+      applyRewardLedger(rewards.merged);
+
+      const touched = mergeProgress(remote.progress);
+      mergeMysteries(remote.mysteries);
+      mergeSecrets(remote.secrets);
+
+      if (remote.wishlist) {
+        const wishlist = cleanWishlist(remote.wishlist);
+        if (wishlist) {
+          for (const id in wishlist) NASEEJ.session.wishlist[id] = true;
+        }
+      }
+      if (remote.redemptions) {
+        const redemptions = cleanRedemptions(remote.redemptions);
+        if (redemptions) {
+          for (const id in redemptions) {
+            if (!NASEEJ.session.redemptions[id]) NASEEJ.session.redemptions[id] = redemptions[id];
+          }
+        }
+      }
+
+      /* The balance is derived, never copied: the ledger is what was paid, the
+         claim log is what was spent, and the base is what a weaver held before
+         any of it. The base is the larger of the cloud's and the local one —
+         it is written once, at migration, so a higher local figure means this
+         browser has something the account has never seen, not that the account
+         lost anything. */
+      const ledgerTotal = rewardLedgerTotal(rewardRows());
+      const localBase = Math.max(0, NASEEJ.session.points + redeemedTotal() - ledgerTotal);
+      const base = Math.max(isFiniteNumber(remote.atharBase) ? remote.atharBase : 0, localBase);
+      const derived = base + ledgerTotal - redeemedTotal();
+      const held = NASEEJ.session.points;
+      NASEEJ.session.points = Math.max(derived, isFiniteNumber(held) ? held : 0);
+      noteAtharEarned(NASEEJ.session.points);
+      if (isFiniteNumber(remote.atharPeak) && remote.atharPeak > NASEEJ.session.atharPeak) {
+        NASEEJ.session.atharPeak = remote.atharPeak;
+      }
+      for (const tid in NASEEJ.session.threadProgress) syncHeroProgress(+tid);
+      syncHeroProgress(HERO_THREAD_ID);
+      heroJourneyEntry(HERO_THREAD_ID);
+
+      return {
+        rewards: rewards.added,
+        threads: touched,
+        atharBase: base,
+        pending: rewards.added,
+      };
+    } finally {
+      suppressCloud = false;
+    }
+  }
+
   function accountPayload() {
     return {
+      /* The legacy single-document shape is still produced: an account that has
+         not migrated yet, or a Firestore outage, must not depend on the new
+         model being readable. */
       progress: captureProgressSnapshot(),
       wishlist: NASEEJ.session.wishlist,
       redemptions: NASEEJ.session.redemptions,
+      bundle: accountBundle(),
     };
   }
 

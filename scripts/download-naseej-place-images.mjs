@@ -4,14 +4,14 @@ import path from "node:path";
 const ROOT=process.cwd();
 const MF=path.join(ROOT,"docs","naseej-place-image-manifest.json");
 const OUT=path.join(ROOT,"assets","places","photo-manifest.json");
-const UA="NASEEJ/1.2 place-photo collector";
-const COMMONS_FILE="https://commons.wikimedia.org/wiki/File:";
-const RASTER=new Set(["image/jpeg","image/png","image/webp"]);
-const BAD=/(logo|icon|flag|map|locator|diagram|scheme|coat of arms|symbol|illustration)/i;
-const LICENSES=["CC0 1.0","CC BY 4.0","CC BY-SA 4.0","CC BY 3.0","CC BY-SA 3.0","CC BY 2.0","CC BY-SA 2.0","Public domain","public domain"];
+const API="https://api.openverse.org/v1/images/";
+const UA="NASEEJ/2.0 place-photo collector";
+const LICENSES=new Set(["cc0","by","by-sa","publicdomain"]);
+const LICENSE_LABEL={cc0:"CC0",by:"CC BY", "by-sa":"CC BY-SA",publicdomain:"Public Domain"};
+const BAD=/(logo|icon|flag|map|locator|diagram|scheme|coat of arms|symbol|illustration|watermark)/i;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
-async function request(url,opts={},attempts=4){
+async function request(url,opts={},attempts=5){
   let last;
   for(let i=0;i<attempts;i++){
     try{
@@ -20,118 +20,91 @@ async function request(url,opts={},attempts=4){
       last=new Error("HTTP "+r.status);
       if(![429,500,502,503,504].includes(r.status))break;
     }catch(e){last=e}
-    await sleep(2000*(i+1));
+    await sleep(1500*(i+1));
   }
   throw last||new Error("request failed");
 }
-async function getJson(url){
-  const r=await request(url,{headers:{"Accept":"application/json"}},4);
-  return r.json();
-}
-async function getText(url){return (await request(url,{},4)).text()}
-
-function wikiCandidates(item){
-  const p=item.place;
-  const stripped=p.replace(/\([^)]*\)/g,"").replace(/\s*[—-]\s*.*$/,"").replace(/\s*&\s*.*$/,"").trim();
-  return [...new Set([
-    p,stripped,
-    stripped+" Jordan",
-    p.replace(/\([^)]*\)/g,"").trim()
-  ].filter(Boolean))];
-}
-function imageFromSummary(j){
-  const t=j?.thumbnail;
-  const o=j?.originalimage;
-  const u=t?.source || o?.source;
-  if(!u || !u.includes("upload.wikimedia.org") || BAD.test(u))return null;
-  return {url:u,width:t?.width||o?.width||0,height:t?.height||o?.height||0,original:o?.source||u};
-}
-async function licenseForImage(imageUrl){
-  try{
-    const file=decodeURIComponent(new URL(imageUrl).pathname.split("/").pop());
-    const html=await getText(COMMONS_FILE+encodeURIComponent(file));
-    const lower=html.toLowerCase();
-    for(const lic of LICENSES){
-      if(lower.includes(lic.toLowerCase()))return {
-        license:lic,
-        source_url:COMMONS_FILE+encodeURIComponent(file),
-        commons_title:"File:"+file
-      };
-    }
-  }catch{}
-  return null;
-}
-function contextualCandidates(item){
-  const p=item.place.toLowerCase(),g=item.governorate,t=item.thread,c=[];
-  const add=x=>{if(x&&x.length>4&&!c.includes(x))c.push(x)};
-  add(p+" "+g+" Jordan"); add(t+" "+g+" Jordan");
-  let s=p.replace(/\([^)]*\)/g,"")
-    .replace(/\b(trail|trail head|viewpoint|station|picnic|meadow|grove|harvest|oil press|soap|workshop|guesthouse|lunch|main trail|eagle|woodland|lodge|heritage|craft|restaurant|market|sunset|float|spa|natural pools|visitor gate|camp|cruise|camping|snorkeling|departure|under stars|family home|honey farm)\b/gi," ")
-    .replace(/\s+/g," ").trim();
-  add(s+" "+g+" Jordan"); add(g+" Jordan "+t);
-  return c;
-}
-async function commonsSearch(q){
-  try{
-    const url="https://commons.wikimedia.org/w/api.php?"+new URLSearchParams({
-      action:"query",generator:"search",gsrnamespace:"6",gsrsearch:q,gsrlimit:"5",
-      prop:"imageinfo",iiprop:"url|mime|size|extmetadata",iiurlwidth:"1200",format:"json"
-    });
-    const j=await getJson(url); return Object.values(j?.query?.pages??{});
-  }catch{return []}
-}
-function scorePage(item,p){
-  const title=(p?.title??"").toLowerCase();
-  const desc=String(p?.imageinfo?.[0]?.extmetadata?.ImageDescription?.value??"").replace(/<[^>]+>/g,"").toLowerCase();
-  const all=title+" "+desc; let s=0;
-  for(const w of item.place.toLowerCase().replace(/\([^)]*\)/g,"").split(/\s+/).filter(x=>x.length>3))
-    if(all.includes(w))s+=w.length>=6?3:1;
-  if(all.includes(item.governorate.toLowerCase()))s++;
-  if(BAD.test(title))s-=20;
+function clean(s){return String(s??"").replace(/<[^>]+>/g,"").trim()}
+function words(s){return s.toLowerCase().replace(/\([^)]*\)/g,"").replace(/[—&]/g," ").split(/\s+/).filter(x=>x.length>2)}
+function score(item,r){
+  const all=(clean(r.title)+" "+clean(r.description)+" "+clean(r.alt_text)+" "+(r.tags||[]).map(x=>typeof x==="string"?x:x?.name||"").join(" ")).toLowerCase();
+  let s=0;
+  for(const w of words(item.place)) if(all.includes(w)) s+=w.length>=6?3:1;
+  const g=item.governorate.toLowerCase().replace("al-","");
+  if(all.includes(g))s+=2;
+  if(BAD.test(all))s-=20;
+  if(r.watermarked===true)s-=20;
   return s;
 }
-async function saveImage(url,out){
-  const r=await request(url,{headers:{"Accept":"image/avif,image/webp,image/apng,image/*,*/*;q=0.8"}},5);
-  const b=Buffer.from(await r.arrayBuffer());
+function queries(item){
+  const p=item.place, g=item.governorate, t=item.thread;
+  const q1=p+" "+g+" Jordan";
+  const stripped=p.replace(/\([^)]*\)/g,"").replace(/\s*[—-]\s*.*$/,"").replace(/\s*&\s*.*$/,"").trim();
+  const q2=stripped+" "+g+" Jordan";
+  const q3=t+" "+g+" Jordan";
+  return [...new Set([q1,q2,q3])];
+}
+async function search(q){
+  const u=API+"?"+new URLSearchParams({
+    q,page_size:"20",license:"cc0,by,by-sa,publicdomain",mature:"false",
+    format:"json"
+  });
+  const j=await (await request(u,{headers:{"Accept":"application/json"}})).json();
+  return j?.results??[];
+}
+function licenseOkay(r){return LICENSES.has(String(r.license??"").toLowerCase())}
+function imageUrl(r){return r.url||r.thumbnail||null}
+async function save(url,out){
+  const res=await request(url,{headers:{"Accept":"image/avif,image/webp,image/apng,image/*,*/*;q=0.8"}},5);
+  const b=Buffer.from(await res.arrayBuffer());
   if(b.length<20000)throw new Error("image payload too small");
   await fs.writeFile(out,b);
-  return {mime:r.headers.get("content-type")||"image/jpeg",bytes:b.length};
+  return res.headers.get("content-type")||"image/jpeg";
 }
 async function collectOne(item){
   const out=path.join(ROOT,item.output);
   await fs.mkdir(path.dirname(out),{recursive:true});
 
-  for(const title of wikiCandidates(item)){
-    try{
-      const j=await getJson("https://en.wikipedia.org/api/rest_v1/page/summary/"+encodeURIComponent(title));
-      const img=imageFromSummary(j);
-      if(!img||img.width<300||img.height<200)continue;
-      const lic=await licenseForImage(img.url);
-      if(!lic)continue;
-      const useUrl=img.url;
-      const saved=await saveImage(useUrl,out);
-      return {
-        ...item,status:"downloaded",match_level:"wiki_exact_or_strong",
-        review_required:false,...lic,direct_url:useUrl,mime:saved.mime,
-        width:img.width,height:img.height,
-        source_page:"https://en.wikipedia.org/wiki/"+encodeURIComponent(title.replaceAll(" ","_"))
-      };
-    }catch{}
+  const candidates=[];
+  for(const q of queries(item)){
+    const rs=await search(q);
+    for(const r of rs){
+      if(!licenseOkay(r))continue;
+      if((r.width??0)<800 || (r.height??0)<450)continue;
+      const u=imageUrl(r);
+      if(!u || BAD.test((r.title||"")+" "+(r.description||"")))continue;
+      candidates.push({...r,_score:score(item,r)});
+    }
+    if(candidates.some(x=>x._score>=5))break;
+    await sleep(700);
   }
-
-  for(const q of contextualCandidates(item)){
-    const pages=(await commonsSearch(q)).filter(p=>{
-      const i=p?.imageinfo?.[0];
-      return i&&RASTER.has(i.mime)&&!BAD.test(p.title??"")&&(i.width??0)>=900&&(i.height??0)>=500;
-    }).sort((a,b)=>scorePage(item,b)-scorePage(item,a));
-    if(!pages.length)continue;
-    const best=pages[0],sc=scorePage(item,best),lic=await licenseForImage(best.imageinfo[0].url);
-    if(!lic||sc<3)continue;
+  candidates.sort((a,b)=>b._score-a._score);
+  for(const r of candidates.slice(0,8)){
     try{
-      const saved=await saveImage(best.imageinfo[0].url,out);
-      return {...item,status:"downloaded",match_level:sc>=7?"commons_exact_or_strong":"commons_representative",
-        review_required:sc<7,score:sc,...lic,direct_url:best.imageinfo[0].url,
-        mime:saved.mime,width:best.imageinfo[0].width,height:best.imageinfo[0].height};
+      let contentType;
+      try{contentType=await save(r.url,out)}catch{if(r.thumbnail&&r.thumbnail!==r.url)contentType=await save(r.thumbnail,out);else continue}
+      const sc=r._score;
+      return {
+        ...item,
+        status:"downloaded",
+        match_level:sc>=7?"exact_or_strong":sc>=4?"representative":"weak_representative",
+        review_required:sc<7,
+        match_score:sc,
+        title:r.title||"",
+        license:r.license==="publicdomain"?"Public Domain":(LICENSE_LABEL[r.license]||r.license),
+        license_code:r.license,
+        license_version:r.license_version||"N/A",
+        creator:r.creator||"Unknown",
+        source:r.source||r.provider||"Openverse",
+        provider:r.provider||"",
+        source_url:r.foreign_landing_url||r.source_url||"",
+        direct_url:r.url||r.thumbnail,
+        thumbnail_url:r.thumbnail||"",
+        mime:contentType,
+        width:r.width||null,
+        height:r.height||null,
+        openverse_url:"https://openverse.org/image/"+r.id
+      };
     }catch{}
   }
   return {...item,status:"no_safe_image_found",match_level:"none",review_required:true};
@@ -142,14 +115,14 @@ const results=[];
 for(const item of source.places){
   const r=await collectOne(item).catch(e=>({...item,status:"error",match_level:"none",review_required:true,error:String(e?.message||e)}));
   results.push(r);
-  console.log(r.governorate+" / "+r.place+" -> "+r.status);
-  await sleep(1500);
+  console.log(r.governorate+" / "+r.place+" -> "+r.status+" / "+(r.match_level||""));
+  await sleep(1200);
 }
 await fs.mkdir(path.dirname(OUT),{recursive:true});
 await fs.writeFile(OUT,JSON.stringify({
   generated_at:new Date().toISOString(),
-  source:"Wikimedia Commons images discovered via Wikipedia/Commons",
-  policy:"Only Wikimedia Commons images with a detected reusable license are downloaded. Exact/strong matches are preferred; representative matches are explicitly marked for review.",
+  source:"Openverse (openly licensed media index)",
+  policy:"Only CC0/Public Domain/CC BY/CC BY-SA results are downloaded. Openverse itself warns that license metadata should be independently verified; each entry includes the original source landing page and license for review.",
   count:results.length,
   downloaded:results.filter(x=>x.status==="downloaded").length,
   no_image:results.filter(x=>x.status!=="downloaded").length,
@@ -160,4 +133,4 @@ source.places=source.places.map(p=>{
   return r?{...p,...r}:p;
 });
 await fs.writeFile(MF,JSON.stringify(source,null,2));
-console.log("DONE processed="+results.length+" downloaded="+results.filter(x=>x.status==="downloaded").length+" needs_review/no_image="+results.filter(x=>x.status!=="downloaded").length);
+console.log("DONE processed="+results.length+" downloaded="+results.filter(x=>x.status==="downloaded").length+" no_image="+results.filter(x=>x.status!=="downloaded").length);

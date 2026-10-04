@@ -1,0 +1,48 @@
+name: Import NASEEJ photo bundle
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/import-naseej-artifacts.yml"
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download successful photo shards
+        uses: actions/download-artifact@v4
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          run-id: 37201775291
+          pattern: naseej-place-shard-*
+          path: collected
+          merge-multiple: true
+
+      - name: Restore images
+        run: |
+          rm -rf assets/places
+          mkdir -p assets/places
+          cp -R collected/assets/places/. assets/places/
+
+      - name: Make standalone zip bundle
+        run: |
+          mkdir -p downloads
+          rm -f downloads/NASEEJ-place-images.zip
+          zip -r -q downloads/NASEEJ-place-images.zip assets/places
+          ls -lh downloads/NASEEJ-place-images.zip
+
+      - name: Commit actual images
+        run: |
+          git config user.name "NASEEJ Photo Importer"
+          git config user.email "actions@users.noreply.github.com"
+          git add assets/places downloads/NASEEJ-place-images.zip
+          git commit -m "Import NASEEJ place image bundle [skip ci]"
+          git push

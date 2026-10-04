@@ -39,7 +39,7 @@ const CANONICAL_GOVERNORATES = [
 ];
 
 /* Unique-hash JPGs whose filename is an exact place match. */
-const EXACT_PHOTO = {
+const STATIC_EXACT_PHOTO = {
   'Umm Qais (Gadara)': 'assets/places/irbid/umm-qais-gadara.webp',
   'Irbid Archaeological Museum': 'assets/places/irbid/irbid-archaeological-museum.webp',
   'Mar Elias Byzantine Church': 'assets/places/ajloun/mar-elias-byzantine-church.webp',
@@ -72,7 +72,32 @@ const EXACT_PHOTO = {
   'Serpentine Cross (Brazen Serpent)': 'assets/places/madaba/serpentine-cross-brazen-serpent.webp',
   'The Siq': 'assets/places/maan/the-siq.webp',
   'Ayla — Early Islamic City': 'assets/places/al-aqaba/ayla-early-islamic-city.webp',
-};
+};;
+
+function loadExactPhotos() {
+  const out = { ...STATIC_EXACT_PHOTO };
+  const manifest = path.join(ROOT, "docs", "naseej-place-image-manifest.json");
+  if (!fs.existsSync(manifest)) return out;
+  try {
+    const doc = JSON.parse(fs.readFileSync(manifest, "utf8"));
+    for (const item of doc.places || []) {
+      if (item.status !== "downloaded" || item.review_required || item.match_level !== "exact_or_strong") continue;
+      const rel = typeof item.output === "string" ? item.output.replace(/\\.(?:jpe?g|png)$/i, ".webp") : "";
+      const candidates = [
+        item.output,
+        rel,
+        typeof item.output === "string" ? item.output.replace(/\\.webp$/i, ".jpg") : ""
+      ].filter(Boolean);
+      const existing = candidates.find((candidate) => fs.existsSync(path.join(ROOT, candidate)));
+      if (existing) out[item.place] = existing;
+    }
+  } catch (err) {
+    console.warn("wire-waypoint-images: could not read photo audit manifest:", err.message);
+  }
+  return out;
+}
+
+const EXACT_PHOTO = loadExactPhotos();
 
 /* Place-specific folders for SVGs. Dead Sea shoreline stays in the existing
    dead-sea/ experience folder (not a 13th governorate). Aqaba uses aqaba/,

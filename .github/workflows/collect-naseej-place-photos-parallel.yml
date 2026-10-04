@@ -52,11 +52,13 @@ jobs:
           merge-multiple: true
       - name: Merge images and manifests
         run: node scripts/merge-naseej-place-image-shards.mjs
+      - name: Wire verified photos into the site
+        run: node scripts/wire-waypoint-images.cjs
       - name: Commit all place photos
         run: |
           git config user.name "NASEEJ Image Collector"
           git config user.email "actions@users.noreply.github.com"
-          git add assets/places docs/naseej-place-image-manifest.json
+          git add assets/places docs/naseej-place-image-manifest.json assets/places/manifest.json assets/places/photo-manifest.json js/data.js
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else

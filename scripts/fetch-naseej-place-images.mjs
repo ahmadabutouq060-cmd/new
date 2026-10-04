@@ -7,7 +7,7 @@ const ROOT_OUT=path.join(ROOT,'assets','places');
 const OUT_MANIFEST=path.join(ROOT_OUT,'manifest.json');
 const API='https://commons.wikimedia.org/w/api.php';
 
-const ALLOWED=/^(CC0|Public domain|CC BY(?:-SA)? (?:2\\.|3\\.|4\\.)|CC BY(?:-SA)?$)/i;
+const ALLOWED=new Set(['CC0','CC BY','CC BY-SA','PUBLIC DOMAIN']);
 const BAD=/(logo|icon|map|flag|coat of arms|diagram|scheme|symbol|locator map|blank|route map|poster|screenshot)/i;
 
 const aliases={
@@ -121,9 +121,9 @@ const aliases={
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function clean(v=''){return String(v).replace(/<[^>]+>/g,' ').replace(/&nbsp;/g,' ').replace(/\\s+/g,' ').trim();}
 function norm(v){return String(v).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]+/g,' ').trim();}
-function tok(v){return norm(v).split(/\\s+/).filter(x=>x.length>=3);}
+function tok(v){return norm(v).split(/\s+/).filter(x=>x.length>=3);}
 function slug(v){return norm(v).replace(/ /g,'-').replace(/-+/g,'-').slice(0,90)||'place';}
-function okLicense(v=''){const t=clean(v); if(/NC|ND/i.test(t)) return false; return ALLOWED.test(t);}
+function okLicense(v=''){const t=clean(v).toUpperCase(); if(t.includes('NC')||t.includes('ND')) return false; if(ALLOWED.has(t)) return true; const p=t.split(' '), ver=p.at(-1)||''; return (t.startsWith('CC BY ')||t.startsWith('CC BY-SA ')) && (ver.startsWith('2.')||ver.startsWith('3.')||ver.startsWith('4.'));}
 function textOf(page){
   const m=page?.imageinfo?.[0]?.extmetadata||{};
   return [page.title,m.ImageDescription?.value,m.Categories?.value,m.ObjectName?.value].map(clean).join(' ');
@@ -158,7 +158,7 @@ async function search(q){
   return Object.values((await getJSON(d)).query?.pages||{});
 }
 async function resolve(item){
-  const stripped=item.place.replace(/\\([^)]*\\)/g,'').replace(/—/g,' ').replace(/&/g,' ');
+  const stripped=item.place.replace(/\([^)]*\)/g,'').replace(/—/g,' ').replace(/&/g,' ');
   const queries=[item.place+' '+item.governorate+' Jordan',stripped+' '+item.governorate+' Jordan',...(aliases[item.place]||[])].map(q=>q+' Jordan');
   let best=null;
   for(const q of [...new Set(queries)]){
@@ -166,7 +166,7 @@ async function resolve(item){
       const pages=await search(q);
       for(const p of pages){
         const info=p.imageinfo?.[0], md=info?.extmetadata||{};
-        if(!info?.thumburl||!/^(image\\/(jpeg|png|webp))$/i.test(info.mime||''))continue;
+        if(!info?.thumburl||!['image/jpeg','image/png','image/webp'].includes(info.mime||''))continue;
         if((info.width||0)<900||(info.height||0)<500)continue;
         if(BAD.test(p.title||''))continue;
         const lic=clean(md.LicenseShortName?.value||md.UsageTerms?.value);

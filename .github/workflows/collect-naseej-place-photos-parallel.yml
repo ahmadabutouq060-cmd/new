@@ -1,0 +1,61 @@
+name: Collect NASEEJ place photos (parallel)
+
+on:
+  push:
+    paths:
+      - "scripts/download-naseej-place-images.mjs"
+      - "scripts/merge-naseej-place-image-shards.mjs"
+      - "docs/naseej-place-image-manifest.json"
+      - ".github/workflows/collect-naseej-place-photos-parallel.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0,1,2,3,4,5,6,7]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Collect shard
+        env:
+          NASEEJ_SHARD: ${{ matrix.shard }}
+          NASEEJ_SHARDS: 8
+          NASEEJ_OUTPUT_ROOT: shard-output
+        run: node scripts/download-naseej-place-images.mjs
+      - name: Upload shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: naseej-place-shard-${{ matrix.shard }}
+          path: shard-output
+          if-no-files-found: error
+          retention-days: 2
+
+  merge:
+    needs: collect
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download all shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: naseej-place-shard-*
+          path: collected
+          merge-multiple: true
+      - name: Merge images and manifests
+        run: node scripts/merge-naseej-place-image-shards.mjs
+      - name: Commit all place photos
+        run: |
+          git config user.name "NASEEJ Image Collector"
+          git config user.email "actions@users.noreply.github.com"
+          git add assets/places docs/naseej-place-image-manifest.json
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Add NASEEJ place photos"
+            git push
+          fi

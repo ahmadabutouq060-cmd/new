@@ -92,50 +92,64 @@ async function saveImage(url,abs){
 }
 
 const source=JSON.parse(await fs.readFile(SOURCE,'utf8'));
-await fs.mkdir(OUT_ROOT,{recursive:true});
-const results=[]; let downloaded=0;
+await fs.mkdir(ROOT_OUT,{recursive:true});
 
-for(let idx=0;idx<source.places.length;idx++){
-  const item=source.places[idx];
-  let candidate=null, provider=null, page=item.source_url||null, direct=item.direct_url||null, license=item.license||null, author=item.artist||item.creator||null, query=item.search_query||null;
+const results=new Array(source.places.length);
+let downloaded=0;
+let nextIndex=0;
 
-  if(item.direct_url && licenseOK(item.license||'')){
-    candidate={url:item.direct_url,page,license,author,type:item.provider||'manifest'};
-    provider=candidate.type;
+async function runOne(i){
+  const item=source.places[i];
+  const r=await resolve(item);
+  const rel=\`assets/places/\${slug(item.governorate)}/\${slug(item.place)}.jpg\`;
+  const abs=path.join(ROOT,rel);
+
+  if(!r){
+    results[i]={governorate:item.governorate,thread:item.thread,place:item.place,status:'NO_MATCH',match_type:'missing',photo_path:null,source_url:null,license:null,author:null};
+    console.log(\`[\${i+1}/\${source.places.length}] NO MATCH — \${item.place}\`);
+    return;
   }
-  if(!candidate){
-    const found=await resolveCommons(item);
-    if(found){
-      const i=found.page.imageinfo[0],md=i.extmetadata||{};
-      candidate={
-        url:i.thumburl||i.url,
-        page:'https://commons.wikimedia.org/wiki/'+encodeURIComponent(found.page.title.replace(/ /g,'_')),
-        license:clean(md.LicenseShortName?.value||md.UsageTerms?.value),
-        author:clean(md.Artist?.value||md.Credit?.value),
-        type:'wikimedia-commons',
-        commonsTitle:found.page.title
-      };
-      provider=candidate.type; page=candidate.page; direct=candidate.url; license=candidate.license; author=candidate.author; query=found.query;
+
+  const info=r.p.imageinfo[0],md=info.extmetadata||{};
+  const sourceUrl=\`https://commons.wikimedia.org/wiki/\${encodeURIComponent(r.p.title.replace(/ /g,'_'))}\`;
+  const author=clean(md.Artist?.value||md.Credit?.value);
+  const license=clean(md.LicenseShortName?.value||md.UsageTerms?.value);
+
+  await fs.mkdir(path.dirname(abs),{recursive:true});
+  const img=await fetch(info.thumburl,{headers:{'User-Agent':'NASEEJ-place-photo-loader/2.0'}});
+  if(!img.ok){
+    results[i]={governorate:item.governorate,thread:item.thread,place:item.place,status:'DOWNLOAD_ERROR',match_type:r.exact?'exact':'contextual',photo_path:null,source_url:sourceUrl,license,author,commons_file:r.p.title};
+    return;
+  }
+
+  await fs.writeFile(abs,Buffer.from(await img.arrayBuffer()));
+  results[i]={governorate:item.governorate,thread:item.thread,place:item.place,status:'DOWNLOADED',match_type:r.exact?'exact':'contextual',photo_path:rel,source_url:sourceUrl,license,author,commons_file:r.p.title,search_query:r.q};
+  downloaded++;
+  console.log(\`[\${i+1}/\${source.places.length}] \${r.exact?'EXACT':'CONTEXTUAL'} — \${item.place}\`);
+  await sleep(100);
+}
+
+async function worker(){
+  while(true){
+    const i=nextIndex++;
+    if(i>=source.places.length)return;
+    try{await runOne(i);}catch(e){
+      results[i]={governorate:source.places[i].governorate,thread:source.places[i].thread,place:source.places[i].place,status:'ERROR',match_type:'missing',photo_path:null,source_url:null,license:null,author:null,error:String(e?.message||e)};
+      console.log(\`[\${i+1}/\${source.places.length}] ERROR — \${source.places[i].place}\`);
     }
   }
-
-  const rel=`assets/places/${slug(item.governorate)}/${slug(item.place)}.jpg`;
-  if(!candidate){
-    results.push({governorate:item.governorate,thread:item.thread,place:item.place,status:'NO_SAFE_IMAGE_FOUND',image:null,source:null,direct_url:null,license:null,author:null,search_query:query});
-    console.log(`[${idx+1}/${source.places.length}] NO SAFE IMAGE — ${item.place}`);
-    continue;
-  }
-
-  try{
-    const saved=await saveImage(candidate.url,path.join(ROOT,rel));
-    downloaded++;
-    results.push({governorate:item.governorate,thread:item.thread,place:item.place,status:'DOWNLOADED',image:rel,source:page,direct_url:direct,license:license||null,author:author||null,provider,bytes:saved.bytes,content_type:saved.contentType,search_query:query,commons_file:candidate.commonsTitle||null});
-    console.log(`[${idx+1}/${source.places.length}] DOWNLOADED — ${item.place}`);
-  }catch(e){
-    results.push({governorate:item.governorate,thread:item.thread,place:item.place,status:'DOWNLOAD_ERROR',image:null,source:page,direct_url:direct,license:license||null,author:author||null,provider,error:String(e?.message||e)});
-    console.log(`[${idx+1}/${source.places.length}] DOWNLOAD ERROR — ${item.place}: ${e?.message||e}`);
-  }
-  await sleep(350);
 }
-await fs.writeFile(OUT_MANIFEST,JSON.stringify({generated_at:new Date().toISOString(),source:'Wikimedia Commons / Openverse references in NASEEJ manifest',total_places:source.places.length,downloaded,missing:results.filter(x=>x.status!=='DOWNLOADED').length,results},null,2));
-console.log(`Done: ${downloaded}/${source.places.length} images downloaded.`);
+
+const workerCount=Math.min(8,source.places.length);
+await Promise.all(Array.from({length:workerCount},()=>worker()));
+
+const finalResults=results.filter(Boolean);
+await fs.writeFile(OUT_MANIFEST,JSON.stringify({
+  generated_at:new Date().toISOString(),
+  source:'Wikimedia Commons',
+  total_places:source.places.length,
+  downloaded,
+  missing:finalResults.filter(x=>x.status!=='DOWNLOADED').length,
+  results:finalResults
+},null,2));
+console.log(\`Done: \${downloaded}/\${source.places.length} downloaded.\`);

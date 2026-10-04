@@ -147,3 +147,5 @@
 
 # NASEEJ place photos are committed as normal Git blobs so Firebase Hosting receives the actual image bytes.
 assets/places/** -filter -diff -merge -text
+
+downloads/NASEEJ-place-images.zip -filter -diff -merge -text

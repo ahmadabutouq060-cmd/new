@@ -45,7 +45,7 @@ function queries(item){
   return [...new Set(qs.filter(x=>x.trim().length>4))];
 }
 async function search(q){
-  const u=API+"?"+new URLSearchParams({q,page_size:"12",license:"cc0,by,by-sa,publicdomain",mature:"false",format:"json"});
+  const u=API+"?"+new URLSearchParams({q,page_size:"20",mature:"false",format:"json",order_by:"relevance"});
   const j=await (await request(u,{headers:{"Accept":"application/json"}})).json();
   return j?.results??[];
 }

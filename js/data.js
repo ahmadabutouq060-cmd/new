@@ -781,7 +781,7 @@
           challenge:
             "Identify and photograph the three countries visible from the Gadara viewpoint. Name the Sea of Galilee by its two other historical names used in Biblical and Roman sources.",
 
-          image: "assets/places/irbid/umm-qais-gadara.jpg",
+          image: "assets/places/irbid/umm-qais-gadara.webp",
         },
 
         {
@@ -798,7 +798,8 @@
           challenge:
             "Identify 4 migratory bird species using the field guide at the trail head. Record each species, the time spotted, and its direction of flight in your thread journal.",
 
-          image: "assets/places/irbid/yarmouk-river-gorge.jpg",
+          image: "assets/places/irbid/yarmouk-river-gorge.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -815,7 +816,8 @@
           challenge:
             "Count the surviving column drums along the colonnaded street and sketch the theatre's cavea layout. Based on the radius, estimate how many spectators it held at full capacity.",
 
-          image: "assets/places/irbid/beit-ras-capitolias.jpg",
+          image: "assets/places/irbid/beit-ras-capitolias.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -832,7 +834,8 @@
           challenge:
             "Work with the on-site archaeologist to date three pottery fragments by their clay body, surface treatment, and form. Match each shard to the correct period on the excavation timeline board.",
 
-          image: "assets/places/irbid/tell-irbid.jpg",
+          image: "assets/places/irbid/tell-irbid.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -849,7 +852,8 @@
           challenge:
             "Navigate to the site using only the Roman road markers described in your thread scroll. Locate and photograph the Byzantine mosaic floor without using GPS.",
 
-          image: "assets/places/irbid/abila-quwayliba.jpg",
+          image: "assets/places/irbid/abila-quwayliba.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -1035,7 +1039,8 @@
           fieldNote:
             "On site: read the trail stone and note what is cut into it before you choose an answer.",
 
-          image: "assets/places/irbid/yarmouk-trail-head.jpg",
+          image: "assets/places/irbid/yarmouk-trail-head.svg",
+          imageStatus: "placeholder",
 
           unlocksClue: 1,
 
@@ -1085,7 +1090,8 @@
           fieldNote:
             "On site: look for the columnar jointing before you answer, and count the separate lava flows you can pick out.",
 
-          image: "assets/places/irbid/basalt-canyon-viewpoint.jpg",
+          image: "assets/places/irbid/basalt-canyon-viewpoint.svg",
+          imageStatus: "placeholder",
 
           unlocksClue: 2,
 
@@ -1160,7 +1166,8 @@
           fieldNote:
             "On site: use the identification chart for a 30-minute count and record the species, their behaviour and their direction of flight.",
 
-          image: "assets/places/irbid/migratory-bird-watch-station.jpg",
+          image: "assets/places/irbid/migratory-bird-watch-station.svg",
+          imageStatus: "placeholder",
 
           chapterKey: "follow",
 
@@ -1214,7 +1221,8 @@
           fieldNote:
             "On site: identify the wild herbs growing along the bank, and try the za'atar with a local guide if one is with you.",
 
-          image: "assets/places/irbid/riverside-picnic-meadow.jpg",
+          image: "assets/places/irbid/riverside-picnic-meadow.svg",
+          imageStatus: "placeholder",
 
           finalAnswer: true,
 
@@ -1283,7 +1291,8 @@
           challenge:
             "Visit the university museum and identify three artefacts from the Decapolis period. Write a short description of each, including the site of discovery and estimated date.",
 
-          image: "assets/places/irbid/yarmouk-university.jpg",
+          image: "assets/places/irbid/yarmouk-university.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -1335,7 +1344,8 @@
           challenge:
             "Sketch the floor plan of one Ottoman courtyard house, identifying the function of each room as explained by the host. Note at least two architectural features that reveal the building's age.",
 
-          image: "assets/places/irbid/old-irbid-houses.jpg",
+          image: "assets/places/irbid/old-irbid-houses.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -1376,7 +1386,8 @@
           challenge:
             "Identify three native tree species at the forest gate using the species board. Record their scientific names, and describe how each tree species contributes to the forest ecosystem.",
 
-          image: "assets/places/ajloun/ajloun-forest-reserve-gate.jpg",
+          image: "assets/places/ajloun/ajloun-forest-reserve-gate.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -1393,7 +1404,7 @@
           challenge:
             "Locate the fragment of the original mosaic floor still visible in the eastern apse. Describe the geometric pattern and identify the type of tesserae (stone, glass, or terracotta) used.",
 
-          image: "assets/places/ajloun/mar-elias-byzantine-church.jpg",
+          image: "assets/places/ajloun/mar-elias-byzantine-church.webp",
         },
 
         {
@@ -1428,7 +1439,8 @@
           challenge:
             "Measure the circumference of the widest olive trunk in the grove. Using the standard growth rate of 2.5 cm per year, estimate the tree's minimum age. Document your method and result.",
 
-          image: "assets/places/ajloun/ancient-olive-grove.jpg",
+          image: "assets/places/ajloun/ancient-olive-grove.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -1487,7 +1499,8 @@
           challenge:
             "Harvest olives from at least three trees using the traditional raking method. Weigh your harvest and estimate how many litres of oil a full season's yield from those trees would produce.",
 
-          image: "assets/places/ajloun/olive-grove-harvest.jpg",
+          image: "assets/places/ajloun/olive-grove-harvest.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -1581,7 +1594,8 @@
           challenge:
             "Walk the full Soap Trail (8 km) and document every plant species you can identify using the trail guide. Note the GPS waypoints of any wildlife sightings.",
 
-          image: "assets/places/ajloun/ajloun-forest-main-trail.jpg",
+          image: "assets/places/ajloun/ajloun-forest-main-trail.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -1695,7 +1709,7 @@
           challenge:
             "Walk the perimeter of the oval and count the surviving column drums. Calculate what percentage of the original colonnade's columns remain standing or partially reconstructed.",
 
-          image: "assets/places/jerash/oval-plaza-forum.jpg",
+          image: "assets/places/jerash/oval-plaza-forum.webp",
         },
 
         {
@@ -1763,7 +1777,7 @@
           challenge:
             "Identify and explain three physical features of the hippodrome (the spina, the carceres, and the turning posts) and their function during a race.",
 
-          image: "assets/places/jerash/hippodrome.jpg",
+          image: "assets/places/jerash/hippodrome.webp",
         },
       ],
     },
@@ -1804,7 +1818,8 @@
           challenge:
             "Find a vendor selling a product made locally (not imported). Ask them to explain the production process and the locally sourced materials. Photograph both the product and the raw material.",
 
-          image: "assets/places/jerash/old-city-souk.jpg",
+          image: "assets/places/jerash/old-city-souk.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -1821,7 +1836,8 @@
           challenge:
             "Compare the dimensions of the Birketein theatre to the South Theatre in the main site. Which is larger, and what does the difference in capacity suggest about its intended audience?",
 
-          image: "assets/places/jerash/birketein-ancient-reservoir.jpg",
+          image: "assets/places/jerash/birketein-ancient-reservoir.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -1838,7 +1854,8 @@
           challenge:
             "Sketch the floor plan of Beit Jerash from the entrance courtyard to the diwan. Identify three architectural features that distinguish Ottoman-era highland construction from modern building techniques.",
 
-          image: "assets/places/jerash/beit-jerash-heritage-house.jpg",
+          image: "assets/places/jerash/beit-jerash-heritage-house.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -1855,7 +1872,8 @@
           challenge:
             "Identify one craft produced by the Circassian community and one produced by the indigenous Jordanian community. Describe two specific differences in technique, motif, or material between them.",
 
-          image: "assets/places/jerash/craft-workshops-quarter.webp",
+          image: "assets/places/jerash/craft-workshops-quarter.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -1913,7 +1931,8 @@
           challenge:
             "Find the original drain channel at the base of the Nymphaeum. Trace it along the cardo and estimate how far it runs before disappearing under modern fill.",
 
-          image: "assets/places/jerash/nymphaeum-fountain.jpg",
+          image: "assets/places/jerash/nymphaeum-fountain.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2042,7 +2061,7 @@
           challenge:
             "Stand at the exact centre of the orchestra and count the rows of seating. Calculate the total seating capacity and compare with the published figure of 6,000.",
 
-          image: "assets/places/amman/roman-theatre-of-philadelphia.jpg",
+          image: "assets/places/amman/roman-theatre-of-philadelphia.webp",
         },
 
         {
@@ -2100,7 +2119,7 @@
           challenge:
             "Buy the ingredients for a traditional Jordanian breakfast: labneh, za'atar, olive oil, fresh bread, and seasonal fruit. Record the price of each item and calculate the total cost.",
 
-          image: "assets/places/amman/al-balad-old-city-market.jpg",
+          image: "assets/places/amman/al-balad-old-city-market.webp",
         },
 
         {
@@ -2152,7 +2171,8 @@
           challenge:
             "Visit at least three different sweet shops and taste their signature product. Ask each vendor about the origin of their recipe. Report your top choice and justify it.",
 
-          image: "assets/places/amman/king-faisal-street-sweet-shops.jpg",
+          image: "assets/places/amman/king-faisal-street-sweet-shops.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -2212,7 +2232,8 @@
           challenge:
             "Visit the current exhibition and select one work that you find most compelling. Write a 150-word response describing what the work is, what it communicates, and one question you would ask the artist.",
 
-          image: "assets/places/amman/darat-al-funun-art-centre.jpg",
+          image: "assets/places/amman/darat-al-funun-art-centre.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2229,7 +2250,8 @@
           challenge:
             "Browse the Wild Jordan shop and identify one product from each of three different conservation areas in Jordan. For each, find out which community produced it and how selling it supports conservation.",
 
-          image: "assets/places/amman/wild-jordan-center.jpg",
+          image: "assets/places/amman/wild-jordan-center.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2246,7 +2268,8 @@
           challenge:
             "Visit two galleries in Jabal Weibdeh and speak with a gallery owner or artist. Find out how the Jordanian art market has changed in the past decade and what themes Jordanian artists most commonly explore.",
 
-          image: "assets/places/amman/jabal-weibdeh-gallery-walk.jpg",
+          image: "assets/places/amman/jabal-weibdeh-gallery-walk.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -2305,7 +2328,7 @@
           challenge:
             "Collect a small sample of the white shoreline crust. Describe the crystal structure. Taste a tiny amount (on the tip of a dry finger only) — how does it compare in flavour to ordinary table salt, and why?",
 
-          image: "assets/places/dead-sea/salt-crystal-formations.jpg",
+          image: "assets/places/dead-sea/salt-crystal-formations.webp",
         },
 
         {
@@ -2323,7 +2346,8 @@
           challenge:
             "Complete the Wadi Mujib Siq Trail. Photograph the highest point you can reach on the canyon walls and estimate the wall height above you using a proportional reference.",
 
-          image: "assets/places/dead-sea/wadi-mujib-siq-trail.jpg",
+          image: "assets/places/madaba/wadi-mujib-siq-trail.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2340,7 +2364,8 @@
           challenge:
             "Visit the salt pillar and describe the geological process — evaporite deposition — that actually creates salt pillars in this landscape, and explain why this area has generated multiple such formations.",
 
-          image: "assets/places/dead-sea/lots-pillar-viewpoint.webp",
+          image: "assets/places/dead-sea/lots-pillar-viewpoint.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -2381,7 +2406,8 @@
           challenge:
             "Apply Dead Sea mud to both arms, leave it for 15 minutes, then rinse one arm with Dead Sea water and the other with fresh water. Compare the skin texture on each arm after 30 minutes.",
 
-          image: "assets/places/dead-sea/dead-sea-mud-spa.jpg",
+          image: "assets/places/dead-sea/dead-sea-mud-spa.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2398,7 +2424,8 @@
           challenge:
             "Float for 20 minutes while consciously relaxing all muscles. Afterwards, record your heart rate and breathing rate and compare them to your measurements before entering.",
 
-          image: "assets/places/dead-sea/mineral-water-float.jpg",
+          image: "assets/places/dead-sea/mineral-water-float.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2415,7 +2442,8 @@
           challenge:
             "Photograph the Dead Sea sunset sequence at 10-minute intervals for an hour before sunset. Note the exact times when the colour of the water shifts from blue to gold to pink to silver.",
 
-          image: "assets/places/dead-sea/sunset-at-amman-beach.jpg",
+          image: "assets/places/balqa/sunset-at-amman-beach.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -2458,7 +2486,8 @@
           challenge:
             "Visit both the main baptism pool and the higher-ground church complex. Identify at least three physical features at the site that archaeologists use to date its use to the Byzantine period.",
 
-          image: "assets/places/dead-sea/bethany-beyond-the-jordan.jpg",
+          image: "assets/places/balqa/bethany-beyond-the-jordan.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2475,7 +2504,8 @@
           challenge:
             "Map the spatial relationship between the hilltop churches and the baptism pools below. Explain the theological significance of the hilltop location versus the riverside location.",
 
-          image: "assets/places/dead-sea/john-the-baptist-churches.jpg",
+          image: "assets/places/balqa/john-the-baptist-churches.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2492,7 +2522,8 @@
           challenge:
             "Read Genesis 19:30–38 before visiting. Inside the cave, find the original spring water channel that fed the monastery. Describe the cave's geological formation and explain what natural water source made this location habitable.",
 
-          image: "assets/places/dead-sea/lot-s-cave-sanctuary.jpg",
+          image: "assets/places/karak/lots-cave-sanctuary.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2586,7 +2617,8 @@
           challenge:
             "Find the central Thalassa medallion and describe the sea creatures depicted. Are any identifiable as real animals from the Mediterranean or Red Sea? Name at least two you can identify.",
 
-          image: "assets/places/madaba/church-of-the-apostles.jpg",
+          image: "assets/places/madaba/church-of-the-apostles.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2662,7 +2694,8 @@
           challenge:
             "Stand at the viewpoint and use the orientation board to identify: the Dead Sea, the Jordan River valley, Jericho (visible as a green patch), and the ridge where Jerusalem stands. Photograph the panorama and annotate the key landmarks.",
 
-          image: "assets/places/madaba/mount-nebo-moses-viewpoint.jpg",
+          image: "assets/places/madaba/mount-nebo-moses-viewpoint.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2837,7 +2870,8 @@
           challenge:
             "Walk the full outer curtain wall. Count the number of towers and note which appear to be Crusader-built (rough limestone) versus later Ayyubid or Mamluk additions (more refined stonework). Document your findings with photographs.",
 
-          image: "assets/places/karak/karak-castle-crac-des-moabites.jpg",
+          image: "assets/places/karak/karak-castle-crac-des-moabites.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2873,7 +2907,8 @@
           challenge:
             "On the St. Stephen mosaic, find the row of cities depicted in the border panels. Identify at least five city names from the Greek inscriptions and locate them on a modern map. Which still exist today under similar names?",
 
-          image: "assets/places/karak/umm-al-rasas-kastron-mefa-a.jpg",
+          image: "assets/places/madaba/umm-al-rasas-kastron-mefaa.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2890,7 +2925,8 @@
           challenge:
             "From the plateau viewpoint, estimate the altitude change between the hilltop (c. 900 m) and the Dead Sea shore visible below (c. −430 m). Describe how this elevation difference affects the climate and vegetation.",
 
-          image: "assets/places/karak/karak-plateau-viewpoint.jpg",
+          image: "assets/places/karak/karak-plateau-viewpoint.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -2949,7 +2985,8 @@
           challenge:
             "Participate in preparing mansaf with a local family, focusing on the reconstitution of the jameed. Eat the meal in the traditional manner — standing, right hand only, rolled into small portions. Describe the flavour profile of the jameed sauce.",
 
-          image: "assets/places/karak/mansaf-at-a-family-home.jpg",
+          image: "assets/places/karak/mansaf-at-a-family-home.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -2985,7 +3022,8 @@
           challenge:
             "Read the translation of the Mesha Stele inscription provided by your guide. Identify three specific events or claims that King Mesha makes. How does this account differ from or complement the Biblical account in 2 Kings 3?",
 
-          image: "assets/places/karak/dhiban-dibon-moabite-capital.jpg",
+          image: "assets/places/madaba/dhiban-dibon-moabite-capital.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -3026,7 +3064,8 @@
           challenge:
             "Photograph the main waterfall and describe the geological sequence visible in the canyon walls: identify basalt (black), sandstone (red or buff), and any travertine deposits (white or cream). Estimate the height of the main waterfall face.",
 
-          image: "assets/places/karak/wadi-ibn-hammad-canyon.jpg",
+          image: "assets/places/karak/wadi-ibn-hammad-canyon.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3062,7 +3101,8 @@
           challenge:
             "Walk the northern trailhead section and identify at least three plant species using the trail guide. Note the change in vegetation as you descend 100 metres in elevation and explain why it changes.",
 
-          image: "assets/places/karak/dana-biosphere-reserve-north-edge.jpg",
+          image: "assets/places/tafilah/dana-biosphere-reserve-north-edge.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -3105,7 +3145,7 @@
           challenge:
             "Walk the full length of the Siq and find: (1) the remains of the Nabataean water channel, (2) at least two votive niches with carved Nabataean deities (baetyli), and (3) the original dam and diversion tunnel the Nabataeans built to protect the Siq from flash floods.",
 
-          image: "assets/places/maan/the-siq.jpg",
+          image: "assets/places/maan/the-siq.webp",
         },
 
         {
@@ -3122,7 +3162,8 @@
           challenge:
             "Photograph the Treasury façade and identify the following elements: the six columns of the lower storey, the two half-pediments, the central tholos, the two flanking pavilions, and the urn at the apex. Count the total number of carved human and eagle figures visible.",
 
-          image: "assets/places/ma-an/al-khazneh-the-treasury.jpg",
+          image: "assets/places/maan/al-khazneh-the-treasury.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3139,7 +3180,8 @@
           challenge:
             "Identify all four Royal Tombs and photograph each. For the Urn Tomb, climb to the vaulted terrace and photograph the view back. Describe the geological process that creates the multi-coloured banding visible in the Silk Tomb's rock face.",
 
-          image: "assets/places/ma-an/street-of-facades-royal-tombs.jpg",
+          image: "assets/places/maan/street-of-facades-royal-tombs.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3157,7 +3199,8 @@
           challenge:
             "Identify the rectangular altar, the round offering basin, and the drainage channels carved into the rock. Describe the probable function of each element based on ancient descriptions of Nabataean ritual practice. Count the number of steps cut into the staircase ascent.",
 
-          image: "assets/places/ma-an/high-place-of-sacrifice.jpg",
+          image: "assets/places/maan/high-place-of-sacrifice.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3175,7 +3218,8 @@
           challenge:
             "Climb the 850 steps to Ad-Deir and compare it directly with the Treasury: which is wider, taller, and more ornately decorated? Find the carved crosses inside the inner chamber and describe their size, style, and probable date relative to the monument's original construction.",
 
-          image: "assets/places/ma-an/ad-deir-the-monastery.jpg",
+          image: "assets/places/maan/ad-deir-the-monastery.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -3217,7 +3261,8 @@
           challenge:
             "At the visitor gate, study the topographic map. Identify the three highest massifs visible from the gate. Orient the map to the landscape and identify at least two geographic features — a wadi, a jebel, or a rock arch — visible from the entrance.",
 
-          image: "assets/places/ma-an/wadi-rum-visitor-gate.jpg",
+          image: "assets/places/maan/wadi-rum-visitor-gate.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3235,7 +3280,8 @@
           challenge:
             "Hike to Lawrence Spring and find the inscription Lawrence carved into the rock. Photograph the view Lawrence would have seen from this vantage point. Read the Wadi Rum passage from 'Seven Pillars of Wisdom' and identify two specific landscape features he describes.",
 
-          image: "assets/places/ma-an/lawrence-spring.jpg",
+          image: "assets/places/maan/lawrence-spring.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3252,7 +3298,8 @@
           challenge:
             "Enter Khazali Canyon and photograph at least three different periods of inscription or carving. For each, describe the subject matter, the carving technique (incised line vs. pecked surface), and any details that help assign it to a specific period.",
 
-          image: "assets/places/ma-an/khazali-canyon-inscriptions.jpg",
+          image: "assets/places/maan/khazali-canyon-inscriptions.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3287,7 +3334,8 @@
           challenge:
             "After dinner, lie outside the tent away from firelight and observe the night sky for 30 minutes without any screen light. Using a star chart, identify the Milky Way and five named stars. Describe what you hear in the silence.",
 
-          image: "assets/places/ma-an/bedouin-camp-under-stars.jpg",
+          image: "assets/places/maan/bedouin-camp-under-stars.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -3329,7 +3377,8 @@
           challenge:
             "Find and enter the painted biclinium in Little Petra. Describe the fresco programme visible on the ceiling and walls — the subject matter, the style, and the condition of preservation. How do the frescoes differ from the exterior carved architecture of Petra?",
 
-          image: "assets/places/maan/little-petra-siq-al-barid.jpg",
+          image: "assets/places/maan/little-petra-siq-al-barid.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3347,7 +3396,8 @@
           challenge:
             "Walk through Al-Beidha and identify the difference between the early circular house foundations and the later rectangular ones. Why do archaeologists think this architectural transition happened — what does it suggest about changes in family structure or food storage?",
 
-          image: "assets/places/ma-an/al-beidha-neolithic-village.jpg",
+          image: "assets/places/maan/al-beidha-neolithic-village.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3364,7 +3414,8 @@
           challenge:
             "Participate in making flatbread on the traditional tannour. Ask your Bedouin host to explain the significance of coffee (qahwa) in Bedouin hospitality: how it is prepared, served, and received, and what different numbers of cups traditionally communicate.",
 
-          image: "assets/places/ma-an/bedouin-heritage-village.jpg",
+          image: "assets/places/maan/bedouin-heritage-village.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3381,7 +3432,8 @@
           challenge:
             "During your camel ride, ask your Bedouin guide about traditional knowledge used to navigate the wadi without modern technology — star navigation, reading wind direction, identifying water sources from vegetation. Record at least three navigational techniques.",
 
-          image: "assets/places/ma-an/camel-ride-through-wadi-araba.jpg",
+          image: "assets/places/maan/camel-ride-through-wadi-araba.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -3423,7 +3475,8 @@
           challenge:
             "Snorkel or dive at the Marine Park and identify at least six different species of reef fish using the identification guide. For each, note the depth at which you found it, its approximate size, and any distinctive behaviour observed.",
 
-          image: "assets/places/al-aqaba/aqaba-marine-park.jpg",
+          image: "assets/places/aqaba/aqaba-marine-park.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3521,7 +3574,8 @@
           challenge:
             "Find the carved marble coat of arms of the Mamluk Sultan above the main gateway. Describe the heraldic elements in the carving. Locate the point where T.E. Lawrence's force entered the castle in 1917.",
 
-          image: "assets/places/al-aqaba/aqaba-fort-mamluk-castle.jpg",
+          image: "assets/places/aqaba/aqaba-fort-mamluk-castle.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3557,7 +3611,8 @@
           challenge:
             "Identify the oldest object in the museum and the most recent object in the collection. Identify at least three different civilisations represented by objects in the collection and name one object per civilisation.",
 
-          image: "assets/places/al-aqaba/aqaba-museum-al-hammamat.jpg",
+          image: "assets/places/aqaba/aqaba-museum-al-hammamat.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3574,7 +3629,8 @@
           challenge:
             "Visit the fish market in the morning and identify at least three different species on sale using a Red Sea fish guide. Ask a fisherman about their fishing method and the depth and location of the fishing ground where each species was caught.",
 
-          image: "assets/places/al-aqaba/aqaba-fish-market-port.jpg",
+          image: "assets/places/aqaba/aqaba-fish-market-port.svg",
+          imageStatus: "placeholder",
         },
       ],
     },
@@ -3615,7 +3671,8 @@
           challenge:
             "As you leave Wadi Rum, photograph the landscape at three points during the journey: the desert, the mountain pass, and the first view of the sea. Describe the geological change visible in the rock type and colour between each stage.",
 
-          image: "assets/places/al-aqaba/wadi-rum-desert-departure.jpg",
+          image: "assets/places/aqaba/wadi-rum-desert-departure.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3632,7 +3689,8 @@
           challenge:
             "From the cruise boat, photograph each of the four countries visible from the Gulf of Aqaba and label them. Identify the approximate position of the international maritime boundaries between Jordan and Saudi Arabia, and between Jordan and Israel.",
 
-          image: "assets/places/al-aqaba/gulf-of-aqaba-sunset-cruise.jpg",
+          image: "assets/places/aqaba/gulf-of-aqaba-sunset-cruise.svg",
+          imageStatus: "placeholder",
         },
 
         {
@@ -3649,7 +3707,8 @@
           challenge:
             "Set up camp on the south beach and photograph the same reef location at dawn and at dusk. Describe how the light, water colour, and fish activity differ between the two times of day.",
 
-          image: "assets/places/al-aqaba/south-beach-camping-snorkeling.jpg",
+          image: "assets/places/aqaba/south-beach-camping-snorkeling.svg",
+          imageStatus: "placeholder",
         },
       ],
     },

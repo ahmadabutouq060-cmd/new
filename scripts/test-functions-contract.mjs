@@ -493,13 +493,68 @@ await run("every callable refuses an unauthenticated caller and writes nothing",
 
 await run("saveMysteryState does not crash", async () => {
   writes.length = 0
-  existing = new Map()
+  existing = new Map([["users/weaver-a/mysteries/10", { athar: 42, reveal: false }]])
   await backend.saveMysteryState.run(
     { threadId: 10, state: { progressPercent: 100 } },
     AUTH,
   )
   const m = lastWrite("/mysteries/")
   if (!m) throw new Error("no mystery document written")
+  /* athar must be preserved from the stored value, not taken from state. */
+  if (m.data.athar !== 42) {
+    throw new Error(`saveMysteryState overwrote athar: got ${m.data.athar}, wanted 42`)
+  }
+})
+
+await run("completeWaypoint rejects an unknown threadId", async () => {
+  writes.length = 0
+  existing = new Map()
+  const res = await backend.completeWaypoint.run({ threadId: 9999, waypointId: 1 }, AUTH)
+  if (res.status !== 'invalid_thread') {
+    throw new Error(`expected invalid_thread, got: ${JSON.stringify(res)}`)
+  }
+  if (writes.length) throw new Error("completeWaypoint wrote despite unknown threadId")
+})
+
+await run("completeWaypoint rejects a waypointId not in that thread", async () => {
+  /* Thread 10 has waypoints 1-4.  Waypoint 99 does not exist. */
+  writes.length = 0
+  existing = new Map()
+  const res = await backend.completeWaypoint.run({ threadId: 10, waypointId: 99 }, AUTH)
+  if (res.status !== 'invalid_waypoint') {
+    throw new Error(`expected invalid_waypoint, got: ${JSON.stringify(res)}`)
+  }
+  if (writes.length) throw new Error("completeWaypoint wrote despite unknown waypointId")
+})
+
+await run("chooseMysteryBranch rejects an invalid branchId", async () => {
+  writes.length = 0
+  existing = new Map()
+  const res = await backend.chooseMysteryBranch.run(
+    { threadId: 10, branchId: 'north' },
+    AUTH,
+  )
+  if (res.status !== 'error' || res.reason !== 'invalid_branch') {
+    throw new Error(`expected error/invalid_branch, got: ${JSON.stringify(res)}`)
+  }
+  if (writes.length) throw new Error("chooseMysteryBranch wrote despite invalid branchId")
+})
+
+await run("chooseMysteryBranch accepts a valid branchId", async () => {
+  writes.length = 0
+  existing = new Map()
+  const res = await backend.chooseMysteryBranch.run(
+    { threadId: 10, branchId: 'person' },
+    AUTH,
+  )
+  if (res.status !== 'success' || res.branch !== 'person') {
+    throw new Error(`chooseMysteryBranch rejected a valid branch: ${JSON.stringify(res)}`)
+  }
+  const m = lastWrite("/mysteries/")
+  if (!m) throw new Error("chooseMysteryBranch wrote no mystery document")
+  if (m.data.choices && m.data.choices.branch !== 'person') {
+    throw new Error(`wrong branch in mystery doc: ${JSON.stringify(m.data.choices)}`)
+  }
 })
 
 console.log("")
@@ -514,6 +569,10 @@ for (const name of [
   "completeSecret writes secrets/{thread}_{secret}",
   "every callable refuses an unauthenticated caller and writes nothing",
   "saveMysteryState does not crash",
+  "completeWaypoint rejects an unknown threadId",
+  "completeWaypoint rejects a waypointId not in that thread",
+  "chooseMysteryBranch rejects an invalid branchId",
+  "chooseMysteryBranch accepts a valid branchId",
 ]) {
   const ok = failures.some((f) => f.startsWith(name)) ? "FAIL" : "ok  "
   console.log(`  ${ok} ${name}`)

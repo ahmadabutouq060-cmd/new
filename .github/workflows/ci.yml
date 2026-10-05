@@ -30,8 +30,30 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Verify images (existence + byte-signature match extension)
+        run: node scripts/verify-images.mjs
+
+      - name: Check client write policy (no direct Firestore writes outside firebase.js)
+        run: node scripts/check-client-write-policy.mjs
+
+      - name: Functions contract (callable shape + security invariants)
+        run: node scripts/test-functions-contract.mjs
+
       - name: Install route-verification dependency
         run: npm install --no-save jsdom
 
       - name: Verify every route
         run: node scripts/verify-routes.mjs
+
+      - name: No debug artifacts in tree
+        run: |
+          shopt -s globstar nullglob
+          found=()
+          for f in .audit-*.* .dbg.* .hero-*.* .responsive-probe.mjs temp_rules.txt; do
+            [[ -e "$f" ]] && found+=("$f")
+          done
+          if [[ ${#found[@]} -gt 0 ]]; then
+            echo "Debug artifacts found: ${found[*]}"
+            exit 1
+          fi
+          echo "No debug artifacts found."

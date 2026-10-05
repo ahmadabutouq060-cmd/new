@@ -1,4 +1,4 @@
-﻿// Naseej - Cloud Functions (trusted server-side logic)
+// Naseej - Cloud Functions (trusted server-side logic)
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
@@ -12,6 +12,7 @@ const FieldValue = admin.firestore.FieldValue;
 const { ATHAR, REWARD_SOURCES, docSafe, rewardKey } = require('./lib/schema');
 const { validateChallenge } = require('./lib/validation');
 const { validateSecret } = require('./lib/secrets');
+const { isValidThread, isValidWaypoint, isValidBranch, allowedBranches } = require('./lib/product');
 
 function nowMillis() {
   return Date.now();
@@ -140,18 +141,27 @@ exports.completeChallenge = functions.https.onCall(async (data, context) => {
 exports.completeWaypoint = functions.https.onCall(async (data, context) => {
   const uid = requireAuth(context);
   const threadId = Number(data.threadId);
-  /* Number(undefined) is NaN and NaN == null is false, so a missing waypointId
-     would fall through to the per-waypoint branch and be filed under 'w0'.
-     Coerce first and keep null, the way progressRows() in js/data.js spells it. */
+  /* Number(undefined) is NaN — coerce first, keep null for a thread-level row. */
   const waypointId = data.waypointId == null ? null : Number(data.waypointId);
 
-  /* No reward is granted here. completeChallenge is the only path that pays, and
-     it validates the answer server-side; this records progress so a client that
-     solved the answer offline still keeps its row. The rewardDoc that used to be
-     built above was discarded without being read. */
-  // The document id is the same one progressRows() in js/data.js produces, so the
-  // server writer and the client's row addressing name one document rather than
-  // two. Anything else would orphan the client's row on every sync.
+  /* ── Authoritative validation ─────────────────────────────────────────────
+     Reject unknown or malformed threadId / waypointId before touching
+     Firestore.  The client cannot invent valid-looking IDs for non-existent
+     threads or cross-thread waypoints.
+
+     isValidWaypoint(threadId, null) is true — it signals a thread-level
+     progress row (t{id}_progress), which completeWaypoint may write.
+     isValidWaypoint(threadId, waypointId) requires waypointId to be a
+     finite positive integer present in that exact thread's waypoint list. */
+  if (!isValidThread(threadId)) {
+    return { status: 'invalid_thread', reason: 'unknown_thread' };
+  }
+  if (!isValidWaypoint(threadId, waypointId)) {
+    return { status: 'invalid_waypoint', reason: 'unknown_waypoint' };
+  }
+
+  /* The document id is the same one progressRows() in js/data.js produces, so
+     the server writer and the client's row addressing name one document. */
   const progressId =
     waypointId == null
       ? 't' + threadId + '_progress'
@@ -162,8 +172,6 @@ exports.completeWaypoint = functions.https.onCall(async (data, context) => {
     return { status: 'success', awarded: false, reason: 'already' };
   }
 
-  // Grant reward if appropriate (if a challenge reward exists by key, maybe not double; but we only write progress)
-  // Keep minimal: write progress only after ensuring no double grant? Not strictly needed if rules prevent
   const progressData = {
     threadId,
     waypointId,
@@ -172,8 +180,12 @@ exports.completeWaypoint = functions.https.onCall(async (data, context) => {
     metadata: {},
     updatedAt: FieldValue.serverTimestamp(),
   };
-  await progressRef.set(progressData);
-  return { status: 'success', awarded: false };
+  try {
+    await progressRef.set(progressData);
+    return { status: 'success', awarded: false };
+  } catch (err) {
+    throw new functions.https.HttpsError('internal', err.message || 'Failed');
+  }
 });
 
 exports.completeSecret = functions.https.onCall(async (data, context) => {
@@ -235,53 +247,132 @@ exports.completeSecret = functions.https.onCall(async (data, context) => {
 exports.chooseMysteryBranch = functions.https.onCall(async (data, context) => {
   const uid = requireAuth(context);
   const threadId = Number(data.threadId);
-  const branchId = String(data.branchId || '');
+  const branchId = typeof data.branchId === 'string' ? data.branchId.trim() : '';
 
-  // Branch choice is part of hero progression; server records minimal state if needed
+  /* ── Authoritative validation ─────────────────────────────────────────────
+     Only known threads may have a branch, and only declared branch ids are
+     accepted.  A thread without branching simply has no entry in BRANCHES,
+     so isValidBranch() returns false for every branchId there. */
+  if (!isValidThread(threadId)) {
+    return { status: 'error', reason: 'invalid_thread' };
+  }
+  const allowed = allowedBranches(threadId);
+  if (!allowed) {
+    return { status: 'error', reason: 'no_branches', message: 'This thread does not support branching.' };
+  }
+  if (!isValidBranch(threadId, branchId)) {
+    return { status: 'error', reason: 'invalid_branch',
+             allowed: allowed, received: branchId };
+  }
+
   const mysteryRef = db.collection('users').doc(uid).collection('mysteries').doc(String(threadId));
   const snap = await mysteryRef.get();
-  if (snap.exists && snap.data().threadId === threadId) {
-    // if branch already set, don't overwrite in a harmful way per rules (but rules allow updates as long as monotonic)
-    const d = snap.data();
-    if (d.branch && d.branch !== branchId) {
-      // don't change; just return existing
-      return { status: 'success', branch: d.branch, changed: false };
+
+  /* If a branch was already chosen for this thread, selecting the same branch
+     again is idempotent.  Selecting a DIFFERENT branch is rejected — a choice
+     cannot be revoked once recorded, because it may already have unlocked clues
+     and generated rewards. */
+  if (snap.exists) {
+    const stored = snap.data();
+    const existingBranch = (stored.choices && stored.choices.branch) || null;
+    if (existingBranch && existingBranch !== branchId) {
+      return { status: 'success', branch: existingBranch, changed: false,
+               message: 'Branch already set; a choice cannot be changed.' };
+    }
+    if (existingBranch === branchId) {
+      return { status: 'success', branch: branchId, changed: false };
     }
   }
-  await mysteryRef.set({
-    threadId,
-    choices: { branch: branchId },
-    currentChapter: data.currentChapter || null,
-    clues: FieldValue.arrayUnion ? snap.exists ? snap.data().clues || [] : [] : [],
-    completed: snap.exists ? snap.data().completed || [] : [],
-    progressPercent: 50,
-    athar: snap.exists ? (isCount(snap.data().athar) ? snap.data().athar : 0) : 0,
-    reveal: !!data.reveal,
-    updatedAt: FieldValue.serverTimestamp(),
-  }, { merge: true });
 
-  return { status: 'success', branch: branchId, changed: true };
+  /* Write only client-owned mystery state — choices.branch, updatedAt.
+     Do NOT accept athar, reveal, clues, completed, or progressPercent
+     from the client.  Those are server-derived. */
+  const existingClues     = (snap.exists && Array.isArray(snap.data().clues))     ? snap.data().clues     : [];
+  const existingCompleted = (snap.exists && Array.isArray(snap.data().completed)) ? snap.data().completed : [];
+  const existingAthar     = (snap.exists && isCount(snap.data().athar))           ? snap.data().athar     : 0;
+  const existingPercent   = (snap.exists && isCount(snap.data().progressPercent)) ? snap.data().progressPercent : 0;
+  const existingReveal    = (snap.exists && !!snap.data().reveal);
+  const existingChapter   = (snap.exists && snap.data().currentChapter != null)
+                              ? snap.data().currentChapter : null;
+
+  try {
+    await mysteryRef.set({
+      threadId,
+      choices: { branch: branchId },
+      currentChapter: existingChapter,
+      clues: existingClues,
+      completed: existingCompleted,
+      progressPercent: existingPercent,
+      athar: existingAthar,
+      reveal: existingReveal,
+      updatedAt: FieldValue.serverTimestamp(),
+    }, { merge: true });
+    return { status: 'success', branch: branchId, changed: true };
+  } catch (err) {
+    throw new functions.https.HttpsError('internal', err.message || 'Failed');
+  }
 });
 
 exports.saveMysteryState = functions.https.onCall(async (data, context) => {
   const uid = requireAuth(context);
   const threadId = Number(data.threadId || data.id);
-  const mysteryId = String(threadId || data.id);
   const state = data.state || data || {};
+
+  /* ── Validation ───────────────────────────────────────────────────────────
+     saveMysteryState is the general-purpose mystery sync; it may only write
+     client-owned story state (choices, chapter, clue list, completion list,
+     progress percent).  Server-owned scored fields — athar, reveal — must
+     never be accepted from the client here.  The Firestore rule enforces this
+     at the database layer; this function enforces it at the application layer
+     so the two are consistent.  chooseMysteryBranch is the authoritative path
+     for the choices.branch field specifically. */
+  if (!isValidThread(threadId)) {
+    return { status: 'error', reason: 'invalid_thread' };
+  }
+
+  /* Read the existing athar and reveal so we never overwrite them with client
+     data even if the caller tries to pass them in data.state. */
+  const mysteryId = String(threadId);
   const mysteryRef = db.collection('users').doc(uid).collection('mysteries').doc(mysteryId);
+  const snap = await mysteryRef.get();
+  const existingAthar  = (snap.exists && isCount(snap.data().athar))  ? snap.data().athar  : 0;
+  const existingReveal = (snap.exists && !!snap.data().reveal);
+
+  /* choices.branch is accepted only if it is valid for this thread.  If the
+     client sends an invalid branch, silently drop it rather than throwing so
+     the rest of the state still saves. */
+  const rawChoices = (state.choices && typeof state.choices === 'object') ? state.choices : {};
+  const sanitizedChoices = {};
+  if (rawChoices.branch != null) {
+    if (isValidBranch(threadId, String(rawChoices.branch))) {
+      sanitizedChoices.branch = String(rawChoices.branch);
+    }
+    /* Other choice fields (e.g. clue answers logged by the client) pass through. */
+    for (const k of Object.keys(rawChoices)) {
+      if (k !== 'branch') sanitizedChoices[k] = rawChoices[k];
+    }
+  } else {
+    Object.assign(sanitizedChoices, rawChoices);
+  }
+
   const payload = {
     threadId,
-    choices: state.choices || {},
+    choices: sanitizedChoices,
     currentChapter: state.currentChapter || null,
     clues: Array.isArray(state.clues) ? state.clues : [],
     completed: Array.isArray(state.completed) ? state.completed : [],
     progressPercent: isCount(state.progressPercent) ? state.progressPercent : 0,
-    athar: isCount(state.athar) ? state.athar : 0,
-    reveal: !!state.reveal,
+    /* athar and reveal are server-owned — always preserve the stored value. */
+    athar: existingAthar,
+    reveal: existingReveal,
     updatedAt: FieldValue.serverTimestamp(),
   };
-await mysteryRef.set(payload, { merge: true });
-  return { status: 'success' };
+  try {
+    await mysteryRef.set(payload, { merge: true });
+    return { status: 'success' };
+  } catch (err) {
+    throw new functions.https.HttpsError('internal', err.message || 'Failed');
+  }
 });
 
 /* Create the weaver's own document on first sign-in.

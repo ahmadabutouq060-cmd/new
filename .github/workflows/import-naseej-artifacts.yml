@@ -8,6 +8,13 @@ on:
         required: true
         type: string
 
+# Writes assets/places, so it shares the group with the parallel collector and the
+# Commons fetcher. Running two of them at once interleaves their files into a
+# tree that looks plausible enough to commit.
+concurrency:
+  group: naseej-photo-writer
+  cancel-in-progress: false
+
 permissions:
   contents: write
   actions: read
@@ -15,6 +22,7 @@ permissions:
 jobs:
   import:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -28,11 +36,21 @@ jobs:
           path: collected
           merge-multiple: true
 
+      # Validates the artifact layout, names every imported file from its bytes
+      # rather than the extension the source manifest guessed, and leaves
+      # existing valid images in place where a shard carried no replacement. It
+      # used to be replaced by an `rm -rf assets/places` plus a copy, which
+      # discarded every generated placeholder along with the images.
       - name: Merge shard manifests and images
         run: node scripts/merge-naseej-place-image-shards.mjs
 
       - name: Wire verified photos into the site
         run: node scripts/wire-waypoint-images.cjs
+
+      - name: Verify the tree before committing
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
 
       - name: Make standalone zip bundle
         run: |

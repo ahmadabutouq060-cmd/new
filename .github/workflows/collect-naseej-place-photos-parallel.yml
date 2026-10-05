@@ -1,17 +1,24 @@
 name: Collect NASEEJ place photos (parallel)
 
+# The main collector. Three workflows can write assets/places (this one, the
+# Wikimedia Commons one, and the run-id importer); all three share the
+# naseej-photo-writer concurrency group, because two runs writing the same tree
+# at once produce a mix of each run's files that looks plausible enough to commit.
+
 on:
   push:
     paths:
       - "scripts/download-naseej-place-images.mjs"
       - "scripts/merge-naseej-place-image-shards.mjs"
+      - "scripts/lib/image-signatures.mjs"
+      - "scripts/wire-waypoint-images.cjs"
       - "docs/naseej-place-image-manifest.json"
       - ".github/workflows/collect-naseej-place-photos-parallel.yml"
   workflow_dispatch:
 
 concurrency:
-  group: naseej-photo-collector
-  cancel-in-progress: true
+  group: naseej-photo-writer
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -21,8 +28,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        shard: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    # Read-only: these jobs fetch images and upload an artifact. Nothing here
+    # writes to the repository, so they do not need contents: write.
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - name: Collect shard
@@ -31,6 +43,13 @@ jobs:
           NASEEJ_SHARDS: 16
           NASEEJ_OUTPUT_ROOT: shard-output
         run: node scripts/download-naseej-place-images.mjs
+
+      # The shard writes its manifest and its downloads under shard-output/, so
+      # the artifact is rooted there and holds manifests/shard-N.json plus
+      # assets/places/. An artifact whose only file is the manifest is the normal
+      # result for a shard whose searches all came back empty and must still be
+      # uploaded: the merge uses those manifests to tell "nothing to find" apart
+      # from "this shard never ran".
       - name: Upload shard
         uses: actions/upload-artifact@v4
         with:
@@ -42,23 +61,77 @@ jobs:
   merge:
     needs: collect
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
+
       - name: Download all shards
         uses: actions/download-artifact@v4
         with:
           pattern: naseej-place-shard-*
           path: collected
           merge-multiple: true
+
+      # Printed before the merge so the artifact layout is auditable in the run
+      # log. merge-multiple flattens the sixteen artifacts into one tree, so the
+      # per-shard record is each manifest's `written` list; this cross-checks it
+      # against what actually landed on disk. A shard whose images were lost in
+      # transit shows up here rather than as a merge that quietly imported fewer
+      # files than the manifests claim.
+      - name: Show collected layout
+        run: |
+          echo "::group::directories"
+          find collected -type d | sort
+          echo "::endgroup::"
+          echo "::group::per-shard record vs disk"
+          node -e '
+            const fs = require("fs"), path = require("path");
+            const dir = "collected/manifests";
+            let declared = 0, onDisk = 0, missing = 0;
+            for (const f of fs.readdirSync(dir).sort()) {
+              const m = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+              const written = m.written || [];
+              declared += written.length;
+              for (const rel of written) {
+                if (fs.existsSync(path.join("collected", rel))) onDisk++;
+                else { missing++; console.log("MISSING " + f + " declared " + rel); }
+              }
+              console.log(f.padEnd(16) + " " + String(written.length).padStart(3) + " file(s)");
+            }
+            console.log("declared " + declared + ", present " + onDisk + ", missing " + missing);
+            /* Reported, not failed: the merge is the authority and deliberately
+               imports what did arrive rather than discarding a whole run because
+               one shard lost a file, so existing good images survive. It prints
+               these same entries as "declared-but-absent". A non-zero count means
+               the artifact upload dropped files and is worth a look. */
+            if (missing) console.log("::warning::" + missing + " declared file(s) are absent from the artifacts");
+          '
+          echo "::endgroup::"
+
       - name: Merge images and manifests
+        env:
+          NASEEJ_SHARDS: 16
         run: node scripts/merge-naseej-place-image-shards.mjs
+
       - name: Wire verified photos into the site
         run: node scripts/wire-waypoint-images.cjs
+
+      # The merge refuses a file whose bytes disagree with its name and the wiring
+      # step only rewrites data.js, but this is the gate that also covers the rest
+      # of the tree and every assets/ path the renderers reference, so a bad image
+      # cannot reach main on a "successful" collection run.
+      - name: Verify the tree before committing
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+
       - name: Commit all place photos
         run: |
           git config user.name "NASEEJ Image Collector"
           git config user.email "actions@users.noreply.github.com"
-          git add assets/places docs/naseej-place-image-manifest.json assets/places/manifest.json assets/places/photo-manifest.json js/data.js
+          git add assets/places docs/naseej-place-image-manifest.json js/data.js
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else

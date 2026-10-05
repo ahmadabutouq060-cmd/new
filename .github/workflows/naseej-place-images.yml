@@ -1,7 +1,16 @@
-name: NASEEJ place photos
+name: NASEEJ place photos (Wikimedia Commons)
+
+# The Wikimedia Commons counterpart to collect-naseej-place-photos-parallel.yml.
+# Both write assets/places, so they share a concurrency group: two runs writing
+# the same tree at once produce a mix of each run's files that looks plausible
+# enough to commit.
 
 on:
   workflow_dispatch:
+
+concurrency:
+  group: naseej-photo-writer
+  cancel-in-progress: false
 
 permissions:
   contents: write
@@ -9,17 +18,36 @@ permissions:
 jobs:
   collect:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Fetch Wikimedia Commons photos
         run: node scripts/fetch-naseej-place-images.mjs
-      - name: Commit photos and manifest
+
+      - name: Wire verified photos into the site
+        run: node scripts/wire-waypoint-images.cjs
+
+      # fetch-naseej-place-images.mjs names each file from the bytes it received,
+      # because Commons' thumbnailer serves WebP for image/webp thumbs whatever
+      # the URL implies. npm run build then re-checks every asset's extension
+      # against its bytes, so a CDN that returns a different format than expected
+      # is caught here rather than on the live site.
+      - name: Verify the tree before committing
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+
+      - name: Commit photos and attribution manifest
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/places
-          git diff --cached --quiet && exit 0
-          git commit -m "Add NASEEJ place photos and attribution manifest"
-          git push
+          git add assets/places docs/naseej-commons-image-manifest.json js/data.js
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Add NASEEJ place photos and attribution manifest"
+            git push
+          fi

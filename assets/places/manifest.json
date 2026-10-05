@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-04T19:06:12.941Z",
+  "generated_at": "2026-10-05T11:32:30.431Z",
   "canonical_governorates": [
     "Amman",
     "Zarqa",
@@ -21,7 +21,7 @@
       "thread": "The Seven World Wonder",
       "city": "Ma'an",
       "place": "The Siq",
-      "image": "assets/places/maan/the-siq.webp",
+      "image": "assets/places/maan/the-siq.jpg",
       "imageStatus": "photo"
     },
     {
@@ -29,32 +29,32 @@
       "thread": "The Seven World Wonder",
       "city": "Ma'an",
       "place": "Al-Khazneh (The Treasury)",
-      "image": "assets/places/maan/al-khazneh-the-treasury.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ma-an/al-khazneh-the-treasury.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 1,
       "thread": "The Seven World Wonder",
       "city": "Ma'an",
       "place": "Street of Facades & Royal Tombs",
-      "image": "assets/places/maan/street-of-facades-royal-tombs.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ma-an/street-of-facades-royal-tombs.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 1,
       "thread": "The Seven World Wonder",
       "city": "Ma'an",
       "place": "High Place of Sacrifice",
-      "image": "assets/places/maan/high-place-of-sacrifice.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ma-an/high-place-of-sacrifice.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 1,
       "thread": "The Seven World Wonder",
       "city": "Ma'an",
       "place": "Ad-Deir (The Monastery)",
-      "image": "assets/places/maan/ad-deir-the-monastery.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ma-an/ad-deir-the-monastery.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 2,
@@ -69,7 +69,7 @@
       "thread": "Hadrian's City",
       "city": "Jerash",
       "place": "Oval Plaza (Forum)",
-      "image": "assets/places/jerash/oval-plaza-forum.webp",
+      "image": "assets/places/jerash/oval-plaza-forum.jpg",
       "imageStatus": "photo"
     },
     {
@@ -77,7 +77,7 @@
       "thread": "Hadrian's City",
       "city": "Jerash",
       "place": "Temple of Artemis",
-      "image": "assets/places/jerash/temple-of-artemis.webp",
+      "image": "assets/places/jerash/temple-of-artemis.jpg",
       "imageStatus": "photo"
     },
     {
@@ -85,7 +85,7 @@
       "thread": "Hadrian's City",
       "city": "Jerash",
       "place": "Cardo Maximus",
-      "image": "assets/places/jerash/cardo-maximus.webp",
+      "image": "assets/places/jerash/cardo-maximus.jpg",
       "imageStatus": "photo"
     },
     {
@@ -93,7 +93,7 @@
       "thread": "Hadrian's City",
       "city": "Jerash",
       "place": "South Theatre",
-      "image": "assets/places/jerash/south-theatre.webp",
+      "image": "assets/places/jerash/south-theatre.jpg",
       "imageStatus": "photo"
     },
     {
@@ -101,7 +101,7 @@
       "thread": "Hadrian's City",
       "city": "Jerash",
       "place": "Hippodrome",
-      "image": "assets/places/jerash/hippodrome.webp",
+      "image": "assets/places/jerash/hippodrome.jpg",
       "imageStatus": "photo"
     },
     {
@@ -109,8 +109,8 @@
       "thread": "Bride of the Red Sea",
       "city": "Al-Aqaba",
       "place": "Aqaba Marine Park",
-      "image": "assets/places/aqaba/aqaba-marine-park.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/al-aqaba/aqaba-marine-park.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 3,
@@ -141,8 +141,8 @@
       "thread": "Crusader Stronghold",
       "city": "Karak",
       "place": "Karak Castle (Crac des Moabites)",
-      "image": "assets/places/karak/karak-castle-crac-des-moabites.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/karak/karak-castle-crac-des-moabites.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 4,
@@ -157,16 +157,16 @@
       "thread": "Crusader Stronghold",
       "city": "Karak",
       "place": "Umm al-Rasas (Kastron Mefa'a)",
-      "image": "assets/places/madaba/umm-al-rasas-kastron-mefaa.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/karak/umm-al-rasas-kastron-mefa-a.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 4,
       "thread": "Crusader Stronghold",
       "city": "Karak",
       "place": "Karak Plateau Viewpoint",
-      "image": "assets/places/karak/karak-plateau-viewpoint.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/karak/karak-plateau-viewpoint.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 5,
@@ -181,7 +181,7 @@
       "thread": "The Capital's Layers",
       "city": "Amman",
       "place": "Temple of Hercules",
-      "image": "assets/places/amman/temple-of-hercules.webp",
+      "image": "assets/places/amman/temple-of-hercules.jpg",
       "imageStatus": "photo"
     },
     {
@@ -189,7 +189,7 @@
       "thread": "The Capital's Layers",
       "city": "Amman",
       "place": "Umayyad Palace",
-      "image": "assets/places/amman/umayyad-palace.webp",
+      "image": "assets/places/amman/umayyad-palace.jpg",
       "imageStatus": "photo"
     },
     {
@@ -197,7 +197,7 @@
       "thread": "The Capital's Layers",
       "city": "Amman",
       "place": "Roman Theatre of Philadelphia",
-      "image": "assets/places/amman/roman-theatre-of-philadelphia.webp",
+      "image": "assets/places/amman/roman-theatre-of-philadelphia.jpg",
       "imageStatus": "photo"
     },
     {
@@ -205,7 +205,7 @@
       "thread": "The Capital's Layers",
       "city": "Amman",
       "place": "Jordan Museum",
-      "image": "assets/places/amman/jordan-museum.webp",
+      "image": "assets/places/amman/jordan-museum.jpg",
       "imageStatus": "photo"
     },
     {
@@ -213,15 +213,15 @@
       "thread": "Castle Among Pines",
       "city": "Ajloun",
       "place": "Ajloun Forest Reserve Gate",
-      "image": "assets/places/ajloun/ajloun-forest-reserve-gate.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ajloun/ajloun-forest-reserve-gate.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 6,
       "thread": "Castle Among Pines",
       "city": "Ajloun",
       "place": "Mar Elias Byzantine Church",
-      "image": "assets/places/ajloun/mar-elias-byzantine-church.webp",
+      "image": "assets/places/ajloun/mar-elias-byzantine-church.jpg",
       "imageStatus": "photo"
     },
     {
@@ -237,8 +237,8 @@
       "thread": "Castle Among Pines",
       "city": "Ajloun",
       "place": "Ancient Olive Grove",
-      "image": "assets/places/ajloun/ancient-olive-grove.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ajloun/ancient-olive-grove.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 6,
@@ -253,7 +253,7 @@
       "thread": "Bride of the North",
       "city": "Irbid",
       "place": "Umm Qais (Gadara)",
-      "image": "assets/places/irbid/umm-qais-gadara.webp",
+      "image": "assets/places/irbid/umm-qais-gadara.jpg",
       "imageStatus": "photo"
     },
     {
@@ -261,39 +261,39 @@
       "thread": "Bride of the North",
       "city": "Irbid",
       "place": "Yarmouk River Gorge",
-      "image": "assets/places/irbid/yarmouk-river-gorge.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/irbid/yarmouk-river-gorge.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 7,
       "thread": "Bride of the North",
       "city": "Irbid",
       "place": "Beit Ras (Capitolias)",
-      "image": "assets/places/irbid/beit-ras-capitolias.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/irbid/beit-ras-capitolias.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 7,
       "thread": "Bride of the North",
       "city": "Irbid",
       "place": "Tell Irbid",
-      "image": "assets/places/irbid/tell-irbid.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/irbid/tell-irbid.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 7,
       "thread": "Bride of the North",
       "city": "Irbid",
       "place": "Abila (Quwayliba)",
-      "image": "assets/places/irbid/abila-quwayliba.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/irbid/abila-quwayliba.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 8,
       "thread": "Lowest Place on Earth",
       "city": "Dead Sea",
       "place": "Dead Sea Shore Float",
-      "image": "assets/places/dead-sea/dead-sea-shore-float.webp",
+      "image": "assets/places/dead-sea/dead-sea-shore-float.jpg",
       "imageStatus": "photo"
     },
     {
@@ -301,7 +301,7 @@
       "thread": "Lowest Place on Earth",
       "city": "Dead Sea",
       "place": "Salt Crystal Formations",
-      "image": "assets/places/dead-sea/salt-crystal-formations.webp",
+      "image": "assets/places/dead-sea/salt-crystal-formations.jpg",
       "imageStatus": "photo"
     },
     {
@@ -309,16 +309,16 @@
       "thread": "Lowest Place on Earth",
       "city": "Dead Sea",
       "place": "Wadi Mujib Siq Trail",
-      "image": "assets/places/madaba/wadi-mujib-siq-trail.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/dead-sea/wadi-mujib-siq-trail.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 8,
       "thread": "Lowest Place on Earth",
       "city": "Dead Sea",
       "place": "Lot's Pillar Viewpoint",
-      "image": "assets/places/dead-sea/lots-pillar-viewpoint.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/dead-sea/lots-pillar-viewpoint.webp",
+      "imageStatus": "photo"
     },
     {
       "threadId": 9,
@@ -341,8 +341,8 @@
       "thread": "City of Mosaics",
       "city": "Madaba",
       "place": "Church of the Apostles",
-      "image": "assets/places/madaba/church-of-the-apostles.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/madaba/church-of-the-apostles.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 9,
@@ -365,40 +365,40 @@
       "thread": "Yarmouk Nature Walk",
       "city": "Irbid",
       "place": "Yarmouk Trail Head",
-      "image": "assets/places/irbid/yarmouk-trail-head.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/irbid/yarmouk-trail-head.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 10,
       "thread": "Yarmouk Nature Walk",
       "city": "Irbid",
       "place": "Basalt Canyon Viewpoint",
-      "image": "assets/places/irbid/basalt-canyon-viewpoint.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/irbid/basalt-canyon-viewpoint.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 10,
       "thread": "Yarmouk Nature Walk",
       "city": "Irbid",
       "place": "Migratory Bird Watch Station",
-      "image": "assets/places/irbid/migratory-bird-watch-station.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/irbid/migratory-bird-watch-station.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 10,
       "thread": "Yarmouk Nature Walk",
       "city": "Irbid",
       "place": "Riverside Picnic Meadow",
-      "image": "assets/places/irbid/riverside-picnic-meadow.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/irbid/riverside-picnic-meadow.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 11,
       "thread": "City of Scholars & Souk",
       "city": "Irbid",
       "place": "Yarmouk University",
-      "image": "assets/places/irbid/yarmouk-university.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/irbid/yarmouk-university.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 11,
@@ -413,7 +413,7 @@
       "thread": "City of Scholars & Souk",
       "city": "Irbid",
       "place": "Irbid Archaeological Museum",
-      "image": "assets/places/irbid/irbid-archaeological-museum.webp",
+      "image": "assets/places/irbid/irbid-archaeological-museum.jpg",
       "imageStatus": "photo"
     },
     {
@@ -421,16 +421,16 @@
       "thread": "City of Scholars & Souk",
       "city": "Irbid",
       "place": "Old Irbid Houses",
-      "image": "assets/places/irbid/old-irbid-houses.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/irbid/old-irbid-houses.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 12,
       "thread": "The Olive Oil Journey",
       "city": "Ajloun",
       "place": "Olive Grove Harvest",
-      "image": "assets/places/ajloun/olive-grove-harvest.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ajloun/olive-grove-harvest.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 12,
@@ -461,8 +461,8 @@
       "thread": "Forest Soul Trail",
       "city": "Ajloun",
       "place": "Ajloun Forest Main Trail",
-      "image": "assets/places/ajloun/ajloun-forest-main-trail.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ajloun/ajloun-forest-main-trail.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 13,
@@ -493,39 +493,39 @@
       "thread": "Living Jerash",
       "city": "Jerash",
       "place": "Old City Souk",
-      "image": "assets/places/jerash/old-city-souk.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/jerash/old-city-souk.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 14,
       "thread": "Living Jerash",
       "city": "Jerash",
       "place": "Birketein Ancient Reservoir",
-      "image": "assets/places/jerash/birketein-ancient-reservoir.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/jerash/birketein-ancient-reservoir.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 14,
       "thread": "Living Jerash",
       "city": "Jerash",
       "place": "Beit Jerash Heritage House",
-      "image": "assets/places/jerash/beit-jerash-heritage-house.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/jerash/beit-jerash-heritage-house.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 14,
       "thread": "Living Jerash",
       "city": "Jerash",
       "place": "Craft Workshops Quarter",
-      "image": "assets/places/jerash/craft-workshops-quarter.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/jerash/craft-workshops-quarter.webp",
+      "imageStatus": "photo"
     },
     {
       "threadId": 15,
       "thread": "Temples & Gods of Gerasa",
       "city": "Jerash",
       "place": "Temple of Zeus",
-      "image": "assets/places/jerash/temple-of-zeus.webp",
+      "image": "assets/places/jerash/temple-of-zeus.jpg",
       "imageStatus": "photo"
     },
     {
@@ -533,8 +533,8 @@
       "thread": "Temples & Gods of Gerasa",
       "city": "Jerash",
       "place": "Nymphaeum Fountain",
-      "image": "assets/places/jerash/nymphaeum-fountain.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/jerash/nymphaeum-fountain.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 15,
@@ -549,7 +549,7 @@
       "thread": "Temples & Gods of Gerasa",
       "city": "Jerash",
       "place": "Church of St. John the Baptist",
-      "image": "assets/places/jerash/church-of-st-john-the-baptist.webp",
+      "image": "assets/places/jerash/church-of-st-john-the-baptist.jpg",
       "imageStatus": "photo"
     },
     {
@@ -557,7 +557,7 @@
       "thread": "Downtown Flavors",
       "city": "Amman",
       "place": "Al-Balad Old City Market",
-      "image": "assets/places/amman/al-balad-old-city-market.webp",
+      "image": "assets/places/amman/al-balad-old-city-market.jpg",
       "imageStatus": "photo"
     },
     {
@@ -565,7 +565,7 @@
       "thread": "Downtown Flavors",
       "city": "Amman",
       "place": "Hashem Restaurant",
-      "image": "assets/places/amman/hashem-restaurant.webp",
+      "image": "assets/places/amman/hashem-restaurant.jpg",
       "imageStatus": "photo"
     },
     {
@@ -581,15 +581,15 @@
       "thread": "Downtown Flavors",
       "city": "Amman",
       "place": "King Faisal Street & Sweet Shops",
-      "image": "assets/places/amman/king-faisal-street-sweet-shops.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/amman/king-faisal-street-sweet-shops.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 17,
       "thread": "Modern Soul of Amman",
       "city": "Amman",
       "place": "Rainbow Street",
-      "image": "assets/places/amman/rainbow-street.webp",
+      "image": "assets/places/amman/rainbow-street.jpg",
       "imageStatus": "photo"
     },
     {
@@ -597,72 +597,72 @@
       "thread": "Modern Soul of Amman",
       "city": "Amman",
       "place": "Darat al Funun Art Centre",
-      "image": "assets/places/amman/darat-al-funun-art-centre.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/amman/darat-al-funun-art-centre.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 17,
       "thread": "Modern Soul of Amman",
       "city": "Amman",
       "place": "Wild Jordan Center",
-      "image": "assets/places/amman/wild-jordan-center.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/amman/wild-jordan-center.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 17,
       "thread": "Modern Soul of Amman",
       "city": "Amman",
       "place": "Jabal Weibdeh Gallery Walk",
-      "image": "assets/places/amman/jabal-weibdeh-gallery-walk.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/amman/jabal-weibdeh-gallery-walk.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 18,
       "thread": "Mud & Minerals",
       "city": "Dead Sea",
       "place": "Dead Sea Mud Spa",
-      "image": "assets/places/dead-sea/dead-sea-mud-spa.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/dead-sea/dead-sea-mud-spa.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 18,
       "thread": "Mud & Minerals",
       "city": "Dead Sea",
       "place": "Mineral Water Float",
-      "image": "assets/places/dead-sea/mineral-water-float.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/dead-sea/mineral-water-float.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 18,
       "thread": "Mud & Minerals",
       "city": "Dead Sea",
       "place": "Sunset at Amman Beach",
-      "image": "assets/places/balqa/sunset-at-amman-beach.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/dead-sea/sunset-at-amman-beach.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 19,
       "thread": "Sacred Valley",
       "city": "Dead Sea",
       "place": "Bethany Beyond the Jordan",
-      "image": "assets/places/balqa/bethany-beyond-the-jordan.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/dead-sea/bethany-beyond-the-jordan.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 19,
       "thread": "Sacred Valley",
       "city": "Dead Sea",
       "place": "John the Baptist Churches",
-      "image": "assets/places/balqa/john-the-baptist-churches.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/dead-sea/john-the-baptist-churches.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 19,
       "thread": "Sacred Valley",
       "city": "Dead Sea",
       "place": "Lot's Cave & Sanctuary",
-      "image": "assets/places/karak/lots-cave-sanctuary.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/dead-sea/lot-s-cave-sanctuary.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 19,
@@ -677,15 +677,15 @@
       "thread": "Holy Mountain Trail",
       "city": "Madaba",
       "place": "Mount Nebo — Moses Viewpoint",
-      "image": "assets/places/madaba/mount-nebo-moses-viewpoint.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/madaba/mount-nebo-moses-viewpoint.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 20,
       "thread": "Holy Mountain Trail",
       "city": "Madaba",
       "place": "Memorial Church of Moses",
-      "image": "assets/places/madaba/memorial-church-of-moses.webp",
+      "image": "assets/places/madaba/memorial-church-of-moses.jpg",
       "imageStatus": "photo"
     },
     {
@@ -693,7 +693,7 @@
       "thread": "Holy Mountain Trail",
       "city": "Madaba",
       "place": "Serpentine Cross (Brazen Serpent)",
-      "image": "assets/places/madaba/serpentine-cross-brazen-serpent.webp",
+      "image": "assets/places/madaba/serpentine-cross-brazen-serpent.jpg",
       "imageStatus": "photo"
     },
     {
@@ -741,8 +741,8 @@
       "thread": "Mansaf & Moab Flavors",
       "city": "Karak",
       "place": "Mansaf at a Family Home",
-      "image": "assets/places/karak/mansaf-at-a-family-home.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/karak/mansaf-at-a-family-home.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 22,
@@ -757,16 +757,16 @@
       "thread": "Mansaf & Moab Flavors",
       "city": "Karak",
       "place": "Dhiban (Dibon) — Moabite Capital",
-      "image": "assets/places/madaba/dhiban-dibon-moabite-capital.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/karak/dhiban-dibon-moabite-capital.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 23,
       "thread": "Wadi Canyon Adventure",
       "city": "Karak",
       "place": "Wadi Ibn Hammad Canyon",
-      "image": "assets/places/karak/wadi-ibn-hammad-canyon.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/karak/wadi-ibn-hammad-canyon.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 23,
@@ -781,32 +781,32 @@
       "thread": "Wadi Canyon Adventure",
       "city": "Karak",
       "place": "Dana Biosphere Reserve (North Edge)",
-      "image": "assets/places/tafilah/dana-biosphere-reserve-north-edge.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/karak/dana-biosphere-reserve-north-edge.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 24,
       "thread": "Wadi Rum Adventure",
       "city": "Ma'an",
       "place": "Wadi Rum Visitor Gate",
-      "image": "assets/places/maan/wadi-rum-visitor-gate.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ma-an/wadi-rum-visitor-gate.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 24,
       "thread": "Wadi Rum Adventure",
       "city": "Ma'an",
       "place": "Lawrence Spring",
-      "image": "assets/places/maan/lawrence-spring.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ma-an/lawrence-spring.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 24,
       "thread": "Wadi Rum Adventure",
       "city": "Ma'an",
       "place": "Khazali Canyon Inscriptions",
-      "image": "assets/places/maan/khazali-canyon-inscriptions.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ma-an/khazali-canyon-inscriptions.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 24,
@@ -821,48 +821,48 @@
       "thread": "Wadi Rum Adventure",
       "city": "Ma'an",
       "place": "Bedouin Camp Under Stars",
-      "image": "assets/places/maan/bedouin-camp-under-stars.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ma-an/bedouin-camp-under-stars.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 25,
       "thread": "Little Petra & Bedouin Life",
       "city": "Ma'an",
       "place": "Little Petra (Siq al-Barid)",
-      "image": "assets/places/maan/little-petra-siq-al-barid.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/maan/little-petra-siq-al-barid.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 25,
       "thread": "Little Petra & Bedouin Life",
       "city": "Ma'an",
       "place": "Al-Beidha Neolithic Village",
-      "image": "assets/places/maan/al-beidha-neolithic-village.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ma-an/al-beidha-neolithic-village.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 25,
       "thread": "Little Petra & Bedouin Life",
       "city": "Ma'an",
       "place": "Bedouin Heritage Village",
-      "image": "assets/places/maan/bedouin-heritage-village.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ma-an/bedouin-heritage-village.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 25,
       "thread": "Little Petra & Bedouin Life",
       "city": "Ma'an",
       "place": "Camel Ride through Wadi Araba",
-      "image": "assets/places/maan/camel-ride-through-wadi-araba.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/ma-an/camel-ride-through-wadi-araba.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 26,
       "thread": "Port of History",
       "city": "Al-Aqaba",
       "place": "Aqaba Fort (Mamluk Castle)",
-      "image": "assets/places/aqaba/aqaba-fort-mamluk-castle.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/al-aqaba/aqaba-fort-mamluk-castle.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 26,
@@ -877,40 +877,40 @@
       "thread": "Port of History",
       "city": "Al-Aqaba",
       "place": "Aqaba Museum (Al-Hammamat)",
-      "image": "assets/places/aqaba/aqaba-museum-al-hammamat.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/al-aqaba/aqaba-museum-al-hammamat.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 26,
       "thread": "Port of History",
       "city": "Al-Aqaba",
       "place": "Aqaba Fish Market & Port",
-      "image": "assets/places/aqaba/aqaba-fish-market-port.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/al-aqaba/aqaba-fish-market-port.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 27,
       "thread": "Desert to Sea",
       "city": "Al-Aqaba",
       "place": "Wadi Rum Desert Departure",
-      "image": "assets/places/aqaba/wadi-rum-desert-departure.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/al-aqaba/wadi-rum-desert-departure.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 27,
       "thread": "Desert to Sea",
       "city": "Al-Aqaba",
       "place": "Gulf of Aqaba Sunset Cruise",
-      "image": "assets/places/aqaba/gulf-of-aqaba-sunset-cruise.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/al-aqaba/gulf-of-aqaba-sunset-cruise.jpg",
+      "imageStatus": "photo"
     },
     {
       "threadId": 27,
       "thread": "Desert to Sea",
       "city": "Al-Aqaba",
       "place": "South Beach Camping & Snorkeling",
-      "image": "assets/places/aqaba/south-beach-camping-snorkeling.svg",
-      "imageStatus": "placeholder"
+      "image": "assets/places/al-aqaba/south-beach-camping-snorkeling.jpg",
+      "imageStatus": "photo"
     }
   ],
   "thread_covers": [

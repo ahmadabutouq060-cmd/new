@@ -882,6 +882,85 @@ html.auth-locked body {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
+   Waypoint illustration placeholder
+   (replaces the developer-style dashed box with a premium NASEEJ visual)
+
+   The .waypoint-illus block is a full-bleed decorative SVG background that
+   fills the image slot when no verified photograph exists. It uses the brand
+   palette (Deep Teal, Terracotta, cream) with an abstract topography / thread
+   motif so the absence of a photograph reads as an intentional design choice
+   rather than a missing image. The aria-label and the .waypoint-illus-badge
+   beneath it preserve the honest disclosure; nothing here claims to be a photo.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.waypoint-illus {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: max(160px, 100%);
+  overflow: hidden;
+  background: linear-gradient(145deg, #02302B 0%, #013E37 45%, #046852 100%);
+  display: flex;
+  align-items: flex-end;
+}
+
+/* The inline SVG motif sits as an absolute layer so the text/badge overlay
+   can live on top of it without disrupting flow. */
+.waypoint-illus-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Subject name: bottom-left, large enough to read at a glance. */
+.waypoint-illus-label {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 2.5rem 0.875rem 0.75rem;
+  background: linear-gradient(to top, rgba(2,48,43,0.82) 0%, transparent 100%);
+}
+.waypoint-illus-name {
+  font-family: var(--font-display);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #F9F7F3;
+  line-height: 1.35;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* Small honest badge — top-right, unobtrusive. */
+.waypoint-illus-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  background-color: rgba(2, 48, 43, 0.72);
+  border: 1px solid rgba(237,185,158,0.28);
+  font-family: var(--font-body);
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #EDB99E;
+  /* Keep above the gradient layers */
+  z-index: 1;
+  white-space: nowrap;
+}
+
+/* Thread-panel variant: the card image slot is smaller (h-44 = 11rem) so
+   the badge is anchored to the card's absolute positioning context by the
+   existing markup; we only need to ensure the illustration fills that slot. */
+
+/* ═══════════════════════════════════════════════════════════════════════════
    Responsive layer
 
    The utility classes above are single-class rules with no breakpoints, so
@@ -1010,8 +1089,19 @@ html { scroll-padding-top: 6rem; }
   /* With the parent's height no longer definite, `h-full` on the inner column
      resolves to auto and the copy would sit against the top of the viewport
      instead of centred in it. Giving that column the same minimum restores the
-     centring while still allowing it to grow. */
-  .h-screen > .h-full { min-height: 100vh; }
+     centering while still allowing it to grow.
+
+     CLIPPING FIX — "Jordan Gamified" and the eyebrow were visibly cut off at
+     the top on 360–768px viewports. Root cause: `flex items-center` on the
+     hero-inner wrapper vertically centres the grid inside `min-height:100vh`.
+     When the stacked grid content (text column + SVG art column) is taller than
+     the viewport, centering shifts it upward, and `overflow:hidden` on the outer
+     section then clips whatever protrudes above the top edge — i.e. the eyebrow
+     and the first line of the heading. Switching to `align-items: flex-start`
+     (top-aligned) at this breakpoint means the grid always starts just below the
+     nav (the `pt-20` padding already handles that offset) and nothing is hidden
+     by the overflow boundary. */
+  .h-screen > .h-full { min-height: 100vh; align-items: flex-start; }
 
   /* Touch targets. 44px is the minimum comfortable tap size; the pill buttons
      on the site are already 36-40px tall, which is too small for a thumb.

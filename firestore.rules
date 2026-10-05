@@ -170,96 +170,30 @@ service cloud.firestore {
 
       allow read: if isOwner(uid);
 
-      function identityOk() {
-        let d = request.resource.data;
-        return d.keys().hasOnly([
-               'displayName', 'email', 'photoURL', 'memberSince', 'verified',
-               'badges', 'wishlist', 'redemptions', 'atharBase', 'athar',
-               'atharPeak', 'updatedAt'
-             ])
-          && d.get('displayName', '') is string && d.get('displayName', '').size() <= 120
-          && d.get('email', '') is string && d.get('email', '').size() <= 200
-          && d.get('photoURL', '') is string && d.get('photoURL', '').size() <= 500
-          && isNullableText(d.get('memberSince', null))
-          && d.get('verified', false) is bool
-          && d.get('badges', []) is list
-          && d.get('wishlist', {}) is map
-          && d.get('redemptions', {}) is map
-          && isStamp(d.get('updatedAt', 0));
-      }
+      /* Client cannot create or delete user document directly; server owns initialization */
+      allow create, delete: if false;
 
-      allow create: if isOwner(uid)
-        && identityOk()
-        && isCount(request.resource.data.get('atharBase', 0))
-        && isCount(request.resource.data.get('athar', 0))
-        && isCount(request.resource.data.get('atharPeak', 0));
-
-      /* No field may shrink, and the spend log may only grow — those two
-         together are what make a self-edited document unable to raise its own
-         balance, since the held balance is derived from the ledger, the spend log
-         and the base rather than read from a stored number. Badges are earned,
-         not revoked. */
+      /* Client can only update wishlist or non-sensitive fields; CANNOT write ATHAR, badges, or redemptions */
       allow update: if isOwner(uid)
-        && identityOk()
-        && growsOnly('atharBase')
-        && growsOnly('athar')
-        && growsOnly('atharPeak')
-        && appendOnlyMap('redemptions')
-        && growsOnlyList('badges');
-
-      /* Signing out is not deletion, and nothing in the app removes this
-         document. Leaving the rules open here would let a client erase the very
-         log the monotonic checks depend on. */
-      allow delete: if false;
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['wishlist', 'updatedAt'])
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['athar', 'atharPeak', 'atharBase', 'badges', 'redemptions']);
 
       /* ── The reward ledger ──────────────────────────────────────────────────
-         Create-only. The transaction in awardAthar() already refuses a second
-         grant; this closes the other direction — nothing can rewrite or remove
-         what has already been paid. */
+         Server-authoritative only. Client cannot write rewards directly. */
       match /rewards/{rewardId} {
         allow read: if isOwner(uid);
-        allow create: if isOwner(uid) && rewardShapeOk(rewardId);
-        allow update, delete: if false;
+        allow write: if false;
       }
 
       /* ── Progress ───────────────────────────────────────────────────────────
-         One document per completed waypoint (t{n}_w{n}) plus one per thread
-         (t{n}_progress). Ids are constrained so a client cannot write rows the
-         app has no way to interpret. `completedAt` is the first completion, so it
-         is frozen; re-saving a waypoint refreshes `metadata`, not its date. */
+         Server-authoritative only. Client cannot write progress directly. */
       match /progress/{docId} {
         allow read: if isOwner(uid);
-
-        function progressShapeOk() {
-          let d = request.resource.data;
-          return d.keys().hasOnly([
-                 'threadId', 'waypointId', 'completed', 'completedAt', 'metadata', 'updatedAt'
-               ])
-            && docId.matches('^t[0-9]+_(w[0-9]+|progress)$')
-            && d.threadId is int && d.threadId > 0
-            && isNullableId(d.waypointId)
-            && d.completed == true
-            && isStamp(d.completedAt)
-            && d.get('metadata', {}) is map
-            && isStamp(d.updatedAt);
-        }
-
-        allow create: if isOwner(uid) && progressShapeOk();
-
-        allow update: if isOwner(uid)
-          && progressShapeOk()
-          && resource.data.completed == true
-          && request.resource.data.completedAt == resource.data.completedAt;
-
-        allow delete: if false;
+        allow write: if false;
       }
 
       /* ── Mysteries ──────────────────────────────────────────────────────────
-         The living-thread state. `reveal` is stored for the reader's convenience
-         but never believed: data.js recomputes it from the choices and clues, so
-         a hand-written document cannot unlock an ending. What the rules do
-         protect is the arithmetic — the running total in the document grows, and
-         a thread's own id and its solved sets cannot be rewritten. */
+         Client can update branch choices and local mystery state, but CANNOT mutate ATHAR. */
       match /mysteries/{mysteryId} {
         allow read: if isOwner(uid);
 
@@ -282,53 +216,18 @@ service cloud.firestore {
         }
 
         allow create: if isOwner(uid) && mysteryShapeOk();
-
         allow update: if isOwner(uid)
           && mysteryShapeOk()
           && request.resource.data.threadId == resource.data.threadId
-          && request.resource.data.athar >= resource.data.get('athar', 0)
-          && growsOnlyList('clues')
-          && growsOnlyList('completed');
-
+          && request.resource.data.athar == resource.data.get('athar', 0);
         allow delete: if false;
       }
 
       /* ── Secrets ────────────────────────────────────────────────────────────
-         Create-only once found. The document is written when the secret is
-         solved, so there is a legitimate window in which it exists incomplete
-         (completed false, reward not yet granted) and can be finished — but a
-         found secret can never be un-found, and its answer and date are frozen at
-         that point. */
+         Server-authoritative only. Client cannot write secrets directly. */
       match /secrets/{secretId} {
         allow read: if isOwner(uid);
-
-        function secretShapeOk() {
-          let d = request.resource.data;
-          return d.keys().hasOnly([
-                 'threadId', 'completed', 'rewardGranted', 'optionId', 'completedAt', 'updatedAt'
-               ])
-            && secretId.matches('^[0-9]+_[A-Za-z0-9_-]+$')
-            && d.threadId is int && d.threadId > 0
-            && d.completed is bool
-            && d.rewardGranted is bool
-            && isNullableText(d.optionId)
-            && isNullableCount(d.completedAt)
-            && isStamp(d.updatedAt);
-        }
-
-        allow create: if isOwner(uid) && secretShapeOk();
-
-        /* Either it was already found and nothing about that may change, or it
-           was not and this write may finish it. */
-        allow update: if isOwner(uid)
-          && secretShapeOk()
-          && (resource.data.get('completed', false) != true
-            || (request.resource.data.completed == true
-              && request.resource.data.optionId == resource.data.get('optionId', null)
-              && request.resource.data.completedAt == resource.data.get('completedAt', null)
-              && request.resource.data.threadId == resource.data.threadId));
-
-        allow delete: if false;
+        allow write: if false;
       }
     }
 

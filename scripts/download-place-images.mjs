@@ -42,12 +42,25 @@ function slug(s) {
     .toLowerCase()
 }
 
+/* Both spellings of a governorate folder that were ever written map to the one
+   canonical folder, so this script writes `maan/` and `aqaba/` and cannot
+   recreate the `ma-an/` duplicate or the pre-rename `al-aqaba/`. */
+const GOVERNORATE_FOLDER = {
+  "ma-an": "maan",
+  "al-aqaba": "aqaba",
+}
+
+function governorateFolder(governorate) {
+  const s = slug(governorate)
+
+  return GOVERNORATE_FOLDER[s] || s
+}
+
 function cleanHtml(v = "") {
   return String(v)
     .replace(/<[^>]*>/g, "")
     .trim()
 }
-
 async function searchCommons(q) {
   const p = new URLSearchParams({
     action: "query",
@@ -122,7 +135,7 @@ await fs.mkdir(OUT_ROOT, { recursive: true })
 const results = []
 
 for (const item of source.places) {
-  const dir = path.join(OUT_ROOT, slug(item.governorate))
+  const dir = path.join(OUT_ROOT, governorateFolder(item.governorate))
 
   await fs.mkdir(dir, { recursive: true })
 

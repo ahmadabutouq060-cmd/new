@@ -1,0 +1,176 @@
+1: rules_version = '2';
+2: service cloud.firestore {
+3:   match /databases/{database}/documents {
+4: 
+5:     /* ══ Model ═══════════════════════════════════════════════════════════════
+6:        Everything a weaver owns lives under users/{uid}. Nothing here grants a
+7:        read to anyone but the owner, so there is no leaderboard, no public thread
+8:        state, and no way for one account to observe another.
+9: 
+10:        This file is server-authoritative. A browser may do exactly two things to
+11:        its own Firestore data:
+12: 
+13:          · read it
+14:          · write users/{uid}/mysteries/{id} — branch choices and local state
+15:          · merge { wishlist, updatedAt } onto users/{uid}
+16: 
+17:        Everything else — creating the account, the reward ledger, completed
+18:        waypoints, found secrets, the athar balance, badges and redemptions — is
+19:        written by Cloud Functions and nobody else. The rules here say `if false`
+20:        for those paths, and functions/index.js is what actually performs them.
+21: 
+22:        The reason is that this document is the product. `athar` is derived by the
+23:        app from a base, the reward ledger and the spend log, so a client able to
+24:        write any one of those three inputs controls its own balance. Guarding
+25:        them with clever predicates has already failed once on this project:
+26: 
+27:        `growsOnly('atharBase')` asserted only that a new value was >= the old
+28:        one. Monotonicity is not a cap — a single write of atharBase: 999999 was
+29:        legal, every write after it was legal, and the floor in data.js then pinned
+30:        that balance on every device for that account permanently, with no ledger
+31:        entry contradicting it. A `false` cannot be argued with. Admin SDK writes
+32:        bypass security rules entirely, so refusing the client costs the server
+33:        nothing. */
+34: 
+35:     /* ── Primitives ───────────────────────────────────────────────────────── */
+36: 
+37:     function isOwner(uid) {
+38:       return request.auth != null && request.auth.uid == uid;
+39:     }
+40: 
+41:     /* Firestore has one integer type, but a JSON number can arrive as a float.
+42:        `floor` is the only rounding in the rules language, so it stands in for
+43:        Number.isInteger; it also rejects NaN, because NaN == NaN is false. */
+44:     function isWhole(n) {
+45:       return n is int || (n is float && floor(n) == n);
+46:     }
+47: 
+48:     function isCount(n) {
+49:       return isWhole(n) && n >= 0;
+50:     }
+51: 
+52:     /* Timestamps are client wall clocks in ms, written by every save. */
+53:     function isStamp(n) {
+54:       return n is int && n > 0;
+55:     }
+56: 
+57:     function isNullableText(n) {
+58:       return n == null || (n is string && n.size() <= 64);
+59:     }
+60: 
+61:     /* ── Mystery documents ───────────────────────────────────────────────────
+62:        The one collection the client owns, so it is the one document shape the
+63:        rules still have to police. A branch choice is the weaver's own reading
+64:        of a text; athar is not, and is pinned below.
+65: 
+66:        Declared here at the top level on purpose: the rules language does not
+67:        accept a function definition inside a match block, and `mysteryId` is a
+68:        wildcard bound inside one, so it is passed in rather than captured. */
+69:     function mysteryShapeOk(mysteryId) {
+70:       let d = request.resource.data;
+71:       return d.keys().hasOnly([
+72:                'threadId', 'choices', 'currentChapter', 'clues', 'completed',
+73:                'progressPercent', 'athar', 'reveal', 'updatedAt'
+74:              ])
+75:         && mysteryId.matches('^[0-9]+$')
+76:         && d.threadId is int && d.threadId > 0
+77:         && (d.currentChapter == null || d.currentChapter is string)
+78:         && d.choices is map
+79:         && d.clues is list
+80:         && d.completed is list
+81:         && isCount(d.progressPercent) && d.progressPercent <= 100
+82:         && isCount(d.athar)
+83:         && d.reveal is bool
+84:         && isStamp(d.updatedAt);
+85:     }
+86: 
+87:     /* ══ The weaver's own document ═══════════════════════════════════════════ */
+88:     match /users/{uid} {
+89: 
+90:       allow read: if isOwner(uid);
+91: 
+92:       /* The client cannot create or delete this document.
+93: 
+94:          Creating it is initializeAccount's job — auth.js calls that callable the
+95:          moment an account attaches, which is the only reason sign-in works at
+96:          all under this rule. That callable takes identity and nothing else: the
+97:          numbers on this document are the server's to mint. */
+98:       allow create, delete: if false;
+99: 
+100:       /* A merge touching only wishlist and updatedAt. This is syncAccount()'s
+101:          entire remaining write, and it is why a sign-in still persists anything.
+102: 
+103:          `hasOnly` is the whole guard: diff() reports every key that changed, so
+104:          a merge that also moved athar, badges or redemptions fails on the set
+105:          membership rather than on any predicate about the values. The hasAny
+106:          below names those four fields explicitly, which is redundant today and
+107:          deliberate — if someone widens hasOnly to admit, say, displayName, the
+108:          sensitive ones still cannot slip through the second condition. */
+109:       allow update: if isOwner(uid)
+110:         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['wishlist', 'updatedAt'])
+111:         && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+112:              'athar', 'atharPeak', 'atharBase', 'badges', 'redemptions'
+113:            ]);
+114: 
+115:       /* ── The reward ledger ──────────────────────────────────────────────────
+116:          Server-authoritative. Cloud Functions write it in a transaction that
+117:          reads the document first, so the document id doubling as the unique key
+118:          is what makes a payout idempotent: a refresh, a double tap and a second
+119:          device collide on one create instead of paying three times.
+120: 
+121:          A client that could write a reward could also name its own amount, which
+122:          is why the price lives in functions/lib/schema.js and the answer is
+123:          checked in functions/lib/validation.js — neither of which a browser can
+124:          reach. */
+125:       match /rewards/{rewardId} {
+126:         allow read: if isOwner(uid);
+127:         allow write: if false;
+128:       }
+129: 
+130:       /* ── Progress ───────────────────────────────────────────────────────────
+131:          Server-authoritative. completeWaypoint derives the document id
+132:          (`t{thread}_w{waypoint}` or `t{thread}_progress`) and the completedAt
+133:          stamp, so a client cannot un-complete a waypoint by rewriting a row, and
+134:          cannot claim one it never reached. */
+135:       match /progress/{docId} {
+136:         allow read: if isOwner(uid);
+137:         allow write: if false;
+138:       }
+139: 
+140:       /* ── Mysteries ────────────────────────────────────────────────────────── */
+141:       match /mysteries/{mysteryId} {
+142:         allow read: if isOwner(uid);
+143: 
+144:         allow create: if isOwner(uid) && mysteryShapeOk(mysteryId);
+145: 
+146:         allow update: if isOwner(uid)
+147:           && mysteryShapeOk(mysteryId)
+148:           && request.resource.data.threadId == resource.data.get('threadId', null)
+149:           && request.resource.data.athar == resource.data.get('athar', 0);
+150: 
+151:         allow delete: if false;
+152:       }
+153: 
+154:       /* ── Secrets ────────────────────────────────────────────────────────────
+155:          Server-authoritative. The document records that a weaver found a hidden
+156:          stop, so a client able to write it could claim any secret in the product
+157:          without finding it. completeSecret checks the answer against its own
+158:          table first. */
+159:       match /secrets/{secretId} {
+160:         allow read: if isOwner(uid);
+161:         allow write: if false;
+162:       }
+163:     }
+164: 
+165:     /* ══ Legacy ═══════════════════════════════════════════════════════════════
+166:        An earlier build stored the whole progress snapshot in one weavers/{uid}
+167:        document. js/auth.js reads it once, on the first sign-in of an account with
+168:        nothing under users/{uid}, and then never writes it again — so the write
+169:        half is closed here. Leaving it open would keep a second, unvalidated path
+170:        into the same data alive for no benefit. */
+171:     match /weavers/{uid} {
+172:       allow read: if isOwner(uid);
+173:       allow write: if false;
+174:     }
+175:   }
+176: }

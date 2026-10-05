@@ -3,39 +3,34 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     /* ══ Model ═══════════════════════════════════════════════════════════════
-       Everything a weaver owns lives under users/{uid}. Nothing in this file
-       grants a read to anyone but the owner, so there is no leaderboard, no
-       public thread state, and no way for one account to observe another.
+       Everything a weaver owns lives under users/{uid}. Nothing here grants a
+       read to anyone but the owner, so there is no leaderboard, no public thread
+       state, and no way for one account to observe another.
 
-       The document shapes below are not documentation — they are the exact key
-       set js/firebase.js writes, and `keys().hasOnly(...)` enforces it. A
-       request carrying anything else is rejected, which is what stops a client
-       smuggling an unvalidated field into a document the app later reads back
-       and merges.
+       This file is server-authoritative. A browser may do exactly two things to
+       its own Firestore data:
 
-       The three ideas the whole model rests on:
+         · read it
+         · write users/{uid}/mysteries/{id} — branch choices and local state
+         · merge { wishlist, updatedAt } onto users/{uid}
 
-         1. A reward's document ID *is* its unique key, derived from the
-            (thread, kind, what) triple. Creating it twice is the same document,
-            so a refresh, a double tap and a second device collide on one write
-            instead of producing three payouts. `create` only, never `update` or
-            `delete`: a granted reward cannot be edited into a bigger one.
+       Everything else — creating the account, the reward ledger, completed
+       waypoints, found secrets, the athar balance, badges and redemptions — is
+       written by Cloud Functions and nobody else. The rules here say `if false`
+       for those paths, and functions/index.js is what actually performs them.
 
-         2. Every number that feeds a total grows and nothing shrinks. `athar`,
-            `atharPeak` and `atharBase` are monotonic; the redemption log is
-            append-only. Without this a client could rewrite its own document to
-            claim a larger balance, because the app derives the held balance from
-            the ledger, the spend log and the base rather than storing it.
+       The reason is that this document is the product. `athar` is derived by the
+       app from a base, the reward ledger and the spend log, so a client able to
+       write any one of those three inputs controls its own balance. Guarding
+       them with clever predicates has already failed once on this project:
 
-         3. Progress only moves forward. A `completed: false` row is never
-            accepted and a completed one cannot be un-completed, so there is no
-            document to flip in order to farm a reward.
-
-       Reward prices are part of this schema, not content: `rewardAmount()`
-       mirrors the ATHAR table in js/data.js. Changing a price there invalidates
-       the entries in existing weavers' redemption logs, which the append-only
-       rule will then refuse to let them prune — see AGENTS.md, "Reward prices
-       are frozen". Shipping new prices needs a Console migration. */
+       `growsOnly('atharBase')` asserted only that a new value was >= the old
+       one. Monotonicity is not a cap — a single write of atharBase: 999999 was
+       legal, every write after it was legal, and the floor in data.js then pinned
+       that balance on every device for that account permanently, with no ledger
+       entry contradicting it. A `false` cannot be argued with. Admin SDK writes
+       bypass security rules entirely, so refusing the client costs the server
+       nothing. */
 
     /* ── Primitives ───────────────────────────────────────────────────────── */
 
@@ -59,172 +54,116 @@ service cloud.firestore {
       return n is int && n > 0;
     }
 
-    function isNullableCount(n) {
-      return n == null || isCount(n);
-    }
-
-    function isNullableId(n) {
-      return n == null || (isWhole(n) && n > 0);
-    }
-
-    /* Short declared identifiers: a chapter key, a secret id, a branch id. */
     function isNullableText(n) {
       return n == null || (n is string && n.size() <= 64);
     }
 
-    /* A count that may only go up. `get(key, 0)` makes this work on a merge that
-       does not mention the field at all: an unchanged field compares equal to
-       itself, and a field dropped from the document compares 0 >= old, which is
-       false — so erasing a total is a denial, not a reset. */
-    function growsOnly(field) {
-      return isCount(request.resource.data.get(field, 0))
-        && request.resource.data.get(field, 0) >= resource.data.get(field, 0);
+    /* ── Mystery documents ───────────────────────────────────────────────────
+       The one collection the client owns, so it is the one document shape the
+       rules still have to police. A branch choice is the weaver's own reading
+       of a text; athar is not, and is pinned below.
+
+       Declared here at the top level on purpose: the rules language does not
+       accept a function definition inside a match block, and `mysteryId` is a
+       wildcard bound inside one, so it is passed in rather than captured. */
+    function mysteryShapeOk(mysteryId) {
+      /* The null check has to come before anything reads request.resource. On a
+         delete it is null, and binding `let d = request.resource.data` above the
+         guard raises an evaluation error instead of returning false — which is
+         why the shape test lives in its own function. */
+      return request.resource != null && mysteryFieldsOk(request.resource.data, mysteryId);
     }
 
-    /* A map whose entries are never removed or rewritten. `diff()` reports
-       exactly the keys that disappeared or changed value, so "no affected keys"
-       is append-only. The default keeps the first write of an absent field
-       working. */
-    function appendOnlyMap(field) {
-      return resource.data.get(field, {}).diff(request.resource.data.get(field, {})).affectedKeys().hasOnly([]);
-    }
-
-    /* The same for a list, which has no diff: every element the old list held
-       must still be present. Order is not part of the contract. */
-    function growsOnlyList(field) {
-      return resource.data.get(field, []).hasAll(request.resource.data.get(field, []));
-    }
-
-    /* ── The reward tables ────────────────────────────────────────────────────
-       Mirrors ATHAR and REWARD_SOURCES in js/data.js. Both are closed sets there
-       for exactly this reason: a payout the rules cannot enumerate is a payout
-       the rules cannot check. `amount` is derived from `type` rather than
-       trusted, so the two cannot disagree — posting type 'challenge' with an
-       amount of 500 is a denial, not a bonus. */
-    function rewardAmount(t) {
-      return t == 'challenge' ? 150
-           : t == 'clue' ? 100
-           : t == 'chapter' ? 200
-           : t == 'reveal' ? 500
-           : t == 'secret' ? 250
-           : -1;
-    }
-
-    function rewardSource(t) {
-      return t == 'challenge' ? 'challenge_answer'
-           : t == 'clue' ? 'clue_unlock'
-           : t == 'chapter' ? 'chapter_reached'
-           : t == 'reveal' ? 'thread_reveal'
-           : t == 'secret' ? 'secret_challenge'
-           : '';
-    }
-
-    /* t{threadId}_{kind}_{token} — see rewardUniqueKey() in js/data.js. Waypoint
-       ids are numbered per thread, so the thread has to be part of the key or
-       'challenge waypoint 2' in two threads would be one reward, not two. */
-    function rewardKeyOk(k) {
-      return k is string
-        && k.matches('^t[0-9]+_(challenge|clue|chapter|reveal|secret)_[A-Za-z0-9_-]+$');
-    }
-
-    /* `kind:what`, where `what` is a waypoint id, clue id, chapter key or secret
-       id. Deliberately looser than rewardKeyOk(): `uniqueKey` is run through
-       docSafe() in data.js but `entryKey` is not, so a chapter key containing a
-       space would produce a document id of `t3_chapter_ch_1` and an entryKey of
-       `chapter:ch 1`. Only `/` is excluded, because a path separator here would
-       mean the two halves disagree about what the reward is. */
-    function entryKeyOk(k) {
-      return k is string && k.matches('^(challenge|clue|chapter|reveal|secret):[^/]+$');
-    }
-
-    function challengeIdOk(c) {
-      return c == null || (c is string && c.matches('^t[0-9]+_(w[0-9]+|final)$'));
-    }
-
-    function rewardShapeOk(rewardId) {
-      let d = request.resource.data;
+    function mysteryFieldsOk(d, mysteryId) {
       return d.keys().hasOnly([
-             'uniqueKey', 'entryKey', 'type', 'source', 'threadId', 'waypointId',
-             'challengeId', 'clueId', 'chapterKey', 'secretId', 'amount', 'earnedAt'
-           ])
-        && d.type in ['challenge', 'clue', 'chapter', 'reveal', 'secret']
-        && rewardId == d.uniqueKey
-        && rewardKeyOk(rewardId)
-        && entryKeyOk(d.entryKey)
-        && d.entryKey.startsWith(d.type + ':')
-        && d.source == rewardSource(d.type)
-        && d.amount == rewardAmount(d.type)
+               'threadId', 'choices', 'currentChapter', 'clues', 'completed',
+               'progressPercent', 'athar', 'reveal', 'updatedAt'
+             ])
+        && mysteryId.matches('^[0-9]+$')
         && d.threadId is int && d.threadId > 0
-        && isNullableId(d.waypointId)
-        && isNullableId(d.clueId)
-        && isNullableText(d.chapterKey)
-        && isNullableText(d.secretId)
-        && challengeIdOk(d.challengeId)
-        && isStamp(d.earnedAt);
+        && (d.currentChapter == null || d.currentChapter is string)
+        && d.choices is map
+        && d.clues is list
+        && d.completed is list
+        && isCount(d.progressPercent) && d.progressPercent <= 100
+        && isCount(d.athar)
+        && d.reveal is bool
+        && isStamp(d.updatedAt);
     }
 
-    /* ══ The weaver's own document ═══════════════════════════════════════════
-       Identity may change — a Google account can be renamed, and the profile has
-       to follow it. The numbers may not. */
+    /* ══ The weaver's own document ═══════════════════════════════════════════ */
     match /users/{uid} {
 
       allow read: if isOwner(uid);
 
-      /* Client cannot create or delete user document directly; server owns initialization */
+      /* The client cannot create or delete this document.
+
+         Creating it is initializeAccount's job — auth.js calls that callable the
+         moment an account attaches, which is the only reason sign-in works at
+         all under this rule. That callable takes identity and nothing else: the
+         numbers on this document are the server's to mint. */
       allow create, delete: if false;
 
-      /* Client can only update wishlist or non-sensitive fields; CANNOT write ATHAR, badges, or redemptions */
+      /* A merge touching only wishlist and updatedAt. This is syncAccount()'s
+         entire remaining write, and it is why a sign-in still persists anything.
+
+         `hasOnly` is the whole guard: diff() reports every key that changed, so
+         a merge that also moved athar, badges or redemptions fails on the set
+         membership rather than on any predicate about the values. The hasAny
+         below names those four fields explicitly, which is redundant today and
+         deliberate — if someone widens hasOnly to admit, say, displayName, the
+         sensitive ones still cannot slip through the second condition. */
       allow update: if isOwner(uid)
+        && request.resource != null && resource != null
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['wishlist', 'updatedAt'])
-        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['athar', 'atharPeak', 'atharBase', 'badges', 'redemptions']);
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny([
+             'athar', 'atharPeak', 'atharBase', 'badges', 'redemptions'
+           ]);
 
       /* ── The reward ledger ──────────────────────────────────────────────────
-         Server-authoritative only. Client cannot write rewards directly. */
+         Server-authoritative. Cloud Functions write it in a transaction that
+         reads the document first, so the document id doubling as the unique key
+         is what makes a payout idempotent: a refresh, a double tap and a second
+         device collide on one create instead of paying three times.
+
+         A client that could write a reward could also name its own amount, which
+         is why the price lives in functions/lib/schema.js and the answer is
+         checked in functions/lib/validation.js — neither of which a browser can
+         reach. */
       match /rewards/{rewardId} {
         allow read: if isOwner(uid);
         allow write: if false;
       }
 
       /* ── Progress ───────────────────────────────────────────────────────────
-         Server-authoritative only. Client cannot write progress directly. */
+         Server-authoritative. completeWaypoint derives the document id
+         (`t{thread}_w{waypoint}` or `t{thread}_progress`) and the completedAt
+         stamp, so a client cannot un-complete a waypoint by rewriting a row, and
+         cannot claim one it never reached. */
       match /progress/{docId} {
         allow read: if isOwner(uid);
         allow write: if false;
       }
 
-      /* ── Mysteries ──────────────────────────────────────────────────────────
-         Client can update branch choices and local mystery state, but CANNOT mutate ATHAR. */
+      /* ── Mysteries ────────────────────────────────────────────────────────── */
       match /mysteries/{mysteryId} {
         allow read: if isOwner(uid);
 
-        function mysteryShapeOk() {
-          let d = request.resource.data;
-          return d.keys().hasOnly([
-                 'threadId', 'choices', 'currentChapter', 'clues', 'completed',
-                 'progressPercent', 'athar', 'reveal', 'updatedAt'
-               ])
-            && mysteryId.matches('^[0-9]+$')
-            && d.threadId is int && d.threadId > 0
-            && (d.currentChapter == null || d.currentChapter is string)
-            && d.choices is map
-            && d.clues is list
-            && d.completed is list
-            && isCount(d.progressPercent) && d.progressPercent <= 100
-            && isCount(d.athar)
-            && d.reveal is bool
-            && isStamp(d.updatedAt);
-        }
+        allow create: if isOwner(uid) && mysteryShapeOk(mysteryId);
 
-        allow create: if isOwner(uid) && mysteryShapeOk();
         allow update: if isOwner(uid)
-          && mysteryShapeOk()
-          && request.resource.data.threadId == resource.data.threadId
+          && mysteryShapeOk(mysteryId)
+          && request.resource.data.threadId == resource.data.get('threadId', null)
           && request.resource.data.athar == resource.data.get('athar', 0);
+
         allow delete: if false;
       }
 
       /* ── Secrets ────────────────────────────────────────────────────────────
-         Server-authoritative only. Client cannot write secrets directly. */
+         Server-authoritative. The document records that a weaver found a hidden
+         stop, so a client able to write it could claim any secret in the product
+         without finding it. completeSecret checks the answer against its own
+         table first. */
       match /secrets/{secretId} {
         allow read: if isOwner(uid);
         allow write: if false;

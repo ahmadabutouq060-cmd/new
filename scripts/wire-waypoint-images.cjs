@@ -232,8 +232,108 @@ function writeStable(file, body) {
   return true
 }
 
-function loadExactPhotos() {
-  const out = { ...STATIC_EXACT_PHOTO }
+/* Two governorate folders were spelled two ways, and both spellings are on disk
+   holding byte-identical copies of the same files: `ma-an` is what slugifying
+   "Ma'an" by turning the apostrophe into a separator produces, and `al-aqaba` is
+   the pre-rename Aqaba folder. Neither canonical folder is missing anything the
+   alias has, so both are redundant. Every path entering the wiring is normalized
+   through this map, which is what stops a re-run or a fresh download from
+   recreating either spelling. */
+const FOLDER_ALIASES = { "ma-an": "maan", "al-aqaba": "aqaba" }
+
+const PLACE_PATH = /^assets\/places\/([^/]+)\/(.+)$/
+
+const RASTER = /\.(?:jpe?g|png|webp)$/i
+
+function canonicalFolder(folder) {
+  return FOLDER_ALIASES[folder] || folder
+}
+
+function canonicalPath(rel) {
+  if (typeof rel !== "string") return ""
+
+  const m = PLACE_PATH.exec(rel)
+
+  if (!m) return rel
+
+  return "assets/places/" + canonicalFolder(m[1]) + "/" + m[2]
+}
+
+function fileExists(rel) {
+  return !!rel && fs.existsSync(path.join(ROOT, rel.replace(/\//g, path.sep)))
+}
+
+/* Every raster file under assets/places/, grouped by the SHA-256 of its bytes. */
+function indexPlaceBytes() {
+  const byHash = new Map()
+
+  if (!fs.existsSync(PLACES)) return byHash
+
+  for (const folder of fs.readdirSync(PLACES).sort()) {
+    const dir = path.join(PLACES, folder)
+
+    if (!fs.statSync(dir).isDirectory()) continue
+
+    for (const name of fs.readdirSync(dir).sort()) {
+      if (!RASTER.test(name)) continue
+
+      const rel = "assets/places/" + folder + "/" + name
+
+      const h = crypto
+        .createHash("sha256")
+        .update(fs.readFileSync(path.join(ROOT, rel.replace(/\//g, path.sep))))
+        .digest("hex")
+
+      if (!byHash.has(h)) byHash.set(h, [])
+
+      byHash.get(h).push({
+        rel,
+        folder,
+        stem: name.replace(/\.[^.]+$/, ""),
+      })
+    }
+  }
+
+  return byHash
+}
+
+/* A file is unusable as a photograph of the place its name claims when its bytes
+   are shared with a differently-named file. Two names cannot both be right, and
+   nothing in the tree says which one is, so neither may claim to be a photograph
+   — the honest outcome is an illustration. The same basename in two folders that
+   are one governorate spelled two ways is a copy, not a conflict, and is allowed.
+
+   This replaces a hardcoded skip list, which had gone stale: it named eleven
+   .webp files and none of the .jpg files that were actually being assigned, so
+   the duplicates it did not know about reached data.js. */
+function ambiguousFiles(byHash) {
+  const bad = new Set()
+
+  for (const files of byHash.values()) {
+    if (files.length < 2) continue
+
+    for (const a of files) {
+      for (const b of files) {
+        if (a === b) continue
+
+        if (
+          a.stem === b.stem &&
+          canonicalFolder(a.folder) === canonicalFolder(b.folder)
+        )
+          continue
+
+        bad.add(a.rel)
+      }
+    }
+  }
+
+  return bad
+}
+
+/* Places the reviewed photo audit approved: a real photograph whose match to the
+   named stop was checked and did not need a second look. */
+function reviewedManifestPhotos() {
+  const out = []
 
   const manifest = path.join(ROOT, "docs", "naseej-place-image-manifest.json")
 
@@ -255,21 +355,20 @@ function loadExactPhotos() {
           ? item.output.replace(/\.(?:jpe?g|png)$/i, ".webp")
           : ""
 
-      const candidates = [
+      const existing = [
         item.output,
 
         rel,
 
         typeof item.output === "string"
-          ? item.output.replace(/\\.webp$/i, ".jpg")
+          ? item.output.replace(/\.webp$/i, ".jpg")
           : "",
-      ].filter(Boolean)
+      ]
+        .filter(Boolean)
+        .map(canonicalPath)
+        .find(fileExists)
 
-      const existing = candidates.find((candidate) =>
-        fs.existsSync(path.join(ROOT, candidate)),
-      )
-
-      if (existing) out[item.place] = existing
+      if (existing) out.push([item.place, existing])
     }
   } catch (err) {
     console.warn(
@@ -281,7 +380,107 @@ function loadExactPhotos() {
   return out
 }
 
-const EXACT_PHOTO = loadExactPhotos()
+/* Places the raw Wikimedia download log recorded a file for. It carries no
+   review verdict, so it is weaker evidence than the reviewed manifest — but it is
+   real evidence, and ignoring it is what previously made a re-run demote every
+   photograph it had not personally verified. */
+function downloadLogPhotos() {
+  const out = []
+
+  const manifest = path.join(ROOT, "docs", "naseej-commons-image-manifest.json")
+
+  if (!fs.existsSync(manifest)) return out
+
+  try {
+    const doc = JSON.parse(fs.readFileSync(manifest, "utf8"))
+
+    for (const item of doc.results || []) {
+      if (item.status !== "DOWNLOADED" || !item.photo_path) continue
+
+      const existing = canonicalPath(item.photo_path)
+
+      if (fileExists(existing)) out.push([item.place, existing])
+    }
+  } catch (err) {
+    console.warn(
+      "wire-waypoint-images: could not read download log:",
+      err.message,
+    )
+  }
+
+  return out
+}
+
+/* Best evidence first. A hand-verified path outranks a reviewed manifest entry,
+   which outranks the raw download log, which outranks whatever data.js points at
+   right now. Reading the current assignment is what makes a re-run lossless: a
+   photograph that is already wired in and is still unique and still on disk
+   stays a photograph, instead of collapsing to an illustration because this
+   script only knew about the two manifests. Without that source a re-run cut
+   the library from 91 photographs to 32. */
+const PHOTO_SOURCES = ["verified", "reviewed", "downloaded", "current"]
+
+function resolvePhotos(waypoints) {
+  const byHash = indexPlaceBytes()
+
+  const ambiguous = ambiguousFiles(byHash)
+
+  const candidates = new Map()
+
+  const offer = (place, rel, source) => {
+    if (!place || !rel) return
+
+    const rank = PHOTO_SOURCES.indexOf(source)
+
+    if (rank < 0) return
+
+    const canonical = canonicalPath(rel)
+
+    if (!RASTER.test(canonical) || !fileExists(canonical)) return
+
+    if (!candidates.has(place)) candidates.set(place, [])
+
+    const list = candidates.get(place)
+
+    if (list.some((c) => c.path === canonical)) return
+
+    list.push({ path: canonical, source, rank, ambiguous: ambiguous.has(canonical) })
+  }
+
+  for (const [place, rel] of Object.entries(STATIC_EXACT_PHOTO))
+    offer(place, rel, "verified")
+
+  for (const [place, rel] of reviewedManifestPhotos())
+    offer(place, rel, "reviewed")
+
+  for (const [place, rel] of downloadLogPhotos())
+    offer(place, rel, "downloaded")
+
+  for (const wp of waypoints) offer(wp.name, wp.image, "current")
+
+  const out = {}
+
+  const demoted = []
+
+  for (const [place, list] of candidates) {
+    list.sort((a, b) => a.rank - b.rank)
+
+    const usable = list.find((c) => !c.ambiguous)
+
+    if (usable) {
+      out[place] = usable.path
+
+      continue
+    }
+
+    /* Every file offered for this place is a copy of another place's file. The
+       next-best candidate is used if there is one; otherwise the place falls
+       through to an illustration below. */
+    demoted.push({ place, files: list.map((c) => c.path) })
+  }
+
+  return { exact: out, ambiguous, demoted }
+}
 
 const FOLDER_BY_PLACE = {
   "Dana Biosphere Reserve (North Edge)": "tafilah",
@@ -490,6 +689,7 @@ function loadWaypoints() {
         name: wp.name,
         type: wp.type,
         id: wp.id,
+        image: wp.image || null,
       })
     }
   }
@@ -527,7 +727,9 @@ function loadWaypoints() {
 }
 
 function folderFor(wp) {
-  return FOLDER_BY_PLACE[wp.name] || FOLDER_BY_CITY[wp.city] || slug(wp.city)
+  return canonicalFolder(
+    FOLDER_BY_PLACE[wp.name] || FOLDER_BY_CITY[wp.city] || slug(wp.city),
+  )
 }
 
 function patchData(src, assignments) {
@@ -595,7 +797,38 @@ function walkFiles(dir, acc) {
   return acc
 }
 
-function patchThreadCovers(src, library) {
+/* A thread cover is a picture of somewhere the route reaches, so it comes from
+   the thread's own first stop unless the thread already carries a city
+   photograph. It has to be chosen from the images this run just assigned, not
+   from the ones data.js held before: a stop whose photograph was rejected as a
+   copy of another place's file has no photograph now, and a cover that kept the
+   old one would put the same false claim back on the library card.
+
+   The subject names what the file actually shows, which is why a cover taken
+   from a stop is captioned with the stop and a city photograph with the city. */
+function coverFor(t, assignedByName) {
+  const stopImage = assignedByName[t.stop] || null
+
+  const existing = t.image ? canonicalPath(t.image) : ""
+
+  if (existing && !AMBIGUOUS_FILES.has(existing))
+    return {
+      image: existing,
+      subject: existing.indexOf("assets/places/") === 0 ? t.stop : t.city,
+    }
+
+  if (stopImage)
+    return { image: stopImage, subject: t.stop }
+
+  const previousStop = t.stopImage ? canonicalPath(t.stopImage) : ""
+
+  if (previousStop && !AMBIGUOUS_FILES.has(previousStop))
+    return { image: previousStop, subject: t.stop }
+
+  return { image: "", subject: t.stop }
+}
+
+function patchThreadCovers(src, library, assignedByName) {
   let next = src
 
   let patched = 0
@@ -625,21 +858,21 @@ function patchThreadCovers(src, library) {
         "Thread " + t.id + " (" + t.title + ") has no image field",
       )
 
-    const image = t.image || t.stopImage
+    const cover = coverFor(t, assignedByName)
+
+    const image = cover.image
 
     if (!image)
       throw new Error("No image to give thread " + t.id + " (" + t.title + ")")
 
     const illustration = /\.svg$/i.test(image)
 
-    const fromStop = image.indexOf("assets/places/") === 0
-
     const fields =
       ", image: " +
       JSON.stringify(image) +
       (illustration ? ', imageStatus: "placeholder"' : "") +
       ", imageSubject: " +
-      JSON.stringify(fromStop ? t.stop : t.city)
+      JSON.stringify(cover.subject)
 
     const block = found[1].replace(
       /,\s*image:\s*(?:null|'[^']*'|"[^"]*")(?:\s*,\s*imageStatus:\s*(?:'[^']*'|"[^"]*"))?(?:\s*,\s*imageSubject:\s*(?:'[^']*'|"[^"]*"))?/,
@@ -659,6 +892,12 @@ function patchThreadCovers(src, library) {
 }
 
 const { src, waypoints, library } = loadWaypoints()
+
+const {
+  exact: EXACT_PHOTO,
+  ambiguous: AMBIGUOUS_FILES,
+  demoted: DEMOTED_PLACES,
+} = resolvePhotos(waypoints)
 
 const assignments = []
 
@@ -702,11 +941,14 @@ for (const wp of waypoints) {
   })
 }
 
-const threadAssignments = library.filter(function (t) {
-  return !t.image
-})
+const assignedByName = {}
 
-fs.writeFileSync(DATA, patchThreadCovers(patchData(src, assignments), library))
+for (const a of assignments) assignedByName[a.name] = a.image
+
+fs.writeFileSync(
+  DATA,
+  patchThreadCovers(patchData(src, assignments), library, assignedByName),
+)
 
 const byPath = {}
 
@@ -715,9 +957,11 @@ for (const a of assignments) {
 }
 
 const covers = library.map(function (t) {
-  const image = t.image || t.stopImage
+  const cover = coverFor(t, assignedByName)
 
-  const fromStop = !t.image || t.image.indexOf("assets/places/") === 0
+  const image = cover.image
+
+  const fromStop = cover.subject === t.stop
 
   return {
     threadId: t.id,
@@ -730,7 +974,7 @@ const covers = library.map(function (t) {
 
     imageStatus: /\.svg$/i.test(image) ? "placeholder" : "photo",
 
-    subject: fromStop ? t.stop : t.city,
+    subject: cover.subject,
 
     source: fromStop ? "first stop: " + t.stop : "city photograph of " + t.city,
   }
@@ -769,32 +1013,12 @@ writeStable(path.join(PLACES, "photo-manifest.json"), () => ({
 
   placeholders_created: created.length,
 
-  skipped_duplicate_byte_files: [
-    "assets/places/al-aqaba/gulf-of-aqaba-sunset-cruise.webp",
+  skipped_duplicate_byte_files: [...AMBIGUOUS_FILES].sort(),
 
-    "assets/places/al-aqaba/south-beach-camping-snorkeling.webp",
-
-    "assets/places/al-aqaba/wadi-rum-desert-departure.webp",
-
-    "assets/places/dead-sea/lots-pillar-viewpoint.webp",
-
-    "assets/places/dead-sea/mineral-water-float.webp",
-
-    "assets/places/dead-sea/wadi-mujib-siq-trail.webp",
-
-    "assets/places/jerash/beit-jerash-heritage-house.webp",
-
-    "assets/places/jerash/birketein-ancient-reservoir.webp",
-
-    "assets/places/jerash/craft-workshops-quarter.webp",
-
-    "assets/places/jerash/old-city-souk.webp",
-
-    "assets/places/maan/little-petra-siq-al-barid.webp",
-  ],
+  places_with_no_usable_photo: DEMOTED_PLACES.map((d) => d.place).sort(),
 
   skip_reason:
-    "These files share identical bytes with another filename, so they are not unique photographs of distinct places. They are kept on disk and not assigned as the other place.",
+    "These files share identical bytes with a differently-named file, so they cannot each be a photograph of the place their name claims. Nothing in the tree says which of the pair is right, so none of them is assigned as a photograph and the place falls back to a generated SVG illustration. A byte-identical copy of the same basename in a second spelling of one governorate folder (ma-an/ vs maan/, al-aqaba/ vs aqaba/) is not listed: that is a copy, not a conflict.",
 
   exact_photo: EXACT_PHOTO,
 }))
@@ -808,13 +1032,18 @@ fs.writeFileSync(
     CANONICAL_GOVERNORATES.join(", ") +
     ".\n\n" +
     "Dead Sea is an experience grouping, not a governorate. Do not treat `dead-sea/` as a 13th governorate.\n" +
-    "Aqaba is the canonical governorate. `al-aqaba/` is a legacy folder; do not delete it while files are referenced.\n\n" +
+    "Ma'an is `maan/` and Aqaba is `aqaba/`. `ma-an/` and `al-aqaba/` were second spellings of those\n" +
+    "two governorates that duplicated the canonical folder file for file; both are gone, and every\n" +
+    "path entering the wiring is normalized so neither can come back.\n\n" +
     "Photograph files are WebP data named `.webp` — they arrived that way, and Firebase Hosting\n" +
     "serves Content-Type from the extension, so the name has to match the bytes.\n\n" +
     'SVG files are **illustrations**, not photographs. Data marks them with `imageStatus: "placeholder"`\n' +
     "and the media layer captions them as illustrations rather than photographs.\n" +
-    "Files that share identical bytes under different names are not assigned as unique place photos.\n\n" +
-    "A thread cover comes from that thread's first stop, so it is a place the route reaches.\n" +
+    "A file whose bytes are shared with a differently-named file is not assigned as a photograph of\n" +
+    "either name: two names cannot both be right, and nothing says which is. Those places fall back\n" +
+    "to an illustration. `photo-manifest.json` lists them under `skipped_duplicate_byte_files`.\n\n" +
+    "A thread cover comes from that thread's first stop, so it is a place the route reaches, unless\n" +
+    "the thread already carries a photograph of its city.\n" +
     "`_incoming/REAL-PHOTOS-TODO.csv` lists the stops still waiting on a real photograph.\n",
 )
 
@@ -873,3 +1102,19 @@ console.log(
 const dups = Object.entries(byPath).filter(([, names]) => names.length > 1)
 
 console.log("duplicate waypoint paths:", dups.length ? dups : "none")
+
+console.log(
+  "files sharing bytes with a differently-named file:",
+  AMBIGUOUS_FILES.size,
+)
+
+if (DEMOTED_PLACES.length) {
+  console.log(
+    "\nthese places have no photograph that is theirs alone, so they are drawn as",
+  )
+
+  console.log("illustrations rather than captioned as photographs of themselves:")
+
+  for (const d of DEMOTED_PLACES)
+    console.log("  " + d.place.padEnd(34) + d.files.join("  ==  "))
+}

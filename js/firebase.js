@@ -714,7 +714,7 @@
 
           bundle.functions = fnSdk.getFunctions(bundle.app)
 
-          bundle.callables = {
+bundle.callables = {
             completeChallenge: fnSdk.httpsCallable(
               bundle.functions,
               "completeChallenge",
@@ -723,6 +723,11 @@
             completeSecret: fnSdk.httpsCallable(
               bundle.functions,
               "completeSecret",
+            ),
+
+            completeWaypoint: fnSdk.httpsCallable(
+              bundle.functions,
+              "completeWaypoint",
             ),
 
             initializeAccount: fnSdk.httpsCallable(
@@ -782,6 +787,26 @@
 
         .catch(function (err) {
           return failed(err, "Complete secret")
+        })
+    })
+  }
+
+  function completeWaypointCall(payload) {
+    return functions_().then(function (bundle) {
+      if (!bundle || !bundle.enabled || !bundle.callables) {
+        return { status: "error", message: "Firebase functions unavailable." }
+      }
+
+      return bundle.callables
+
+        .completeWaypoint(payload)
+
+        .then(function (res) {
+          return res.data
+        })
+
+        .catch(function (err) {
+          return failed(err, "Complete waypoint")
         })
     })
   }
@@ -952,6 +977,16 @@
     })
   }
 
+/* Only wishlist survives the rules on this path.
+
+     displayName, email and photoURL are identity, and they belong to the Google
+     account rather than to the weaver: the server takes them from initializeAccount
+     so that a stale client cannot rename itself. memberSince, verified, badges,
+     redemptions and atharBase are server-owned for the same reasons as the
+     balances. Passing them here produced a payload the rules reject outright, so
+     the function now sends the one field it is actually allowed to send. Nothing
+     in the frontend calls this — auth.js uses initializeAccountCall — but it is
+     still exported, and an exported function that quietly fails is a trap. */
   function saveUserProfile(uid, data) {
     if (!uid || !data)
       return Promise.resolve({ status: "error", message: "Missing weaver." })
@@ -965,34 +1000,13 @@
       }
 
       const payload = forFirestore({
-        displayName: data.displayName || "",
-
-        email: data.email || "",
-
-        photoURL: data.photoURL || "",
-
-        memberSince: data.memberSince || null,
-
-        verified: !!data.verified,
-
-        badges: Array.isArray(data.badges) ? data.badges : [],
-
         wishlist:
           data.wishlist && typeof data.wishlist === "object"
             ? data.wishlist
             : {},
 
-        redemptions:
-          data.redemptions && typeof data.redemptions === "object"
-            ? data.redemptions
-            : {},
-
-        atharBase: isCount(data.atharBase) ? data.atharBase : null,
-
         updatedAt: now(),
       })
-
-      if (!isCount(data.atharBase)) delete payload.atharBase
 
       return withRetry(function () {
         return bundle.firestore.setDoc(userRef(bundle, uid), payload, {
@@ -1090,157 +1104,69 @@
     })
   }
 
-  function awardAthar(uid, reward) {
-    if (!uid || !reward || !reward.uniqueKey) {
-      return Promise.resolve({ status: "error", message: "Nothing to award." })
-    }
+/* Rewards are granted by Cloud Functions, never by this file.
 
-    return db_().then(function (bundle) {
-      if (!bundle || !bundle.enabled || !bundle.db) {
-        return {
-          status: "error",
-          message: (bundle && bundle.reason) || "Firestore is unavailable.",
-        }
-      }
+     The client used to run the whole award itself: a Firestore transaction that
+     wrote users/{uid}/rewards/{uniqueKey} and then incremented athar and
+     atharPeak on the user document. firestore.rules denies both — rewards are
+     server-only, and a user update may touch wishlist and updatedAt and nothing
+     else — so every one of those transactions failed with permission-denied,
+     and the balance it was maintaining never existed remotely.
 
-      const key = String(reward.uniqueKey)
+     Worse, it should have failed. A client that can name its own uniqueKey and
+     its own amount is a client that can invent a balance, and Admin writes made
+     by a callable bypass the rules entirely, so a `forged` reward would have
+     been indistinguishable from a real one. The server validates the answer
+     against its own table in functions/lib/validation.js and keys the reward
+     document on the challenge, which is what makes the payout idempotent.
 
-      const doc = forFirestore({
-        uniqueKey: key,
-
-        entryKey: String(reward.entryKey || key),
-
-        type: String(reward.type || ""),
-
-        source: String(reward.source || ""),
-
-        threadId: reward.threadId == null ? null : reward.threadId,
-
-        waypointId: reward.waypointId == null ? null : reward.waypointId,
-
-        challengeId:
-          reward.challengeId == null ? null : String(reward.challengeId),
-
-        clueId: reward.clueId == null ? null : reward.clueId,
-
-        chapterKey:
-          reward.chapterKey == null ? null : String(reward.chapterKey),
-
-        secretId: reward.secretId == null ? null : String(reward.secretId),
-
-        amount: reward.amount,
-
-        earnedAt: now(),
-      })
-
-      return withRetry(function () {
-        return bundle.firestore.runTransaction(bundle.db, function (tx) {
-          const rewardPath = subRef(bundle, uid, "rewards", key)
-
-          return tx.get(rewardPath).then(function (snap) {
-            if (snap.exists()) return { granted: false, reason: "already" }
-
-            const profilePath = userRef(bundle, uid)
-
-            return tx.get(profilePath).then(function (snap2) {
-              const current = (snap2.exists() && snap2.data()) || {}
-
-              const before = isCount(current.athar) ? current.athar : 0
-
-              const peak = isCount(current.atharPeak) ? current.atharPeak : 0
-
-              const after = before + (isCount(doc.amount) ? doc.amount : 0)
-
-              tx.set(rewardPath, doc)
-
-              tx.set(
-                profilePath,
-                {
-                  athar: after,
-                  atharPeak: Math.max(peak, after),
-                  updatedAt: now(),
-                },
-                { merge: true },
-              )
-
-              return { granted: true, amount: doc.amount, athar: after }
-            })
-          })
-        })
-      })
-        .then(function (result) {
-          return result.granted
-            ? {
-                status: "success",
-                awarded: true,
-                amount: result.amount,
-                athar: result.athar,
-              }
-            : { status: "success", awarded: false, reason: result.reason }
-        })
-        .catch(function (err) {
-          return failed(err, "A reward")
-        })
+     So there is no client-side award path left to keep. Callers go through
+     completeChallengeCall / completeSecretCall, and this refuses rather than
+     silently writing something the rules will reject. */
+  function awardAthar() {
+    return Promise.resolve({
+      status: "error",
+      code: "server_authoritative",
+      message:
+        "Rewards are granted by the server. Use completeChallengeCall or completeSecretCall.",
     })
   }
 
+  /* A completed waypoint is a fact about the weaver, so it is written by the
+     server too — see completeWaypoint in functions/index.js, which derives the
+     progress document id itself. The client's row id (row.id) is no longer sent
+     as an authority for anything. */
   function writeProgressRow(bundle, uid, row) {
     if (!row || !row.threadId || row.completed !== true) {
       return Promise.resolve({ status: "success", skipped: true })
     }
 
-    const id = String(row.id)
-
-    return withRetry(function () {
-      return bundle.firestore.setDoc(
-        subRef(bundle, uid, "progress", id),
-        forFirestore({
-          threadId: row.threadId,
-
-          waypointId: row.waypointId == null ? null : row.waypointId,
-
-          completed: true,
-
-          completedAt: isCount(row.completedAt) ? row.completedAt : now(),
-
-          metadata: forFirestore(row.metadata || {}),
-
-          updatedAt: now(),
-        }),
-        { merge: true },
-      )
+    return completeWaypointCall({
+      threadId: row.threadId,
+      waypointId: row.waypointId == null ? null : row.waypointId,
+    }).then(function (result) {
+      return result && result.status === "success"
+        ? result
+        : { status: "error", message: (result && result.message) || "A waypoint" }
     })
-      .then(function () {
-        return { status: "success" }
-      })
-      .catch(function (err) {
-        return failed(err, "A waypoint")
-      })
   }
 
   function completeWaypoint(uid, row) {
     if (!uid) return Promise.resolve({ status: "error", message: "No weaver." })
 
-    return db_().then(function (bundle) {
-      if (!bundle || !bundle.enabled || !bundle.db)
-        return { status: "error", message: "Firestore is unavailable." }
-
-      return writeProgressRow(bundle, uid, row)
-    })
+    return writeProgressRow(null, uid, row)
   }
 
   function completeChallenge(uid, row) {
     if (!uid) return Promise.resolve({ status: "error", message: "No weaver." })
 
-    return db_().then(function (bundle) {
-      if (!bundle || !bundle.enabled || !bundle.db)
-        return { status: "error", message: "Firestore is unavailable." }
-
-      return writeProgressRow(bundle, uid, row).then(function (result) {
-        if (!row || !row.reward) return result
-
-        return awardAthar(uid, row.reward)
-      })
+    /* The reward object on the row is the client's own claim about what the
+       puzzle was worth. It is deliberately not forwarded: the server prices the
+       challenge from its own table. */
+    return completeChallengeCall({
+      threadId: row && row.threadId,
+      waypointId: row && row.waypointId,
+      optionId: row && (row.optionId || (row.answer && row.answer)),
     })
   }
 
@@ -1288,39 +1214,22 @@
     })
   }
 
+/* secrets/{threadId}_{secretId} is server-only in firestore.rules, and it has to
+     be: the document records that a weaver found a hidden stop, so a client able
+     to write it could claim any secret it had not found. completeSecret in
+     functions/index.js checks the answer against its own table first and keys the
+     document on the thread and secret. So the client asks rather than asserts. */
   function saveSecretCompletion(uid, secretId, data) {
     if (!uid || !secretId)
       return Promise.resolve({ status: "error", message: "No weaver." })
 
-    return db_().then(function (bundle) {
-      if (!bundle || !bundle.enabled || !bundle.db)
-        return { status: "error", message: "Firestore is unavailable." }
+    if (!data || !data.threadId)
+      return Promise.resolve({ status: "error", message: "No thread." })
 
-      return withRetry(function () {
-        return bundle.firestore.setDoc(
-          subRef(bundle, uid, "secrets", secretId),
-          forFirestore({
-            threadId: data.threadId,
-
-            completed: !!data.completed,
-
-            rewardGranted: !!data.rewardGranted,
-
-            optionId: data.optionId == null ? null : String(data.optionId),
-
-            completedAt: data.completedAt == null ? null : data.completedAt,
-
-            updatedAt: now(),
-          }),
-          { merge: true },
-        )
-      })
-        .then(function () {
-          return { status: "success" }
-        })
-        .catch(function (err) {
-          return failed(err, "A secret")
-        })
+    return completeSecretCall({
+      threadId: data.threadId,
+      secretId: secretId,
+      optionId: data.optionId == null ? null : String(data.optionId),
     })
   }
 
@@ -1328,7 +1237,7 @@
     if (!uid || !bundle)
       return Promise.resolve({ status: "error", message: "No weaver." })
 
-    return db_().then(function (bundleRef) {
+return db_().then(function (bundleRef) {
       if (!bundleRef || !bundleRef.enabled || !bundleRef.db) {
         return {
           status: "error",
@@ -1341,118 +1250,58 @@
 
       const fs = bundleRef.firestore
 
-      const earned =
-        isCount(bundle.atharBase) && isCount(bundle.ledgerAthar)
-          ? bundle.atharBase + bundle.ledgerAthar
-          : null
+      /* This used to push the whole account: the full profile document, every
+         missing reward, every completed waypoint and every secret, as one
+         "save". firestore.rules allows a client to update exactly two fields on
+         users/{uid} — wishlist and updatedAt — and nothing else, so that save
+         could only ever have failed with permission-denied, on a sign-in.
 
-      const profile = forFirestore({
-        displayName: (bundle.profile && bundle.profile.displayName) || "",
+         What each of those writes was really asking for:
 
-        email: (bundle.profile && bundle.profile.email) || "",
+           badges, redemptions, atharBase, athar, atharPeak
+             Server-owned. Paid by completeChallenge / completeSecret against the
+             tables in functions/lib. A client that may write these is a client
+             that may invent its own balance.
+           rewards/*
+             Server-owned, for the same reason, and the reward document id is
+             what makes a payout idempotent. A client writing it would break that.
+           progress/*, secrets/*
+             Server-owned statements of fact about what the weaver solved. The
+             server already derives both document ids itself.
+           mysteries/*
+             The one collection the rules do let the client own, because a
+             branch choice is the weaver's own reading rather than a scored fact.
+             Still pushed here.
 
-        photoURL: (bundle.profile && bundle.profile.photoURL) || "",
-
-        memberSince: (bundle.profile && bundle.profile.memberSince) || null,
-
-        verified: !!(bundle.profile && bundle.profile.verified),
-
-        badges: Array.isArray(bundle.badges) ? bundle.badges : [],
-
+         So the account document is left alone here — identity goes through
+         initializeAccountCall from auth.js, and the numbers come back down
+         through loadWeaver. Locally earned athar still shows in the session; it
+         simply is not something the client gets to publish. */
+      const wishlist = forFirestore({
         wishlist: bundle.wishlist || {},
-
-        redemptions: bundle.redemptions || {},
-
-        atharBase: isCount(bundle.atharBase) ? bundle.atharBase : 0,
-
-        athar: isCount(earned) ? earned : null,
-
-        atharPeak: Math.max(
-          isCount(bundle.atharPeak) ? bundle.atharPeak : 0,
-
-          isCount(earned) ? earned : 0,
-        ),
-
         updatedAt: now(),
       })
 
-      if (!isCount(earned)) delete profile.athar
+      const writes = [
+        withRetry(function () {
+          return fs.setDoc(userRef(bundleRef, uid), wishlist, { merge: true })
+        }),
+      ]
 
-      return withRetry(function () {
-        return fs.getDocs(subCollection(bundleRef, uid, "rewards"))
-      })
-        .then(function (snap) {
-          const held = {}
+      for (let i = 0; i < (bundle.mysteries || []).length; i++) {
+        const m = bundle.mysteries[i]
 
-          snap.docs.forEach(function (d) {
-            held[d.id] = true
-          })
+        if (m && m.id) writes.push(saveMysteryState(uid, m.id, m))
+      }
 
-          const missing = []
+      return Promise.all(writes)
+        .then(function () {
+          emit("saved", "")
 
-          for (let i = 0; i < (bundle.rewards || []).length; i++) {
-            const row = bundle.rewards[i]
-
-            if (!row || !row.uniqueKey || held[row.uniqueKey]) continue
-
-            held[row.uniqueKey] = true
-
-            missing.push(row)
-          }
-
-          return missing
-            .reduce(function (chain, row) {
-              return chain.then(function () {
-                return awardAthar(uid, row)
-              })
-            }, Promise.resolve())
-            .then(function (grants) {
-              const granted = grants.filter(function (g) {
-                return g && g.awarded
-              })
-
-              const errors = grants.filter(function (g) {
-                return g && g.status === "error"
-              })
-
-              const writes = [
-                bundleRef.firestore.setDoc(userRef(bundleRef, uid), profile, {
-                  merge: true,
-                }),
-              ]
-
-              for (let i = 0; i < (bundle.progress || []).length; i++) {
-                writes.push(
-                  writeProgressRow(bundleRef, uid, bundle.progress[i]),
-                )
-              }
-
-              for (let i = 0; i < (bundle.mysteries || []).length; i++) {
-                const m = bundle.mysteries[i]
-
-                writes.push(saveMysteryState(uid, m.id, m))
-              }
-
-              for (let i = 0; i < (bundle.secrets || []).length; i++) {
-                const s = bundle.secrets[i]
-
-                writes.push(saveSecretCompletion(uid, s.id, s))
-              }
-
-              return Promise.all(writes).then(function () {
-                if (errors.length) {
-                  return {
-                    status: "error",
-                    granted: granted.length,
-                    message: errors[0].message,
-                  }
-                }
-
-                emit("saved", "")
-
-                return { status: "success", granted: granted.length }
-              })
-            })
+          /* `granted` used to count rewards this call invented. There are none
+             now, and reporting a number here would tell the UI that a remote
+             save happened when only a wishlist was written. */
+          return { status: "success", granted: 0, synced: ["wishlist"] }
         })
         .catch(function (err) {
           return failed(err, "Your progress")
@@ -1645,7 +1494,9 @@
 
     completeChallengeCall: completeChallengeCall,
 
-    completeSecretCall: completeSecretCall,
+completeSecretCall: completeSecretCall,
+
+    completeWaypointCall: completeWaypointCall,
 
     initializeAccountCall: initializeAccountCall,
 

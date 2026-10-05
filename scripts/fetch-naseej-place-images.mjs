@@ -227,6 +227,26 @@ function slug(s = "") {
   return norm(s).replace(/ +/g, "-").replace(/-+/g, "-").slice(0, 90) || "place"
 }
 
+/* The destination folder for a governorate.
+
+   slug() cannot be trusted for this on its own. It turns every run of
+   non-alphanumerics into a separator, so "Ma'an" became `ma-an` — a folder that
+   duplicated `maan/` file for file and split Ma'an photographs across two
+   directories. Both spellings that were ever written are mapped to the one
+   canonical folder here, so this script writes `maan/` and `aqaba/` and cannot
+   recreate `ma-an/` or the pre-rename `al-aqaba/`. */
+const GOVERNORATE_FOLDER = {
+  "ma-an": "maan",
+  "al-aqaba": "aqaba",
+}
+
+function governorateFolder(governorate) {
+  const s = slug(governorate)
+
+  return GOVERNORATE_FOLDER[s] || s
+}
+
+
 function tokens(s = "") {
   return norm(s)
     .split(/\\s+/)
@@ -402,7 +422,7 @@ async function runOne(i) {
 
   const r = await resolveCommons(item)
 
-  const rel = `assets/places/${slug(item.governorate)}/${slug(item.place)}.jpg`
+  const rel = `assets/places/${governorateFolder(item.governorate)}/${slug(item.place)}.jpg`
 
   const abs = path.join(ROOT, rel)
 

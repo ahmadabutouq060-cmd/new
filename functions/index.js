@@ -9,7 +9,7 @@ if (!admin.apps.length) {
 const db = admin.firestore();
 const FieldValue = admin.firestore.FieldValue;
 
-const { ATHAR, REWARD_SOURCES, rewardKey } = require('./lib/schema');
+const { ATHAR, REWARD_SOURCES, docSafe, rewardKey } = require('./lib/schema');
 const { validateChallenge } = require('./lib/validation');
 const { validateSecret } = require('./lib/secrets');
 
@@ -88,7 +88,11 @@ exports.completeChallenge = functions.https.onCall(async (data, context) => {
   const threadId = Number(data.threadId);
   const waypointId = Number(data.waypointId);
   const challengeId = data.challengeId == null ? null : String(data.challengeId);
-  const answer = data.answer;
+  /* js/data.js sends `optionId` — the id of the option the weaver tapped — and
+     completeSecret below already accepts `optionId`. Reading `data.answer`
+     alone meant every call arrived with answer === undefined and was denied as
+     `invalid_answer`, so no challenge reward was ever granted. Accept both. */
+  const answer = data.optionId != null ? data.optionId : data.answer;
 
   const v = validateChallenge({ threadId, waypointId, challengeId, answer });
   if (!v.ok) {
@@ -136,15 +140,22 @@ exports.completeChallenge = functions.https.onCall(async (data, context) => {
 exports.completeWaypoint = functions.https.onCall(async (data, context) => {
   const uid = requireAuth(context);
   const threadId = Number(data.threadId);
-  const waypointId = Number(data.waypointId);
+  /* Number(undefined) is NaN and NaN == null is false, so a missing waypointId
+     would fall through to the per-waypoint branch and be filed under 'w0'.
+     Coerce first and keep null, the way progressRows() in js/data.js spells it. */
+  const waypointId = data.waypointId == null ? null : Number(data.waypointId);
 
-  // Waypoint completion requires validation - for now, only allow if called after challenge logic; but we keep simple: trust is server-authoritative for reward
-  const rewardKeyPart = String(waypointId);
-  const rewardDoc = buildRewardDoc({ threadId, kind: 'challenge', key: rewardKeyPart });
-  // If this is just progress without reward, still allow minimal - but spec says server validates
-
-  // For the hero challenge flow, we expect completeChallenge to grant reward; this is a placeholder for waypoint-level rewards if needed
-  const progressId = 	_w;
+  /* No reward is granted here. completeChallenge is the only path that pays, and
+     it validates the answer server-side; this records progress so a client that
+     solved the answer offline still keeps its row. The rewardDoc that used to be
+     built above was discarded without being read. */
+  // The document id is the same one progressRows() in js/data.js produces, so the
+  // server writer and the client's row addressing name one document rather than
+  // two. Anything else would orphan the client's row on every sync.
+  const progressId =
+    waypointId == null
+      ? 't' + threadId + '_progress'
+      : 't' + threadId + '_w' + docSafe(waypointId);
   const progressRef = db.collection('users').doc(uid).collection('progress').doc(progressId);
   const existing = await progressRef.get();
   if (existing.exists) {
@@ -182,7 +193,8 @@ exports.completeSecret = functions.https.onCall(async (data, context) => {
   const uniqueKey = rewardDoc.uniqueKey;
   const userRef = db.collection('users').doc(uid);
   const rewardRef = userRef.collection('rewards').doc(uniqueKey);
-  const secretRef = userRef.collection('secrets').doc(${threadId}_);
+  // Same key shape lib/secrets.js validates against: '<threadId>_<secretId>'.
+  const secretRef = userRef.collection('secrets').doc(threadId + '_' + secretId);
 
   try {
     const result = await db.runTransaction(async (tx) => {
@@ -268,6 +280,69 @@ exports.saveMysteryState = functions.https.onCall(async (data, context) => {
     reveal: !!state.reveal,
     updatedAt: FieldValue.serverTimestamp(),
   };
-  await mysteryRef.set(payload, { merge: true });
+await mysteryRef.set(payload, { merge: true });
   return { status: 'success' };
+});
+
+/* Create the weaver's own document on first sign-in.
+   js/auth.js calls this the moment an account attaches, and firestore.rules
+   closes `create` on users/{uid} to the server, so this is the only path by
+   which the document can come into existence at all.
+
+   It takes identity and nothing else. The numbers are deliberately absent: athar
+   and atharPeak are written by the reward transactions above, so a client that
+   sent them here would be handing the server a balance to trust, which is the
+   thing the rules exist to prevent. wishlist is left at {} rather than taken
+   from the request for the same reason — js/firebase.js owns that write and the
+   rules allow it. */
+exports.initializeAccount = functions.https.onCall(async (data, context) => {
+  const uid = requireAuth(context);
+
+  const text = (v, max) => {
+    if (typeof v !== 'string') return '';
+    return v.slice(0, max);
+  };
+
+  const userRef = db.collection('users').doc(uid);
+
+  try {
+    const created = await userRef.get();
+    if (created.exists) {
+      /* A second sign-in must not roll identity backwards, so only fill in a
+         field the caller left unset rather than overwriting what is stored. */
+      const patch = {};
+      const current = created.data() || {};
+      const incoming = {
+        displayName: text(data && data.displayName, 120),
+        email: text(data && data.email, 200),
+        photoURL: text(data && data.photoURL, 500),
+      };
+      for (const field of Object.keys(incoming)) {
+        if (!current[field] && incoming[field]) patch[field] = incoming[field];
+      }
+      if (Object.keys(patch).length) {
+        patch.updatedAt = FieldValue.serverTimestamp();
+        await userRef.set(patch, { merge: true });
+        return { status: 'success', created: false, updated: true };
+      }
+      return { status: 'success', created: false, updated: false };
+    }
+
+    await userRef.set({
+      displayName: text(data && data.displayName, 120),
+      email: text(data && data.email, 200),
+      photoURL: text(data && data.photoURL, 500),
+      memberSince: nowMillis(),
+      verified: false,
+      badges: [],
+      wishlist: {},
+      redemptions: {},
+      atharBase: 0,
+      atharPeak: 0,
+      updatedAt: FieldValue.serverTimestamp(),
+    });
+    return { status: 'success', created: true };
+  } catch (err) {
+    throw new functions.https.HttpsError('internal', err.message || 'Failed');
+  }
 });
